@@ -1,0 +1,30 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+
+public class HashGenerator {
+	private MessageDigest generator;
+	
+	public HashGenerator()
+	{
+		
+		
+		try {
+			generator = MessageDigest.getInstance("SHA-256");
+		} 
+		catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			System.out.println("You need to fix the hash definition!");
+			e.printStackTrace();
+		}
+	}
+	
+	public HashID Hashify(byte[] input)
+	{
+		String out = generator.digest(input).toString();
+		System.out.println(out);
+		return new HashID (out);
+	}
+	
+
+}

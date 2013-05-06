@@ -1,0 +1,16 @@
+
+import  java.math.BigInteger;
+
+public class HashID implements Comparable<HashID>{
+	private BigInteger myID;
+	@Override
+	public int compareTo(HashID A) {
+		// TODO Auto-generated method stub
+		return myID.compareTo(A.getBigInt());
+	}
+	
+	public BigInteger getBigInt()
+	{
+		return myID;
+	}	
+}

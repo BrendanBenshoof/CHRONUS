@@ -1,0 +1,28 @@
+
+import  java.math.BigInteger;
+
+public class HashID implements Comparable<HashID>{
+	private BigInteger myID;
+	
+	public HashID(BigInteger hashval) {
+		// TODO Auto-generated constructor stub
+		myID = hashval;
+	}
+
+	@Override
+	public int compareTo(HashID A) {
+		// TODO Auto-generated method stub
+		return myID.compareTo(A.getBigInt());
+	}
+	
+	public BigInteger getBigInt()
+	{
+		return myID;
+	}
+	
+	public String toString()
+	{
+		System.out.println( Character.MAX_RADIX);
+		return myID.toString(64);		
+	}
+}

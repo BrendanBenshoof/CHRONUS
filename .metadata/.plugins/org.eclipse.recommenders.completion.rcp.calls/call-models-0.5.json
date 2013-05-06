@@ -1,0 +1,12 @@
+{
+  "C:\\Users\\Rhapso\\Documents\\GitHub\\CHRONUS\\CHRONUS\\src": {
+    "location": "C:\\Users\\Rhapso\\Documents\\GitHub\\CHRONUS\\CHRONUS\\src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027C:\\Users\\Rhapso\\Documents\\GitHub\\CHRONUS\\CHRONUS\\src\u0027. Skipped."
+  },
+  "C:\\Program Files (x86)\\Java\\jre7\\lib\\rt.jar": {
+    "coordinate": "jre:jre:zip:call:1.0.0",
+    "location": "C:\\Program Files (x86)\\Java\\jre7\\lib\\rt.jar",
+    "status": "RESOLVED"
+  }
+}

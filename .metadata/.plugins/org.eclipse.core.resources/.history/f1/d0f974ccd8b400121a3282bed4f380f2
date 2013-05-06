@@ -1,0 +1,30 @@
+
+import  java.math.BigInteger;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+
+
+public class HashID implements Comparable<HashID>{
+	private BigInteger myID;
+	
+	public HashID(BigInteger hashval) {
+		// TODO Auto-generated constructor stub
+		myID = hashval;
+	}
+
+	@Override
+	public int compareTo(HashID A) {
+		// TODO Auto-generated method stub
+		return myID.compareTo(A.getBigInt());
+	}
+	
+	public BigInteger getBigInt()
+	{
+		return myID;
+	}
+	
+	public String toString()
+	{
+		return Base64.encode(myID);		
+	}
+}

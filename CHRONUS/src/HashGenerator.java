@@ -28,7 +28,7 @@ public class HashGenerator {
 		
 		
 		try {
-			generator = MessageDigest.getInstance("SHA-512");
+			generator = MessageDigest.getInstance(Globals.hashType);
 		} 
 		catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block

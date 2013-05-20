@@ -22,4 +22,10 @@ public class MessageHandler implements Runnable {
 
 	}
 
+	
+	
+	class FingerTable{
+		int degree = Globals.hashDegree;
+		Node[] table;
+	}
 }

@@ -6,7 +6,7 @@ public class ConnectionManager implements Runnable {
 	
 	public static ConnectionManager getInstance()
 	{
-		if(singleton==null) {
+		if(singleton!=null) {
 			return singleton;
 		}
 		else {

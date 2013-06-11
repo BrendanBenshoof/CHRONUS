@@ -1,3 +1,5 @@
+
+
 #pulled from Benjamin Evans's implementation "pyChordDHT"
 
 ### TODO ###
@@ -44,6 +46,11 @@ successorList = []
 sucListLock = Lock()
 successorOfflineAttempts = 0
 
+#services
+services =  {}
+
+
 #Network connections
 servCtrl = None
 servRelay = None
+

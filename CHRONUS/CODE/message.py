@@ -11,12 +11,14 @@ def deserialize(in_string):
 class Message(object):
 	def __init__(self):
 		self.contents = {}
-		self.service = "null"
+		self.service = None
 		self.messagetype = 0
 		self.destination_node = 0
 		self.origin_node = 0
 
 	def serialize(self):
+		#it would be great if this was encrypted
+		#would could also fix this with using a public-key algorithim for p2p communication
 		return pickle.dumps(self)
 
 	def add_content(self, key, data):

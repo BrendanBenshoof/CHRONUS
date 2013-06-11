@@ -1,5 +1,5 @@
 import hashlib
-
+import random
 class Key():
     def __init__(self, key):
         self.key = key
@@ -76,6 +76,9 @@ def hash_str(strToHash):
 
 def generate_key_with_index(index):
     return Key(hex(0x01 << index).replace("L", ""))
+
+def generate_random_key():
+    return Key(hex(random.getrandbits(128)).replace("L", ""))
 
 
 def generate_lookup_key_with_index(thisIndex, indexOfKey):

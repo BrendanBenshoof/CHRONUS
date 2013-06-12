@@ -1,7 +1,4 @@
-
-
 #pulled from Benjamin Evans's implementation "pyChordDHT"
-
 ### TODO ###
 # Finish stabilization
 # hash math - some indexes are wrong <- I think this is fixed
@@ -10,8 +7,9 @@
 # Not closing connection properly - why?
 ############
 
-
 class Node():
+    """This class is primarily for holding info on 
+    other nodes in the network"""
     ID = 0
     IPAddr = getHostIP()
     ctrlPort = 7228

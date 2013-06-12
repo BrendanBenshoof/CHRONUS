@@ -1,0 +1,11 @@
+#network library requirements
+
+#starts and listens (ensure axcessible to internet) on a port
+
+def sent_to_node(raw_serialized_message, from_node)
+    #string, node object (see node.py)
+
+def send_message(raw_serialized_message, from_node)
+    #string, node object (see node.py)
+
+def start_server(listen):

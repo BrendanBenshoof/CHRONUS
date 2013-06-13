@@ -35,7 +35,7 @@ class Message(object):
 
 class Database_Message(Message):
     def __init__(self, dest, origin_node, file_id):
-        super(Message, self)
+        super(Database_Message, self)
         self.destination_node = dest
         self.service = "DATABASE"
 

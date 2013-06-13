@@ -29,24 +29,37 @@ VERBOSE = True
 
 # Class
 class Node():
-    """This class is primarily for holding info on 
-    other nodes in the network"""
+    """This class represents a node in the Chord Network"""
     ID = 0
     IPAddr = getHostIP()
     ctrlPort = 7228
+    #this seems like a security concern
+    predecessor = None
+    successor = None
+    finger = []
+
+    def __init__(self):
+        for i in range(0,KEY_SIZE):
+            self.finger.append(None)
 
     def __eq__(self, other):
-        if (self.ID == other.ID and self.IPAddr == other.IPAddr and self.ctrlPort
-            == other.ctrlPort):
-
+        if (self.ID == other.ID and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
             return True
         return False
 
     def find_successor(self, key):
-        pass
+        if between(key, self, self.successor):
+            return self.successor
+        else:
+            closest = closest_preceding_node(key)
+            #closest =  actual node
+            return closest.find_successor(key)
 
     def closest_preceding_node(self,key):
-        pass
+
+        for i in reversed(range(0, KEY_SIZE)):  # or should it be range(KEY_SIZE - 1, -1, -1))
+            finger[i] #Stoica's paper indexes at 1, not 0
+
     
     # create a new Chord ring.
     def create(self):
@@ -69,6 +82,22 @@ class Node():
     
     def update_finger_table(self):
         pass
+
+    #returns true if key \in (begin, end]
+    #due to nature of the ring, this is not trivial
+    #the snipped in the string below is not exactly the same
+    """
+    ;; reports true if the node is somewhere in the arc of the chord ring spanning nodes x to y, inclusive
+    to-report nodeInRange [low high test ]
+        let delta (high - low) mod  (2 ^ Hash_Degree) 
+    
+        report (test - low) mod  (2 ^ Hash_Degree) < delta
+    end
+    """
+
+    def between(self,key,begin, end):
+        pass
+    
 
    
 
@@ -115,7 +144,5 @@ def send_message(msg, destination):
 
 # called when node is passed a message
 def handle_message(msg, origin):
-    
-
--
+    pass
 # Chord Functions

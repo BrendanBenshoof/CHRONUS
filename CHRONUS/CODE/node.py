@@ -39,6 +39,7 @@ class Node():
     finger = []
 
     def __init__(self):
+        thisNode.ID = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
         for i in range(0,KEY_SIZE):
             self.finger.append(None)
 
@@ -74,6 +75,7 @@ class Node():
     # this we need to modify for asynchronus stuff 
     def join(self, other):
         self.predecessor = None
+        self.successor = other.find_successor(self.ID)
     
     def stabalize(self):
         pass

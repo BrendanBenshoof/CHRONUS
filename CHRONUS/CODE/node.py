@@ -42,18 +42,35 @@ class Node():
             return True
         return False
 
-    def find_successor(self, id):
+    def find_successor(self, key):
         pass
 
-    def closest_preceding_node(self,id):
+    def closest_preceding_node(self,key):
         pass
-
+    
+    # create a new Chord ring.
+    def create(self):
+        pass
+    
+    def join(self, other):
+        pass
+    
+    def stabalize(self):
+        pass
+    
+    def notify(self,other):
+        pass
+    
+    def fix_fingers(self):
+        pass
+    
+    def check_predecessor(self):
+        pass
+    
     def update_finger_table(self):
         pass
 
-    def notify(self):
-        pass
-
+   
 
 ####################### Globals #######################
 

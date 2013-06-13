@@ -48,7 +48,7 @@ class Node():
         return False
 
     def find_successor(self, key):
-        if between(key, self, self.successor):
+        if between(key, self.ID, self.successor.ID):
             return self.successor
         else:
             closest = closest_preceding_node(key)
@@ -56,9 +56,11 @@ class Node():
             return closest.find_successor(key)
 
     def closest_preceding_node(self,key):
-
         for i in reversed(range(0, KEY_SIZE)):  # or should it be range(KEY_SIZE - 1, -1, -1))
-            finger[i] #Stoica's paper indexes at 1, not 0
+            if finger[i] != None: 
+                if between(self.finger[i].ID, self.ID, key): #Stoica's paper indexes at 1, not 0
+                    return finger[i]
+        return self
 
     
     # create a new Chord ring.

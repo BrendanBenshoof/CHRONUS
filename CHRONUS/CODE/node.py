@@ -24,7 +24,7 @@ from net_server import *
 
 # Debug variables
 TEST_MODE = True
-
+VERBOSE = True
 
 
 # Class
@@ -78,10 +78,13 @@ servRelay = None
 
 
 # Functions
-def add_service(service):
-    services[service.attach(send_message)] = service
-    pass
+def add_service(service, callback):
+    services[service.attach(callback)] = service
+    if VERBOSE: 
+        print "Service " + service.service_id + "attached" 
 
+
+#
 def send_message(msg, destination):
     pass
 

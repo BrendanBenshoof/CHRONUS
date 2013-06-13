@@ -9,7 +9,7 @@ class Service(object):
     def attach(self, callback):
         """Called when the service is attached to the node"""
         """Should return the ID that the node will see on messages to pass it"""
-        self.callback = owner
+        self.callback = callback
         return self.service_id
 
     def handle_message(self, msg):

@@ -4,11 +4,12 @@ class Service(object):
     """This object is intented to act as a parent/promise for Service Objects"""
     def __init__(self):
         self.service_id = None
-        self.owner = None
-    def attach(self, owner):
+        self.callback = None
+
+    def attach(self, callback):
         """Called when the service is attached to the node"""
         """Should return the ID that the node will see on messages to pass it"""
-        self.owner = owner
+        self.callback = owner
         return self.service_id
 
     def handle_message(self, msg):
@@ -17,4 +18,7 @@ class Service(object):
         Return False if things go horribly wrong
         """
         return msg.service == self.service_id
+
+    def send_message(self, msg, dest):
+        self.callback(msg, dest)
         

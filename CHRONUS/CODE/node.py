@@ -7,6 +7,27 @@
 # Not closing connection properly - why?
 ############
 
+
+#imports 
+from hash_util import *
+from socket import *
+import time
+from threading import *
+import signal
+import sys
+import uuid
+import copy
+from optparse import OptionParser
+import random
+from net_server import *
+
+
+# Debug variables
+TEST_MODE = True
+
+
+
+# Class
 class Node():
     """This class is primarily for holding info on 
     other nodes in the network"""
@@ -52,3 +73,20 @@ services =  {}
 servCtrl = None
 servRelay = None
 
+
+
+
+
+# Functions
+def add_service(service):
+    services[service.attach(send_message)] = service
+    pass
+
+def send_message(msg, destination):
+    pass
+
+
+# Chord Functions
+# if this is indeed the right place for them 
+def update_finger_table():
+    pass

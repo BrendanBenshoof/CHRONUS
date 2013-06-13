@@ -47,6 +47,7 @@ class Node():
             return True
         return False
 
+    # must we modify for asynchronus networking magic?
     def find_successor(self, key):
         if between(key, self.ID, self.successor.ID):
             return self.successor
@@ -55,20 +56,24 @@ class Node():
             #closest =  actual node
             return closest.find_successor(key)
 
+    # search the finger table for the highest predessor for key
     def closest_preceding_node(self,key):
         for i in reversed(range(0, KEY_SIZE)):  # or should it be range(KEY_SIZE - 1, -1, -1))
-            if finger[i] != None: 
+            if self.finger[i] != None: 
                 if between(self.finger[i].ID, self.ID, key): #Stoica's paper indexes at 1, not 0
-                    return finger[i]
+                    return self.finger[i]
         return self
 
     
     # create a new Chord ring.
     def create(self):
-        pass
-    
+        self.predecessor = None
+        self.successor = self
+
+    # join node other's ring
+    # this we need to modify for asynchronus stuff 
     def join(self, other):
-        pass
+        self.predecessor = None
     
     def stabalize(self):
         pass
@@ -82,9 +87,6 @@ class Node():
     def check_predecessor(self):
         pass
     
-    def update_finger_table(self):
-        pass
-
     #returns true if key \in (begin, end]
     #due to nature of the ring, this is not trivial
     #the snipped in the string below is not exactly the same

@@ -19,7 +19,7 @@ import uuid
 import copy
 from optparse import OptionParser
 import random
-from net_server import *
+import net_server 
 
 
 # Debug variables
@@ -34,14 +34,25 @@ class Node():
     ID = 0
     IPAddr = getHostIP()
     ctrlPort = 7228
-    relayPort = 7229
 
     def __eq__(self, other):
         if (self.ID == other.ID and self.IPAddr == other.IPAddr and self.ctrlPort
-            == other.ctrlPort and self.relayPort == other.relayPort):
+            == other.ctrlPort):
 
             return True
         return False
+
+    def find_successor(self, id):
+        pass
+
+    def closest_preceding_node(self,id):
+        pass
+
+    def update_finger_table(self):
+        pass
+
+    def notify(self):
+        pass
 
 
 ####################### Globals #######################
@@ -51,7 +62,6 @@ thisNode = Node()
 thisNode.ID = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
 thisNode.IPAddr = getHostIP()
 thisNode.ctrlPort = 7228
-thisNode.relayPort = 7229
 
 prevNode = thisNode
 
@@ -83,13 +93,12 @@ def add_service(service, callback):
     if VERBOSE: 
         print "Service " + service.service_id + "attached" 
 
-
-#
 def send_message(msg, destination):
-    pass
+    net_server.send_message(msg.serialize(), destination)
 
+# called when node is passed a message
+def handle_message(msg, origin):
+    
 
+-
 # Chord Functions
-# if this is indeed the right place for them 
-def update_finger_table():
-    pass

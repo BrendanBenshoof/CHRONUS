@@ -49,6 +49,7 @@ class Node():
         return False
 
     # must we modify for asynchronus networking magic?
+    # no, lets look at the netlogo code.
     def find_successor(self, key):
         if between(key, self.ID, self.successor.ID):
             return self.successor
@@ -151,4 +152,3 @@ def send_message(msg, destination):
 # called when node is passed a message
 def handle_message(msg, origin):
     pass
-# Chord Functions

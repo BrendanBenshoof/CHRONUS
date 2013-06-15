@@ -31,7 +31,9 @@ class Node_Info():
     We use this, rather than the node class itself, for entries in the finger table
     as well as successor and predecessor.   
     """
-    def __init__(self, IPAddr, crtlPort, key=None, successor=self):
+    def __init__(self, IPAddr, crtlPort, key=None, successor=None):
+        if successor == None:
+            successor = self
         if Key(None)==key:
             self.key = hash_str(IPAddr+":"+ctrlPort)
         else:
@@ -65,7 +67,7 @@ class Node():
         else:
             self.key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
         self.myinfo = Node_Info(self.IPAddr, self.ctrlPort, self.key)
-        self.finger = [successor]  
+        self.finger = [self.successor]  
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
         self.net = None
@@ -131,7 +133,7 @@ class Node():
     
     #other said he may be my predecessor
     def notify(self,other):
-        if self.predecessor = None or hash_between(other.key, self.predecessor.key, self.key):
+        if self.predecessor == None or hash_between(other.key, self.predecessor.key, self.key):
             self.predecessor = other
     
     # Called periodically

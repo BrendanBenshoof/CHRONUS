@@ -33,23 +33,26 @@ def get_fingers(pop):
 
 def model(x):
 	myfingers = get_fingers(make_pop(x))
-	return len(set(myfingers.values()))
+	keys = set(myfingers.values())
+	inv_map = {v:k for k, v in myfingers.items()}
+	weighted = map(lambda x: inv_map[x],keys)
+	return sum(weighted)/sum(myfingers.keys())
 
-window = map(lambda x: 0.0, range(0,1))
+window = map(lambda x: 0.0, range(0,20))
 def estimate(x):
 	global window
 	i = model(x)
 	window.remove(window[0])
 	window.append(i)
-	i = sum(window)/len(window)
-	return 2**((i-0.318)/1.006)*1.587
+	#i = sum(window)/len(window) + random.random()-0.5
+	return 2**i
 
 data_x = []
 data_y = []
 last = 1
-for i in range(0,2000)[::10]:
+for i in range(1,2000)[::10]:
 	sol = estimate(i)
-	if i%1000 == 0:
+	if i%1000 == 1:
 		print i, sol
 	data_x.append(i)
 	data_y.append(sol)

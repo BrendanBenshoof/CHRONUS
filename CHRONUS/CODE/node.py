@@ -19,39 +19,42 @@ import uuid
 import copy
 from optparse import OptionParser
 import random
-import net_server 
+import dummy_network as net_server 
 
 
 # Debug variables
-TEST_MODE = True
+TEST_MODE = False
 VERBOSE = True
 
 class Node_Info():
+    #this is a struct to hold info on other nodes
     def __init__(self, IPAddr, crtlPort, key=None):
-        if key==None:
+        if key==Key(None):
             self.key = hash_str(IPAddr+":"+ctrlPort)
         else:
             self.key = key
         self.IPAddr = IPAddr
-        self.ctrlPort
+        self.ctrlPort = crtlPort
+
+    def __str__(self):
+        return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
 
 
 # Class
 class Node():
-    """This class represents a node in the Chord Network"""
+    """This class represents the current node in the Chord Network"""
 
 
     def __init__(self):
-        self.IPAddr = getHostIP()
-        self.ctrlPort = 7228
-        #this seems like a security concern
+        self.IPAddr = net_server.getHostIP()
+        self.ctrlPort = 7229
         self.predecessor = None
         self.successor = None
         if TEST_MODE:
             self.key = generate_random_key()
         else:
-            self.key = hash_str(IPAddr+":"+ctrlPort)
-        myinfo = 
+            self.key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
+        self.myinfo = Node_Info(self.IPAddr, self.ctrlPort, self.key)
         self.finger = []
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
@@ -130,7 +133,7 @@ class Node():
 #Node
 thisNode = Node()
 thisNode.key = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
-thisNode.IPAddr = getHostIP()
+thisNode.IPAddr = net_server.getHostIP()
 thisNode.ctrlPort = 7228
 
 prevNode = thisNode

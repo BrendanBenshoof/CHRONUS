@@ -36,7 +36,7 @@ class Database(Service):
             newmsg.add_content("file_contents",content)
             self.callback(newmsg)
         if msg.get_content("type") == "PUT":
-            filename = str(msg.destination_node
+            filename = str(msg.destination_node.key)
             self.write_record(filename, msg.get_content("file_contents"))
             
 

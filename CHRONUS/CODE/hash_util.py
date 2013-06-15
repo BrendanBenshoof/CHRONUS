@@ -66,7 +66,7 @@ def hash_between_right_inclusive(h1, s1, s2):
         return True
 
     #if h1 == s1 || h1 == s2 then return False
-    if(hash_equal(h1, s1) 
+    if(hash_equal(h1, s1)):
         return False
 
     if(hash_equal(h1, s2)):

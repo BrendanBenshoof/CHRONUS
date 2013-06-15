@@ -69,7 +69,7 @@ class Node():
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
         self.net = None
-        self.next_finger = 0
+        self.next = 0 # next finger to check
 
     def attach_to_network(self, network):
         self.net = network
@@ -134,9 +134,17 @@ class Node():
         if self.predecessor = None or hash_between(other.key, self.predecessor.key, self.key):
             self.predecessor = other
     
+    # Called periodically
+    # Updates the finger table
+    # TODO: async  the last line of this sucker
     def fix_fingers(self):
-        pass
-    
+        self.next = self.next + 1
+        if self.next > KEY_SIZE:
+            self.next = 1
+        finger[next] = 
+find_successor(add_keys(self.key + generate_key_with_index( 2**next -1)))
+
+    # ping our predecessor.  pred = nil if no response
     def check_predecessor(self):
         pass
        

@@ -111,10 +111,10 @@ class Node():
         self.predecessor = None
         send_join_message(other)
         
-    def get_join_success(self,message,successor):
+    def get_join_success(self, message, successor):
         #Possible security, spam join messages for other people
         self.successor = successor
-        finger[1] =  #TODO: check if this conflicts with finger maintenence
+        self.finger[1] = successor #TODO: check if this conflicts with finger maintenence
 
     # TODO:  Async
     # called periodically. n asks the successor

@@ -63,6 +63,7 @@ class Node():
     def attach_to_network(self, network):
         self.net = network
         return handle_message
+
     def __eq__(self, other):
         if (self.key == other.key and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
             return True
@@ -98,9 +99,19 @@ class Node():
         self.predecessor = None
         self.successor = other.find_successor(self.key)
     
+
+    # TODO:  Async
+    # called periodically. n asks the successor
+    # about its predecessor, verifies if n's immediate
+    # successor is consistent, and tells the successor about n
     def stabalize(self):
-        pass
+        if self.successor != None :
+            x = self.successor.predecessor #won't work asynchronsly
+            if hash_between(x.key, self.key, self.successor.key):
+                self.successor = x
+            self.successor.notify(self)
     
+    #other says he may be my predessesor
     def notify(self,other):
         pass
     

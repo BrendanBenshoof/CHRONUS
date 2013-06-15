@@ -45,11 +45,12 @@ class Find_Successor_Message(Message):
 
 
 class Update_Message(Message):
-    def __init__(self, dest, origin_node,key):
+    def __init__(self, dest, origin_node,key,node):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = dest
         self.add_content("key",key)
+        self.add_content("node",node)   # the node to connect to
         self.service = UPDATE
 
 class Database_Message(Message):

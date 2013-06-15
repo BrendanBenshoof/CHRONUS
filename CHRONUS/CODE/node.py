@@ -85,13 +85,7 @@ class Node():
 
 
     # search the finger table for the highest predecessor for key
-    def closest_preceding_node(self,key):
-        for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
-            if n != None: 
-                if between(n.key, self.key, key): #Stoica's paper indexes at 1, not 0
-                    return n
-        return self
-
+    
     
     # create a new Chord ring.
     def create(self):
@@ -189,15 +183,24 @@ def find_successor(message):
     if hash_between_right_inclusive(key, thisNode.key, thisNode.successor.key):
         destination =  message.get_content("requester")
         origin = thisNode
-        update = Update_Message(destination,origin,key) 
+        connectTo = thisNode.successor  # Tell the node to conenct to my successor
+        update = Update_Message(destination,origin,key, connectTo) 
         send_message(update)
         #edge case dest = myself?
     else:
-        closest = closest_preceding_node(key)
+        closest = closest_preceding_node(key) # TODO: what if closest is self? update with info myself?
         message.origin_node = thisNode
         message.dest = destination
         send_message(message)
 
+def closest_preceding_node(key):
+    global thisNode
+    global finger
+    for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+        if n != None: 
+            if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
+                return n
+    return thisNode
 
 
 def add_service(service, callback):

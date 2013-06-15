@@ -50,13 +50,11 @@ class Node():
     except their methods aren't asynchronus.  Our changes are listed below
     
     1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
-        However, lists index beginning at 0, so finger[0] is used to store the predeccesor
+        However, lists index beginning at 0, so finger[0] is used to store the predecessor
     2.  To call functions on other nodes, we pass them a message, like in the case of notify().
         We don't have the other node's node object available to us, so we send it a message
         which will make the node call notify()
     """
-
-
     def __init__(self, known=None):
         self.IPAddr = net_server.getHostIP()
         self.ctrlPort = 7229
@@ -71,6 +69,7 @@ class Node():
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
         self.net = None
+        self.next_finger = 0
 
     def attach_to_network(self, network):
         self.net = network
@@ -91,7 +90,7 @@ class Node():
             #closest =  actual node
             return closest.find_successor(key)
 
-    # search the finger table for the highest predessor for key
+    # search the finger table for the highest predecessor for key
     def closest_preceding_node(self,key):
         for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
             if n != None: 
@@ -111,6 +110,8 @@ class Node():
         self.predecessor = None
         send_join_message(other)
         
+    
+    # call after getting the message
     def get_join_success(self, message, successor):
         #Possible security, spam join messages for other people
         self.successor = successor
@@ -128,9 +129,10 @@ class Node():
                 self.successor = Sucessors_pred
             self.successor.notify(self)
     
-    #other says he may be my predessesor
+    #other said he may be my predecessor
     def notify(self,other):
-        pass
+        if self.predecessor = None or hash_between(other.key, self.predecessor.key, self.key):
+            self.predecessor = other
     
     def fix_fingers(self):
         pass

@@ -1,5 +1,6 @@
 #dummy network object untill we get a real one working
 import socket
+import getIP
 
 class Dumy_Network():
 	def __init__(self):
@@ -12,12 +13,5 @@ myip = None
 def getHostIP():
 	global myip
 	if myip == None:
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("8.8.8.8",53))
-		# consult the great Astronomican
-		print s.getsockname()
-		myip = s.getsockname()[0]
-		s.close()
-	else:
-		return myip
+		myip = getIP.get_lan_ip()
 	return myip

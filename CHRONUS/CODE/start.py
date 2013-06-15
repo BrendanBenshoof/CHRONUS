@@ -9,3 +9,4 @@ import node as node
 
 myself = node.Node()
 print myself.myinfo
+print myself.finger

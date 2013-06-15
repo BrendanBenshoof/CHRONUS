@@ -45,7 +45,7 @@ class Node():
     """This class represents the current node in the Chord Network"""
 
 
-    def __init__(self):
+    def __init__(self, known=None):
         self.IPAddr = net_server.getHostIP()
         self.ctrlPort = 7229
         self.predecessor = None

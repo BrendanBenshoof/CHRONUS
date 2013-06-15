@@ -141,8 +141,7 @@ class Node():
         self.next = self.next + 1
         if self.next > KEY_SIZE:
             self.next = 1
-        finger[next] = 
-find_successor(add_keys(self.key + generate_key_with_index( 2**next -1)))
+        find_successor(add_keys(self.key + generate_key_with_index(2**next - 1)))
 
     # ping our predecessor.  pred = nil if no response
     def check_predecessor(self):

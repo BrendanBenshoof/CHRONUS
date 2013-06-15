@@ -84,20 +84,9 @@ class Node():
 
 
 
-    # search the finger table for the highest predecessor for key
+ 
     
-    
-    # create a new Chord ring.
-    def create(self):
-        self.predecessor = None
-        self.successor = self
 
-    # join node other's ring
-    # this we need to modify for asynchronus stuff 
-    def join(self, other):
-        self.predecessor = None
-        send_join_message(other)
-        
     
     # call after getting the message
     def get_join_success(self, message, successor):
@@ -157,9 +146,8 @@ fingerTableLock = Lock()
 prevNodeLock = Lock()
 numFingerErrors = 0
 
-successorList = []
-sucListLock = Lock()
-successorOfflineAttempts = 0
+predecessor =None
+successor = None
 
 #services
 services =  {}
@@ -179,11 +167,12 @@ servRelay = None
 # no, lets look at the netlogo code.
 def find_successor(message):
     global thisNode
+    global successor
     key = message.get_content("key")    
-    if hash_between_right_inclusive(key, thisNode.key, thisNode.successor.key):
+    if hash_between_right_inclusive(key, thisNode.key, successor.key):
         destination =  message.get_content("requester")
         origin = thisNode
-        connectTo = thisNode.successor  # Tell the node to conenct to my successor
+        connectTo = successor  # Tell the node to conenct to my successor
         update = Update_Message(destination,origin,key, connectTo) 
         send_message(update)
         #edge case dest = myself?
@@ -193,6 +182,7 @@ def find_successor(message):
         message.dest = destination
         send_message(message)
 
+# search the finger table for the highest predecessor for key
 def closest_preceding_node(key):
     global thisNode
     global finger
@@ -201,6 +191,29 @@ def closest_preceding_node(key):
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return n
     return thisNode
+
+
+    
+# create a new Chord ring.
+# TODO: finger table?
+def create():
+    global thisNode
+    global successor
+    global predecessor
+    predecessor = None
+    successor = thisNode
+
+# join node node's ring
+# TODO: finger table?
+# this we need to modify for asynchronus stuff 
+def join(node):
+    global thisNode
+    global predecessor
+    predecessor = None
+    find =  Find_Successor_Message(node,origin_node,origin_node,origin_node.key)
+    send_message(find)
+        
+
 
 
 def add_service(service, callback):

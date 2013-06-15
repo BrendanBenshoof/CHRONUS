@@ -28,17 +28,17 @@ VERBOSE = True
 
 class Node_Info():
     #this is a struct to hold info on other nodes
-    def __init__(self, IPAddr, crtlPort, key=None):
+    def __init__(self, IPAddr, crtlPort, key=None, successor=self):
         if Key(None)==key:
             self.key = hash_str(IPAddr+":"+ctrlPort)
         else:
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = crtlPort
+        self.successor = successor
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
-
 
 # Class
 class Node():
@@ -55,7 +55,7 @@ class Node():
         else:
             self.key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
         self.myinfo = Node_Info(self.IPAddr, self.ctrlPort, self.key)
-        self.finger = []
+        self.finger = [successor]  
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
         self.net = None
@@ -72,7 +72,7 @@ class Node():
     # must we modify for asynchronus networking magic?
     # no, lets look at the netlogo code.
     def find_successor(self, key):
-        if between(key, self.key, self.successor.key):
+        if hash_between_right_inclusive(key, self.key, self.successor.key):
             return self.successor
         else:
             closest = self.closest_preceding_node(key)
@@ -81,10 +81,10 @@ class Node():
 
     # search the finger table for the highest predessor for key
     def closest_preceding_node(self,key):
-        for i in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
-            if i != None: 
-                if between(i.key, self.key, key): #Stoica's paper indexes at 1, not 0
-                    return i
+        for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+            if n != None: 
+                if between(n.key, self.key, key): #Stoica's paper indexes at 1, not 0
+                    return n
         return self
 
     
@@ -121,24 +121,6 @@ class Node():
     
     def check_predecessor(self):
         pass
-    
-    #returns true if key \in (begin, end]
-    #due to nature of the ring, this is not trivial
-    #the snipped in the string below is not exactly the same
-    """
-    ;; reports true if the node is somewhere in the arc of the chord ring spanning nodes x to y, inclusive
-    to-report nodeInRange [low high test ]
-        let delta (high - low) mod  (2 ^ Hash_Degree) 
-    
-        report (test - low) mod  (2 ^ Hash_Degree) < delta
-    end
-    """
-
-    def between(self,key,begin, end):
-        pass
-    
-
-   
 
 ####################### Globals #######################
 

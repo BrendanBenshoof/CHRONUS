@@ -32,6 +32,25 @@ class Message(object):
             print "get_content was asked to look for a non-existant key"
         return to_return
 
+class Find_Successor_Message(Message):
+    def __init__(self, dest, origin_node, requester, key):
+        Message.__init__(self)
+        self.origin_node = origin_node  # node that just sent this message
+        self.requester = requester      # node we need to reply back with an update
+        self.destination_node = dest    # node we're asking to do the finding
+        self.add_content("key", key)
+        self.add_content("requester", requester)
+        self.service = "FIND"
+
+
+
+class Update_Message(Message):
+    def __init__(self, dest, origin_node,key):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_node = dest
+        self.add_content("key",key)
+        self.service = UPDATE
 
 class Database_Message(Message):
     def __init__(self, dest, origin_node, file_type):
@@ -48,4 +67,3 @@ class Sucessor_Message(Message):
         self.origin_node = origin_node
         self.destination_node = dest
         self.service = "JOIN"
-        self.add_content("key",key)

@@ -80,7 +80,7 @@ to join-closest ;; node procedure
 end
 
 
-to join-node [n];;node procedure to join node n's ring
+to join-node [n];;node procedure to join node ns ring
   set pred nobody 
   set suc nobody
   init-fingers

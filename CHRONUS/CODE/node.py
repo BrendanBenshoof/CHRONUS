@@ -155,6 +155,8 @@ thisNode.ctrlPort = 7228
 
 prevNode = thisNode
 
+
+
 #Finger table
 fingerTable = []
 fingerTableLock = Lock()
@@ -182,12 +184,19 @@ servRelay = None
 # must we modify for asynchronus networking magic?
 # no, lets look at the netlogo code.
 def find_successor(message):
-    if hash_between_right_inclusive(key, self.key, self.successor.key):
-        send_message
+    global thisNode
+    key = message.get_content("key")    
+    if hash_between_right_inclusive(key, thisNode.key, thisNode.successor.key):
+        destination =  message.get_content("requester")
+        origin = thisNode
+        update = Update_Message(destination,origin,key) 
+        send_message(update)
+        #edge case dest = myself?
     else:
-        closest = self.closest_preceding_node(key)
-        #closest =  actual node
-        return closest.find_successor(key)
+        closest = closest_preceding_node(key)
+        message.origin_node = thisNode
+        message.dest = destination
+        send_message(message)
 
 
 

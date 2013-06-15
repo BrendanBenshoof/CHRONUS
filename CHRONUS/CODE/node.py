@@ -23,8 +23,8 @@ import dummy_network as net_server
 
 
 # Debug variables
-TEST_MODE = False
-VERBOSE = True
+TEST_MODE = False   #self explanitory here
+VERBOSE = True      # True for various debug messages, False for a more silent execution.
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -109,8 +109,12 @@ class Node():
     # this we need to modify for asynchronus stuff 
     def join(self, other):
         self.predecessor = None
-        self.successor = other.find_successor(self.key)
-    
+        send_join_message(other)
+        
+    def get_join_success(self,message,successor):
+        #Possible security, spam join messages for other people
+        self.successor = successor
+        finger[1] =  #TODO: check if this conflicts with finger maintenence
 
     # TODO:  Async
     # called periodically. n asks the successor
@@ -132,6 +136,10 @@ class Node():
         pass
     
     def check_predecessor(self):
+        pass
+       
+    #politely leave the network 
+    def exit(self):
         pass
 
 ####################### Globals #######################

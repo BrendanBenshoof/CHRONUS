@@ -1,3 +1,5 @@
+### ripped add credits
+
 import hashlib
 import random
 class Key():

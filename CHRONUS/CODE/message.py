@@ -41,9 +41,11 @@ class Database_Message(Message):
         self.service = "DATABASE"
         self.add_content("type",file_type)
 
+
 class Sucessor_Message(Message):
-    def __init__(self, dest, origin_node):
+    def __init__(self, dest, origin_node,key):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = dest
         self.service = "JOIN"
+        self.add_content("key",key)

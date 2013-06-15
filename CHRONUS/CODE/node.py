@@ -82,15 +82,7 @@ class Node():
             return True
         return False
 
-    # must we modify for asynchronus networking magic?
-    # no, lets look at the netlogo code.
-    def find_successor(self, key):
-        if hash_between_right_inclusive(key, self.key, self.successor.key):
-            return self.successor
-        else:
-            closest = self.closest_preceding_node(key)
-            #closest =  actual node
-            return closest.find_successor(key)
+
 
     # search the finger table for the highest predecessor for key
     def closest_preceding_node(self,key):
@@ -186,6 +178,19 @@ servRelay = None
 
 
 # Functions
+
+# must we modify for asynchronus networking magic?
+# no, lets look at the netlogo code.
+def find_successor(message):
+    if hash_between_right_inclusive(key, self.key, self.successor.key):
+        send_message
+    else:
+        closest = self.closest_preceding_node(key)
+        #closest =  actual node
+        return closest.find_successor(key)
+
+
+
 def add_service(service, callback):
     services[service.attach(callback)] = service
     if VERBOSE: 

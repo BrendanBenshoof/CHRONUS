@@ -32,7 +32,7 @@ class Message(object):
             print "get_content was asked to look for a non-existant key"
         return to_return
 
-class Find_Message(Message):
+class Find_Successor_Message(Message):
     def __init__(self, dest, origin_node, requester, key):
         Message.__init__(self)
         self.origin_node = origin_node  # node that just sent this message

@@ -94,13 +94,7 @@ class Node():
         self.successor = successor
         self.finger[1] = successor #TODO: check if this conflicts with finger maintenence
 
-    # TODO:  Async
-    # called periodically. n asks the successor
-    # about its predecessor, verifies if n's immediate
-    # successor is consistent, and tells the successor about n
-    def start_stabalize(self):
-        if self.successor != None :
-            x = self.successor.predecessor #won't work asynchronsly
+
     def finish_stabalize(self, Sucessors_pred):
             if hash_between(Sucessors_pred.key, self.key, self.successor.key):
                 self.successor = Sucessors_pred
@@ -212,9 +206,18 @@ def join(node):
     predecessor = None
     find =  Find_Successor_Message(node,origin_node,origin_node,origin_node.key)
     send_message(find)
-        
 
+# TODO:  Async
+# called periodically. n asks the successor
+# about its predecessor, verifies if n's immediate
+# successor is consistent, and tells the successor about n
+def begin_stabalize():
+    pass
 
+# need to account for sucessor being unreachable
+def stabalize(message):
+    pass
+   
 
 def add_service(service, callback):
     services[service.attach(callback)] = service

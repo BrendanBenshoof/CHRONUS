@@ -27,7 +27,10 @@ TEST_MODE = False
 VERBOSE = True
 
 class Node_Info():
-    #this is a struct to hold info on other nodes
+    """This is struct containing the info of other nodes.  
+    We use this, rather than the node class itself, for entries in the finger table
+    as well as successor and predecessor.   
+    """
     def __init__(self, IPAddr, crtlPort, key=None, successor=self):
         if Key(None)==key:
             self.key = hash_str(IPAddr+":"+ctrlPort)
@@ -42,7 +45,16 @@ class Node_Info():
 
 # Class
 class Node():
-    """This class represents the current node in the Chord Network"""
+    """This class represents the current node in the Chord Network.
+    We try to follow Stoica et al's scheme as closely as possible here,
+    except their methods aren't asynchronus.  Our changes are listed below
+    
+    1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
+        However, lists index beginning at 0, so finger[0] is used to store the predeccesor
+    2.  To call functions on other nodes, we pass them a message, like in the case of notify().
+        We don't have the other node's node object available to us, so we send it a message
+        which will make the node call notify()
+    """
 
 
     def __init__(self, known=None):

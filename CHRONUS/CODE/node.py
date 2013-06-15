@@ -29,7 +29,7 @@ VERBOSE = True
 class Node_Info():
     #this is a struct to hold info on other nodes
     def __init__(self, IPAddr, crtlPort, key=None):
-        if key==Key(None):
+        if Key(None)==key:
             self.key = hash_str(IPAddr+":"+ctrlPort)
         else:
             self.key = key
@@ -75,7 +75,7 @@ class Node():
         if between(key, self.key, self.successor.key):
             return self.successor
         else:
-            closest = closest_preceding_node(key)
+            closest = self.closest_preceding_node(key)
             #closest =  actual node
             return closest.find_successor(key)
 
@@ -104,11 +104,12 @@ class Node():
     # called periodically. n asks the successor
     # about its predecessor, verifies if n's immediate
     # successor is consistent, and tells the successor about n
-    def stabalize(self):
+    def start_stabalize(self):
         if self.successor != None :
             x = self.successor.predecessor #won't work asynchronsly
-            if hash_between(x.key, self.key, self.successor.key):
-                self.successor = x
+    def finish_stabalize(self, Sucessors_pred):
+            if hash_between(Sucessors_pred.key, self.key, self.successor.key):
+                self.successor = Sucessors_pred
             self.successor.notify(self)
     
     #other says he may be my predessesor

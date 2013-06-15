@@ -34,8 +34,10 @@ class Message(object):
 
 
 class Database_Message(Message):
-    def __init__(self, dest, origin_node, file_id):
-        super(Database_Message, self)
+    def __init__(self, dest, origin_node, file_type):
+        Message.__init__(self)
+        self.origin_node = origin_node
         self.destination_node = dest
         self.service = "DATABASE"
+        self.add_content("type",file_type)
 

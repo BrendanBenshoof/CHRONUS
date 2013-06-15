@@ -26,32 +26,45 @@ import net_server
 TEST_MODE = True
 VERBOSE = True
 
+class Node_Info():
+    def __init__(self, IPAddr, crtlPort, key=None):
+        if key==None:
+            self.key = hash_str(IPAddr+":"+ctrlPort)
+        else:
+            self.key = key
+        self.IPAddr = IPAddr
+        self.ctrlPort
+
 
 # Class
 class Node():
     """This class represents a node in the Chord Network"""
-    ID = 0
-    IPAddr = getHostIP()
-    ctrlPort = 7228
-    #this seems like a security concern
-    predecessor = None
-    successor = None
-    finger = []
+
 
     def __init__(self):
-        thisNode.ID = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
-        for i in range(0,KEY_SIZE):
+        self.IPAddr = getHostIP()
+        self.ctrlPort = 7228
+        #this seems like a security concern
+        self.predecessor = None
+        self.successor = None
+        if TEST_MODE:
+            self.key = generate_random_key()
+        else:
+            self.key = hash_str(IPAddr+":"+ctrlPort)
+        myinfo = 
+        self.finger = []
+        for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
 
     def __eq__(self, other):
-        if (self.ID == other.ID and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
+        if (self.key == other.key and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
             return True
         return False
 
     # must we modify for asynchronus networking magic?
     # no, lets look at the netlogo code.
     def find_successor(self, key):
-        if between(key, self.ID, self.successor.ID):
+        if between(key, self.key, self.successor.key):
             return self.successor
         else:
             closest = closest_preceding_node(key)
@@ -60,10 +73,10 @@ class Node():
 
     # search the finger table for the highest predessor for key
     def closest_preceding_node(self,key):
-        for i in reversed(range(0, KEY_SIZE)):  # or should it be range(KEY_SIZE - 1, -1, -1))
-            if self.finger[i] != None: 
-                if between(self.finger[i].ID, self.ID, key): #Stoica's paper indexes at 1, not 0
-                    return self.finger[i]
+        for i in self.finger[KEY_SIZE+1::-1]: # or should it be range(KEY_SIZE - 1, -1, -1))
+            if i != None: 
+                if between(i.key, self.key, key): #Stoica's paper indexes at 1, not 0
+                    return i
         return self
 
     
@@ -76,7 +89,7 @@ class Node():
     # this we need to modify for asynchronus stuff 
     def join(self, other):
         self.predecessor = None
-        self.successor = other.find_successor(self.ID)
+        self.successor = other.find_successor(self.key)
     
     def stabalize(self):
         pass
@@ -112,7 +125,7 @@ class Node():
 
 #Node
 thisNode = Node()
-thisNode.ID = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
+thisNode.key = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
 thisNode.IPAddr = getHostIP()
 thisNode.ctrlPort = 7228
 

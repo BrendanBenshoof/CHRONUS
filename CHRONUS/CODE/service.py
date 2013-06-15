@@ -5,11 +5,13 @@ class Service(object):
     def __init__(self):
         self.service_id = None
         self.callback = None
+        self.owner = None
 
-    def attach(self, callback):
+    def attach(self, callback, owner):
         """Called when the service is attached to the node"""
         """Should return the ID that the node will see on messages to pass it"""
         self.callback = callback
+        self.owner = owner
         return self.service_id
 
     def handle_message(self, msg):

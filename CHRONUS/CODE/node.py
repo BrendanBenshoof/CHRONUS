@@ -55,7 +55,11 @@ class Node():
         self.finger = []
         for i in range(1,KEY_SIZE+1):
             self.finger.append(None)
+        self.net = None
 
+    def attach_to_network(self, network):
+        self.net = network
+        return handle_message
     def __eq__(self, other):
         if (self.key == other.key and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
             return True
@@ -73,7 +77,7 @@ class Node():
 
     # search the finger table for the highest predessor for key
     def closest_preceding_node(self,key):
-        for i in self.finger[KEY_SIZE+1::-1]: # or should it be range(KEY_SIZE - 1, -1, -1))
+        for i in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
             if i != None: 
                 if between(i.key, self.key, key): #Stoica's paper indexes at 1, not 0
                     return i

@@ -247,7 +247,7 @@ def exit():
 
 
 def switchboard(message):
-    best_destination = closest_preceding_node(message.key) 
+    best_destination = closest_preceding_node(message.getContent("key")) 
     if best_destination == thisNode:
         handle_message(message)
     else:

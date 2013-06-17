@@ -225,10 +225,12 @@ def begin_stabalize():
 
 # need to account for sucessor being unreachable
 def stabalize(message):
+    global thisNode
+    global successor
     x = message.get_content("predecessor")
     if hash_between(x.key, thisNode.key, successor.key):
         successor = x
-    send_message(notify_message)
+    send_message(Notify_Message(thisNode,successor))
 
 # we couldn't reach our sucessor;
 # He's dead, Jim.
@@ -241,8 +243,11 @@ def get_notified(message):
     global thisNode
     global predecessor
     other =  message.origin_node
-    if(predecessor = None or hash_between(other.key,predecessor.key, thisNode.key)):
+    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key)):
         predecessor = other
+
+
+
 
 def add_service(service, callback):
     services[service.attach(callback)] = service

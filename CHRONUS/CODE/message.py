@@ -41,7 +41,6 @@ class Find_Successor_Message(Message):
         self.service = "FIND"
 
 
-
 class Update_Message(Message):
     def __init__(self, origin_node, dest, key,node):
         Message.__init__(self)

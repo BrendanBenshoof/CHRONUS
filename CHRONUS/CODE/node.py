@@ -114,13 +114,7 @@ class Node():
             self.next = 1
         find_successor(add_keys(self.key + generate_key_with_index(2**next - 1)))
 
-    # ping our predecessor.  pred = nil if no response
-    def check_predecessor(self):
-        pass
-       
-    #politely leave the network 
-    def exit(self):
-        pass
+
 
 ####################### Globals #######################
 
@@ -152,13 +146,6 @@ servCtrl = None
 servRelay = None
 
 
-
-
-
-# Functions
-
-# must we modify for asynchronus networking magic?
-# no, lets look at the netlogo code.
 def find_successor(message):
     global thisNode
     global successor
@@ -175,18 +162,16 @@ def find_successor(message):
         if closest == thisNode:
             destination =  message.get_content("requester")
             origin = thisNode
-            connectTo = successor  # Tell the node to conenct to my successor
+            connectTo = thisNode  # Tell the node to conenct to my successor
             update = Update_Message(origin, destination, key, connectTo) 
-            send_message(update)
+            send_message(update)  # if we get logic errors and can't find stuff, it's because of thise
         message.origin_node = thisNode
         message.dest = destination
         send_message(message)
 
 # search the finger table for the highest predecessor for key
 def closest_preceding_node(key):
-    global thisNode
-    global finger
-    for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+    for n in reversed(finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return n
@@ -197,7 +182,6 @@ def closest_preceding_node(key):
 # create a new Chord ring.
 # TODO: finger table?
 def create():
-    global thisNode
     global successor
     global predecessor
     predecessor = None
@@ -218,35 +202,62 @@ def join(node):
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
 def begin_stabalize():
-    global thisNode
-    global successor
     message = Stabilize_Message(thisNode,successor)
     send_message(message)
 
 # need to account for sucessor being unreachable
 def stabalize(message):
-    global thisNode
-    global successor
     x = message.get_content("predecessor")
     if hash_between(x.key, thisNode.key, successor.key):
+        global successor
         successor = x
     send_message(Notify_Message(thisNode,successor))
 
 # we couldn't reach our sucessor;
 # He's dead, Jim.
+# goto next item in the finger table
 def stabalize_failed():
     pass
 
 # we were notified by node other;
 # other thinks it might be our predecessor
 def get_notified(message):
-    global thisNode
     global predecessor
+    global finger
     other =  message.origin_node
-    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key)):
+    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
+        finger[0] = predecessor
 
 
+def fix_fingers():
+    global thisNode
+    global finger
+    global successor
+    global predecessor
+
+
+# ping our predecessor.  pred = nil if no response
+def check_predecessor():
+    pass
+   
+#politely leave the network 
+def exit():
+    pass
+
+
+def switchboard(message):
+    best_destination = closest_preceding_node(message.key) 
+    if best_destination == thisNode:
+        handle_message(message)
+    else:
+        
+
+
+
+###############################
+# Service Code
+###############################
 
 
 def add_service(service, callback):

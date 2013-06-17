@@ -12,7 +12,6 @@ class Message(object):
     def __init__(self):
         self.contents = {}
         self.service = None
-        self.messagetype = 0
         self.destination_node = 0
         self.origin_node = 0
 
@@ -36,7 +35,6 @@ class Find_Successor_Message(Message):
     def __init__(self, dest, origin_node, requester, key):
         Message.__init__(self)
         self.origin_node = origin_node  # node that just sent this message
-        self.requester = requester      # node we need to reply back with an update
         self.destination_node = dest    # node we're asking to do the finding
         self.add_content("key", key)
         self.add_content("requester", requester)
@@ -51,7 +49,30 @@ class Update_Message(Message):
         self.destination_node = dest
         self.add_content("key",key)
         self.add_content("node",node)   # the node to connect to
-        self.service = UPDATE
+        self.service = "UPDATE"
+
+class Stablize_Message(Message):
+    """docstring for Stablize_Message"""
+    def __init__(self, origin_node, destination_node):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_node = destination_node
+        self.service = "STABILIZE"
+
+class Stablize_Message(Message):
+    """docstring for Stablize_Message"""
+    def __init__(self, origin_node, destination_node):
+        Message.__init__(self,origin_node, destination_node, predecessor)
+        self.origin_node = origin_node
+        self.destination_node = destination_node
+        self.service = "STABILIZE_REPLY"
+        add_content("predecessor", predecessor)
+
+class Notify_Message(Message):
+    """docstring for Notify_Message"""
+    def __init__(self, arg):
+        self.arg = arg
+        
 
 class Database_Message(Message):
     def __init__(self, dest, origin_node, file_type):
@@ -60,11 +81,3 @@ class Database_Message(Message):
         self.destination_node = dest
         self.service = "DATABASE"
         self.add_content("type",file_type)
-
-
-class Sucessor_Message(Message):
-    def __init__(self, dest, origin_node,key):
-        Message.__init__(self)
-        self.origin_node = origin_node
-        self.destination_node = dest
-        self.service = "JOIN"

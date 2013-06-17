@@ -32,7 +32,7 @@ class Message(object):
         return to_return
 
 class Find_Successor_Message(Message):
-    def __init__(self, dest, origin_node, requester, key):
+    def __init__(self, origin_node, dest, requester, key):
         Message.__init__(self)
         self.origin_node = origin_node  # node that just sent this message
         self.destination_node = dest    # node we're asking to do the finding
@@ -43,7 +43,7 @@ class Find_Successor_Message(Message):
 
 
 class Update_Message(Message):
-    def __init__(self, dest, origin_node,key,node):
+    def __init__(self, origin_node, dest, key,node):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = dest
@@ -62,7 +62,7 @@ class Stablize_Message(Message):
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
     def __init__(self, origin_node, destination_node):
-        Message.__init__(self,origin_node, destination_node, predecessor)
+        Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = destination_node
         self.service = "STABILIZE_REPLY"
@@ -70,12 +70,14 @@ class Stablize_Message(Message):
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
-    def __init__(self, arg):
-        self.arg = arg
+    def __init__(self, origin_node,destination_node):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_node = destination_node
         
 
 class Database_Message(Message):
-    def __init__(self, dest, origin_node, file_type):
+    def __init__(self, origin_node, dest, file_type):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = dest

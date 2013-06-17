@@ -167,7 +167,7 @@ def find_successor(message):
         destination =  message.get_content("requester")
         origin = thisNode
         connectTo = successor  # Tell the node to conenct to my successor
-        update = Update_Message(destination,origin,key, connectTo) 
+        update = Update_Message(origin, destination, key, connectTo) 
         send_message(update)
         #edge case dest = myself?
     else:
@@ -176,7 +176,7 @@ def find_successor(message):
             destination =  message.get_content("requester")
             origin = thisNode
             connectTo = successor  # Tell the node to conenct to my successor
-            update = Update_Message(destination,origin,key, connectTo) 
+            update = Update_Message(origin, destination, key, connectTo) 
             send_message(update)
         message.origin_node = thisNode
         message.dest = destination
@@ -210,7 +210,7 @@ def join(node):
     global thisNode
     global predecessor
     predecessor = None
-    find =  Find_Successor_Message(node,origin_node,origin_node,origin_node.key)
+    find =  Find_Successor_Message(origin_node, node,origin_node,origin_node.key)
     send_message(find)
 
 # TODO:  Async
@@ -218,12 +218,31 @@ def join(node):
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
 def begin_stabalize():
-    pass
+    global thisNode
+    global successor
+    message = Stabilize_Message(thisNode,successor)
+    send_message(message)
 
 # need to account for sucessor being unreachable
 def stabalize(message):
+    x = message.get_content("predecessor")
+    if hash_between(x.key, thisNode.key, successor.key):
+        successor = x
+    send_message(notify_message)
+
+# we couldn't reach our sucessor;
+# He's dead, Jim.
+def stabalize_failed():
     pass
-   
+
+# we were notified by node other;
+# other thinks it might be our predecessor
+def get_notified(message):
+    global thisNode
+    global predecessor
+    other =  message.origin_node
+    if(predecessor = None or hash_between(other.key,predecessor.key, thisNode.key)):
+        predecessor = other
 
 def add_service(service, callback):
     services[service.attach(callback)] = service
@@ -231,6 +250,7 @@ def add_service(service, callback):
         print "Service " + service.service_id + "attached" 
 
 def send_message(msg, destination):
+    #TODO: write something to actually test this
     net_server.send_message(msg.serialize(), destination)
 
 # called when node is passed a message

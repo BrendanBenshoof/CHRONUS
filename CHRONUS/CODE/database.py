@@ -32,6 +32,7 @@ class Database(Service):
         if msg.get_content("type") == "GET":
             filename = msg.destination_node
             content = self.lookup_record(str(filename))
+            #this add other instances of database messages are borked
             newmsg = Database_Message(msg.origin_node, self.owner.ID, msg.destination_node)
             newmsg.add_content("file_contents",content)
             self.callback(newmsg)

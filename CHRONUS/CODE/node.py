@@ -172,6 +172,12 @@ def find_successor(message):
         #edge case dest = myself?
     else:
         closest = closest_preceding_node(key) # TODO: what if closest is self? update with info myself?
+        if closest == thisNode:
+            destination =  message.get_content("requester")
+            origin = thisNode
+            connectTo = successor  # Tell the node to conenct to my successor
+            update = Update_Message(destination,origin,key, connectTo) 
+            send_message(update)
         message.origin_node = thisNode
         message.dest = destination
         send_message(message)

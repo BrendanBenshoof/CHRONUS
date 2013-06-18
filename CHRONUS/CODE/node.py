@@ -51,38 +51,12 @@ class Node_Info():
 We try to follow Stoica et al's scheme as closely as possible here,
 except their methods aren't asynchronus.  Our changes are listed below
 
-<<<<<<< HEAD
-    def finish_stabalize(self, Sucessors_pred):
-            if hash_between(Sucessors_pred.key, self.key, self.successor.key):
-                self.successor = Sucessors_pred
-            self.successor.notify(self)
-    
-    #other said he may be my predecessor
-    def notify(self,other):
-        if self.predecessor == None or hash_between(other.key, self.predecessor.key, self.key):
-            self.predecessor = other
-    
-    # Called periodically
-    # Updates the finger table
-    # TODO: async  the last line of this sucker
-    def fix_fingers(self):
-        self.next = self.next + 1
-        if self.next > KEY_SIZE:
-            self.next = 1
-        find_successor(add_keys(self.key + generate_key_with_index(2**next - 1)))
-
-
-
-####################### Globals #######################
-
-=======
 1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
     However, lists index beginning at 0, so finger[0] is used to store the predecessor
 2.  To call functions on other nodes, we pass them a message, like in the case of notify().
     We don't have the other node's node object available to us, so we send it a message
     which will make the node call notify()
 """
->>>>>>> b5c08d0f7b2fee5a999be53f38488db1a46a74f7
 #Node
 
 key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
@@ -111,20 +85,6 @@ servCtrl = None
 servRelay = None
 
 
-<<<<<<< HEAD
-=======
-####################### Globals #######################
-
-
-
-
-
-
-# Functions
-
-# must we modify for asynchronus networking magic?
-# no, lets look at the netlogo code.
->>>>>>> b5c08d0f7b2fee5a999be53f38488db1a46a74f7
 def find_successor(message):
     global thisNode
     global successor
@@ -228,16 +188,6 @@ def check_predecessor():
 #politely leave the network 
 def exit():
     pass
-
-
-def switchboard(message):
-    best_destination = closest_preceding_node(message.getContent("key")) 
-    if best_destination == thisNode:
-        handle_message(message)
-    else:
-        
-
-
 
 ###############################
 # Service Code

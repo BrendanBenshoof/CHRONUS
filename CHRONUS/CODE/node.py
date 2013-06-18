@@ -23,7 +23,7 @@ import dummy_network as net_server
 
 
 # Debug variables
-TEST_MODE = False   #self explanitory here
+TEST_MODE = False   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 
 class Node_Info():

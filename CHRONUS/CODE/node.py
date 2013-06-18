@@ -51,12 +51,38 @@ class Node_Info():
 We try to follow Stoica et al's scheme as closely as possible here,
 except their methods aren't asynchronus.  Our changes are listed below
 
+<<<<<<< HEAD
+    def finish_stabalize(self, Sucessors_pred):
+            if hash_between(Sucessors_pred.key, self.key, self.successor.key):
+                self.successor = Sucessors_pred
+            self.successor.notify(self)
+    
+    #other said he may be my predecessor
+    def notify(self,other):
+        if self.predecessor == None or hash_between(other.key, self.predecessor.key, self.key):
+            self.predecessor = other
+    
+    # Called periodically
+    # Updates the finger table
+    # TODO: async  the last line of this sucker
+    def fix_fingers(self):
+        self.next = self.next + 1
+        if self.next > KEY_SIZE:
+            self.next = 1
+        find_successor(add_keys(self.key + generate_key_with_index(2**next - 1)))
+
+
+
+####################### Globals #######################
+
+=======
 1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
     However, lists index beginning at 0, so finger[0] is used to store the predecessor
 2.  To call functions on other nodes, we pass them a message, like in the case of notify().
     We don't have the other node's node object available to us, so we send it a message
     which will make the node call notify()
 """
+>>>>>>> b5c08d0f7b2fee5a999be53f38488db1a46a74f7
 #Node
 
 key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
@@ -85,6 +111,8 @@ servCtrl = None
 servRelay = None
 
 
+<<<<<<< HEAD
+=======
 ####################### Globals #######################
 
 
@@ -96,6 +124,7 @@ servRelay = None
 
 # must we modify for asynchronus networking magic?
 # no, lets look at the netlogo code.
+>>>>>>> b5c08d0f7b2fee5a999be53f38488db1a46a74f7
 def find_successor(message):
     global thisNode
     global successor
@@ -112,18 +141,16 @@ def find_successor(message):
         if closest == thisNode:
             destination =  message.get_content("requester")
             origin = thisNode
-            connectTo = successor  # Tell the node to conenct to my successor
+            connectTo = thisNode  # Tell the node to conenct to my successor
             update = Update_Message(origin, destination, key, connectTo) 
-            send_message(update)
+            send_message(update)  # if we get logic errors and can't find stuff, it's because of thise
         message.origin_node = thisNode
         message.dest = destination
         send_message(message)
 
 # search the finger table for the highest predecessor for key
 def closest_preceding_node(key):
-    global thisNode
-    global finger
-    for n in reversed(self.finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+    for n in reversed(finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return n
@@ -134,7 +161,6 @@ def closest_preceding_node(key):
 # create a new Chord ring.
 # TODO: finger table?
 def create():
-    global thisNode
     global successor
     global predecessor
     global fingerTable
@@ -160,35 +186,62 @@ def join(node):
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
 def begin_stabalize():
-    global thisNode
-    global successor
     message = Stabilize_Message(thisNode,successor)
     send_message(message)
 
 # need to account for sucessor being unreachable
 def stabalize(message):
-    global thisNode
-    global successor
     x = message.get_content("predecessor")
     if hash_between(x.key, thisNode.key, successor.key):
+        global successor
         successor = x
     send_message(Notify_Message(thisNode,successor))
 
 # we couldn't reach our sucessor;
 # He's dead, Jim.
+# goto next item in the finger table
 def stabalize_failed():
     pass
 
 # we were notified by node other;
 # other thinks it might be our predecessor
 def get_notified(message):
-    global thisNode
     global predecessor
+    global finger
     other =  message.origin_node
-    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key)):
+    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
+        finger[0] = predecessor
 
 
+def fix_fingers():
+    global thisNode
+    global finger
+    global successor
+    global predecessor
+
+
+# ping our predecessor.  pred = nil if no response
+def check_predecessor():
+    pass
+   
+#politely leave the network 
+def exit():
+    pass
+
+
+def switchboard(message):
+    best_destination = closest_preceding_node(message.getContent("key")) 
+    if best_destination == thisNode:
+        handle_message(message)
+    else:
+        
+
+
+
+###############################
+# Service Code
+###############################
 
 
 def add_service(service, callback):

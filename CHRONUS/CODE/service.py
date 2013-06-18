@@ -23,4 +23,12 @@ class Service(object):
 
     def send_message(self, msg, dest):
         self.callback(msg, dest)
+
+
+
+class Find_Service(object):
+    """docstring for Find_Service"""
+    def __init__(self, arg):
+        super(Find_Service, self).__init__()
+        self.arg = arg
         

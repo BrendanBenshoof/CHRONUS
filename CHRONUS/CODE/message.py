@@ -36,12 +36,20 @@ class Message(object):
 class Find_Successor_Message(Message):
     def __init__(self, origin_node, dest, requester):
         Message.__init__(self)
+<<<<<<< HEAD
+        self.origin_node = origin_node  # node we're asking to do the finding4
+        self.destination_node = dest    # node that just sent this message
+        self.key = key
+        self.add_content("key", key)
+        self.add_content("requester", requester)
+        self.service = "FIND"
+=======
         self.one_hop_origin_node = origin_node  # node that just sent this message
         self.destination_key = dest    # node we're asking to do the finding
         self.return_node = requester
         self.add_content("type","FIND")
         self.service = "INTERNAL"
-
+>>>>>>> b5c08d0f7b2fee5a999be53f38488db1a46a74f7
 
 
 class Update_Message(Message):

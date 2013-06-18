@@ -1,5 +1,6 @@
 #Message object Abstraction for CHRONOS application
 import pickle
+from hash_util import *
 
 #this is an abstract parent class
 #you could use it, but it would be boring
@@ -12,8 +13,9 @@ class Message(object):
     def __init__(self):
         self.contents = {}
         self.service = None
-        self.destination_node = 0
-        self.origin_node = 0
+        self.destination_key = 0
+        self.origin_node = None
+        self.return_node = None
 
     def serialize(self):
         #it would be great if this was encrypted
@@ -32,41 +34,43 @@ class Message(object):
         return to_return
 
 class Find_Successor_Message(Message):
-    def __init__(self, origin_node, dest, requester, key):
+    def __init__(self, origin_node, dest, requester):
         Message.__init__(self)
-        self.origin_node = origin_node  # node that just sent this message
-        self.destination_node = dest    # node we're asking to do the finding
-        self.add_content("key", key)
-        self.add_content("requester", requester)
-        self.service = "FIND"
+        self.one_hop_origin_node = origin_node  # node that just sent this message
+        self.destination_key = dest    # node we're asking to do the finding
+        self.return_node = requester
+        self.add_content("type","FIND")
+        self.service = "INTERNAL"
 
 
 
 class Update_Message(Message):
-    def __init__(self, origin_node, dest, key,node):
+    def __init__(self, origin_node, key,node):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_node = dest
-        self.add_content("key",key)
-        self.add_content("node",node)   # the node to connect to
-        self.service = "UPDATE"
+        self.destination_key = key
+        self.return_node = node   # the node to connect to
+        self.add_content("type","UPDATE")
+        self.service = "INTERNAL"
 
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
-    def __init__(self, origin_node, destination_node):
+    def __init__(self, origin_node):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_node = destination_node
-        self.service = "STABILIZE"
+        self.destination_key = add_keys(origin.key, generate_key_with_index(0))
+        self.service = "INTERNAL"
+        self.add_content("type","STABILIZE")
 
-class Stablize_Message(Message):
+class Stablize_Reply_Message(Message):
     """docstring for Stablize_Message"""
-    def __init__(self, origin_node, destination_node):
+    def __init__(self, origin_node, destination_key):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_node = destination_node
-        self.service = "STABILIZE_REPLY"
-        add_content("predecessor", predecessor)
+        self.destination_key = destination_key
+        self.service = "INTERNAL"
+        self.add_content("type","STABILIZE_REPLY")
+        self. add_content("predecessor", predecessor)
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
@@ -74,12 +78,14 @@ class Notify_Message(Message):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_node = destination_node
+        self.service = "INTERNAL"
+        self.add_content("type","NOTIFY")
         
 
 class Database_Message(Message):
     def __init__(self, origin_node, dest, file_type):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_node = dest
+        self.destination_key = dest
         self.service = "DATABASE"
         self.add_content("type",file_type)

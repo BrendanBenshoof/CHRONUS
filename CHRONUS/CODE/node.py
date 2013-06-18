@@ -46,102 +46,35 @@ class Node_Info():
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
 
 # Class
-class Node():
-    """This class represents the current node in the Chord Network.
-    We try to follow Stoica et al's scheme as closely as possible here,
-    except their methods aren't asynchronus.  Our changes are listed below
-    
-    1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
-        However, lists index beginning at 0, so finger[0] is used to store the predecessor
-    2.  To call functions on other nodes, we pass them a message, like in the case of notify().
-        We don't have the other node's node object available to us, so we send it a message
-        which will make the node call notify()
-    """
-    def __init__(self, known=None):
-        self.IPAddr = net_server.getHostIP()
-        self.ctrlPort = 7229
-        self.predecessor = None
-        self.successor = None
-        if TEST_MODE:
-            self.key = generate_random_key()
-        else:
-            self.key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
-        self.myinfo = Node_Info(self.IPAddr, self.ctrlPort, self.key)
-        self.finger = [self.successor]  
-        for i in range(1,KEY_SIZE+1):
-            self.finger.append(None)
-        self.net = None
-        self.next = 0 # next finger to check
 
-    def attach_to_network(self, network):
-        self.net = network
-        return handle_message
+"""This class represents the current node in the Chord Network.
+We try to follow Stoica et al's scheme as closely as possible here,
+except their methods aren't asynchronus.  Our changes are listed below
 
-    def __eq__(self, other):
-        if (self.key == other.key and self.IPAddr == other.IPAddr and self.ctrlPort == other.ctrlPort):
-            return True
-        return False
-
-
-
- 
-    
-
-    
-    # call after getting the message
-    def get_join_success(self, message, successor):
-        #Possible security, spam join messages for other people
-        self.successor = successor
-        self.finger[1] = successor #TODO: check if this conflicts with finger maintenence
-
-
-    def finish_stabalize(self, Sucessors_pred):
-            if hash_between(Sucessors_pred.key, self.key, self.successor.key):
-                self.successor = Sucessors_pred
-            self.successor.notify(self)
-    
-    #other said he may be my predecessor
-    def notify(self,other):
-        if self.predecessor == None or hash_between(other.key, self.predecessor.key, self.key):
-            self.predecessor = other
-    
-    # Called periodically
-    # Updates the finger table
-    # TODO: async  the last line of this sucker
-    def fix_fingers(self):
-        self.next = self.next + 1
-        if self.next > KEY_SIZE:
-            self.next = 1
-        find_successor(add_keys(self.key + generate_key_with_index(2**next - 1)))
-
-    # ping our predecessor.  pred = nil if no response
-    def check_predecessor(self):
-        pass
-       
-    #politely leave the network 
-    def exit(self):
-        pass
-
-####################### Globals #######################
-
+1.  Like Stoica et al, finger[1] is the successor. This keeps the math identical.
+    However, lists index beginning at 0, so finger[0] is used to store the predecessor
+2.  To call functions on other nodes, we pass them a message, like in the case of notify().
+    We don't have the other node's node object available to us, so we send it a message
+    which will make the node call notify()
+"""
 #Node
-thisNode = Node()
-thisNode.key = hash_str(str(uuid.uuid4()) + str(uuid.uuid4()))
-thisNode.IPAddr = net_server.getHostIP()
-thisNode.ctrlPort = 7228
+
+key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
+IPAddr = net_server.getHostIP()
+ctrlPort = 7228
 
 prevNode = thisNode
 
-
+predecessor =None
+successor = None
 
 #Finger table
-fingerTable = []
+fingerTable = None
 fingerTableLock = Lock()
 prevNodeLock = Lock()
 numFingerErrors = 0
 
-predecessor =None
-successor = None
+
 
 #services
 services =  {}
@@ -150,6 +83,10 @@ services =  {}
 #Network connections
 servCtrl = None
 servRelay = None
+
+
+####################### Globals #######################
+
 
 
 
@@ -200,8 +137,13 @@ def create():
     global thisNode
     global successor
     global predecessor
+    global fingerTable
     predecessor = None
+    thisNode = Node_Info(IPAddr, crtlPort, key, successor)
     successor = thisNode
+    fingerTable = [successor]  
+    for i in range(1,KEY_SIZE+1):
+        fingerTable.append(None)
 
 # join node node's ring
 # TODO: finger table?
@@ -210,8 +152,8 @@ def join(node):
     global thisNode
     global predecessor
     predecessor = None
-    find =  Find_Successor_Message(origin_node, node,origin_node,origin_node.key)
-    send_message(find)
+    find =  Find_Successor_Message(thisNode, thisnode.key,thisNode)
+    send_message(find, node)
 
 # TODO:  Async
 # called periodically. n asks the successor
@@ -250,14 +192,29 @@ def get_notified(message):
 
 
 def add_service(service, callback):
+    global services
     services[service.attach(callback)] = service
     if VERBOSE: 
         print "Service " + service.service_id + "attached" 
 
-def send_message(msg, destination):
+def send_message(msg, destination=None):
     #TODO: write something to actually test this
+    if destination = None:
+        destination = closest_preceding_node(msg.destination_key)
     net_server.send_message(msg.serialize(), destination)
 
 # called when node is passed a message
 def handle_message(msg, origin):
-    pass
+    get_dest = closest_preceding_node(msg.destination_key)
+    if not get_dest == thisNode:
+        msg.origin_node = thisNode
+        send_message(msg, get_dest)
+    else:
+        if msg.service!="INTERNAL":
+            try:
+                myservice = services[msg.service]
+            except IndexError:
+                return
+            myservice.handle_message(msg)
+            
+

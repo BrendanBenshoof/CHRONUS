@@ -43,7 +43,7 @@ class Find_Successor_Message(Message):
         self.service = "INTERNAL"
 
 class Update_Message(Message):
-    def __init__(self, origin_node, key,node):
+    def __init__(self, origin_node, key, node):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = key

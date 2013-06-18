@@ -88,25 +88,11 @@ servRelay = None
 def find_successor(message):
     global thisNode
     global successor
-    key = message.get_content("key")    
-    if hash_between_right_inclusive(key, thisNode.key, successor.key):
-        destination =  message.get_content("requester")
-        origin = thisNode
-        connectTo = successor  # Tell the node to conenct to my successor
-        update = Update_Message(origin, destination, key, connectTo) 
-        send_message(update)
+    destination =  message.return_node.key
+    origin = thisNode
+    update = Update_Message(thisnode, destination, key, connectTo) 
+    send_message(update)
         #edge case dest = myself?
-    else:
-        closest = closest_preceding_node(key) # TODO: what if closest is self? update with info myself?
-        if closest == thisNode:
-            destination =  message.get_content("requester")
-            origin = thisNode
-            connectTo = thisNode  # Tell the node to conenct to my successor
-            update = Update_Message(origin, destination, key, connectTo) 
-            send_message(update)  # if we get logic errors and can't find stuff, it's because of thise
-        message.origin_node = thisNode
-        message.dest = destination
-        send_message(message)
 
 # search the finger table for the highest predecessor for key
 def closest_preceding_node(key):

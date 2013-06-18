@@ -90,7 +90,7 @@ def find_successor(message):
     global successor
     destination =  message.return_node.key
     origin = thisNode
-    update = Update_Message(thisnode, destination, key, connectTo) 
+    update = Update_Message(thisNode, destination, key, connectTo) 
     send_message(update)
         #edge case dest = myself?
 
@@ -124,7 +124,7 @@ def join(node):
     global thisNode
     global predecessor
     predecessor = None
-    find =  Find_Successor_Message(thisNode, thisnode.key,thisNode)
+    find =  Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
 
 # TODO:  Async
@@ -169,7 +169,8 @@ def fix_fingers():
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
-    pass
+    if(predecessor != None):  # do this here or before it's called
+        send_message(Check_Predecessor_Message(thisNode, predecessor.key),predecessor)
    
 #politely leave the network 
 def exit():

@@ -34,19 +34,19 @@ class Message(object):
         return to_return
 
 class Find_Successor_Message(Message):
-    def __init__(self, origin_node, dest, requester):
+    def __init__(self, origin_node, destination_key, requester):
         Message.__init__(self)
         self.one_hop_origin_node = origin_node  # node that just sent this message
-        self.destination_key = dest    # node we're asking to do the finding
+        self.destination_key = destination_key    # node we're asking to do the finding
         self.return_node = requester
         self.add_content("type","FIND")
         self.service = "INTERNAL"
 
 class Update_Message(Message):
-    def __init__(self, origin_node, key, node):
+    def __init__(self, origin_node, destination_key, node):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_key = key
+        self.destination_key = destination_key
         self.return_node = node   # the node to connect to
         self.add_content("type","UPDATE")
         self.service = "INTERNAL"
@@ -72,18 +72,27 @@ class Stablize_Reply_Message(Message):
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
-    def __init__(self, origin_node,destination_node):
+    def __init__(self, origin_node,destination_key):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_node = destination_node
+        self.destination_key = destination_key
         self.service = "INTERNAL"
         self.add_content("type","NOTIFY")
+
+class Check_Predecessor_Message(Message):
+    def __init__(self, origin_node,destination_key):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.service = "INTERNAL"
+        self.add_content("type","CHECK_PREDECESSOR")
+
         
 
 class Database_Message(Message):
-    def __init__(self, origin_node, dest, file_type):
+    def __init__(self, origin_node, destination_key, file_type):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_key = dest
+        self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)

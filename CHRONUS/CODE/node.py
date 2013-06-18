@@ -73,7 +73,7 @@ fingerTable = None
 fingerTableLock = Lock()
 prevNodeLock = Lock()
 numFingerErrors = 0
-
+next
 
 
 #services
@@ -96,14 +96,19 @@ def find_successor(message):
 
 # search the finger table for the highest predecessor for key
 def closest_preceding_node(key):
-    for n in reversed(finger[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+    for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return n
     return thisNode
 
 
-    
+
+
+def handle_update(message):
+
+
+
 # create a new Chord ring.
 # TODO: finger table?
 def create():
@@ -153,16 +158,16 @@ def stabalize_failed():
 # other thinks it might be our predecessor
 def get_notified(message):
     global predecessor
-    global finger
+    global fingerTable
     other =  message.origin_node
     if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
-        finger[0] = predecessor
+        fingerTable[0] = predecessor
 
 
 def fix_fingers():
     global thisNode
-    global finger
+    global fingerTable
     global successor
     global predecessor
 
@@ -175,6 +180,7 @@ def check_predecessor():
 #politely leave the network 
 def exit():
     pass
+
 
 ###############################
 # Service Code
@@ -194,7 +200,7 @@ def send_message(msg, destination=None):
     net_server.send_message(msg.serialize(), destination)
 
 # called when node is passed a message
-def handle_message(msg, origin):
+def handle_message(msg):
     get_dest = closest_preceding_node(msg.destination_key)
     if not get_dest == thisNode:
         msg.origin_node = thisNode
@@ -206,5 +212,3 @@ def handle_message(msg, origin):
             except IndexError:
                 return
             myservice.handle_message(msg)
-            
-

@@ -59,9 +59,10 @@ except their methods aren't asynchronus.  Our changes are listed below
 """
 #Node
 
-key = hash_str(self.IPAddr+":"+str(self.ctrlPort))
 IPAddr = net_server.getHostIP()
 ctrlPort = 7228
+key = hash_str(IPAddr+":"+str(ctrlPort))
+
 
 prevNode = thisNode
 
@@ -106,6 +107,7 @@ def closest_preceding_node(key):
 
 
 def handle_update(message):
+    pass
 
 
 
@@ -195,7 +197,7 @@ def add_service(service, callback):
 
 def send_message(msg, destination=None):
     #TODO: write something to actually test this
-    if destination = None:
+    if destination == None:
         destination = closest_preceding_node(msg.destination_key)
     net_server.send_message(msg.serialize(), destination)
 

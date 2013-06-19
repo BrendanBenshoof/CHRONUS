@@ -215,7 +215,11 @@ def send_message(msg, destination=None):
 
 # called when node is passed a message
 def handle_message(msg):
-    get_dest = closest_preceding_node(msg.destination_key)
+    """Need to fix this.  Say I'm node 1, and my message is looking to find key 2, and node 2 is my sucessor.  
+    So.  I go thru my finger table, checking each finger in turn to see if it's between me and the key, finally we get to finger[1] (2).  
+    2 is not between 1 and 2, so we return me being the closest preceding node (which is correct)
+    But the assumption here is that get_dest = me means that I'm responsible for key 2 (I'm not)"""
+    get_dest = closest_preceding_node(msg.destination_key)  # do find sucessor instead, otherwise a sucessor will never actually get it
     if not get_dest == thisNode:
         msg.origin_node = thisNode
         send_message(msg, get_dest)

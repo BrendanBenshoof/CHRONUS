@@ -34,20 +34,22 @@ class Message(object):
         return to_return
 
 class Find_Successor_Message(Message):
-    def __init__(self, origin_node, destination_key, requester):
+    def __init__(self, origin_node, destination_key, requester, finger = 1):
         Message.__init__(self)
         self.one_hop_origin_node = origin_node  # node that just sent this message
         self.destination_key = destination_key    # node we're asking to do the finding
         self.return_node = requester
+        self.finger = finger
         self.add_content("type","FIND")
         self.service = "INTERNAL"
 
 class Update_Message(Message):
-    def __init__(self, origin_node, destination_key, node):
+    def __init__(self, origin_node, destination_key, node, finger):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.return_node = node   # the node to connect to
+        self.finger = finger        # entry in the finger table to update.
+        self.return_node = node     # the node to connect to.
         self.add_content("type","UPDATE")
         self.service = "INTERNAL"
 

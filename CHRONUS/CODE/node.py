@@ -63,10 +63,7 @@ IPAddr = net_server.getHostIP()
 ctrlPort = 7228
 key = hash_str(IPAddr+":"+str(ctrlPort))
 
-
-prevNode = thisNode
-
-predecessor =None
+predecessor= None
 successor = None
 
 #Finger table
@@ -74,7 +71,7 @@ fingerTable = None
 fingerTableLock = Lock()
 prevNodeLock = Lock()
 numFingerErrors = 0
-next
+nextFinger = 0
 
 
 #services
@@ -85,14 +82,16 @@ services =  {}
 servCtrl = None
 servRelay = None
 
+###########
+# Find Sucessor
+###########
 
 def find_successor(message):
-    global thisNode
-    global successor
-    destination =  message.return_node.key
-    origin = thisNode
-    update = Update_Message(thisNode, destination, key, connectTo) 
-    send_message(update)
+    pass
+    #destination =  message.return_node.key
+    #origin = thisNode
+    #update = Update_Message(thisNode, destination, key, connectTo) 
+    #send_message(update)
         #edge case dest = myself?
 
 # search the finger table for the highest predecessor for key
@@ -103,12 +102,16 @@ def closest_preceding_node(key):
                 return n
     return thisNode
 
-
-
+def handle_find_successor(message):
+    """ Send an update message back across the ring """
+    pass
 
 def handle_update(message):
     pass
 
+######
+# Ring Creation
+######
 
 
 # create a new Chord ring.
@@ -134,6 +137,14 @@ def join(node):
     find =  Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
 
+
+
+
+
+#############
+# Maintenence
+#############
+    
 # TODO:  Async
 # called periodically. n asks the successor
 # about its predecessor, verifies if n's immediate
@@ -159,20 +170,21 @@ def stabalize_failed():
 # we were notified by node other;
 # other thinks it might be our predecessor
 def get_notified(message):
-    global predecessor
-    global fingerTable
+    global predecessor, fingerTable
     other =  message.origin_node
     if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
         fingerTable[0] = predecessor
 
-
 def fix_fingers():
-    global thisNode
-    global fingerTable
-    global successor
-    global predecessor
-
+    global nextFinger
+    nextFinger = nextFinger + 1
+    if nextFinger > KEY_SIZE:
+        nextFinger = 1
+    target_key = add_keys(thisNode.key, generate_key_with_index(2**(nextFinger-1)))
+    message = Find_Successor_Message(thisNode, target_key, thisNode, nextFinger)
+    send_message(message)
+    
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
@@ -214,3 +226,4 @@ def handle_message(msg):
             except IndexError:
                 return
             myservice.handle_message(msg)
+            

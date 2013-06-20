@@ -1,5 +1,6 @@
 from message import *
 from hash_util import *
+import node
 class Service(object):
     """This object is intented to act as a parent/promise for Service Objects"""
     def __init__(self):
@@ -26,9 +27,35 @@ class Service(object):
 
 
 
-class Find_Service(object):
-    """docstring for Find_Service"""
+class Internal_Service(object):
+    """Handler of Chord behavoir and internal messages"""
     def __init__(self, arg):
         super(Find_Service, self).__init__()
-        self.arg = arg
-        
+        self.service_id = "INTERNAL"
+    
+    def handle_message(self, msg):
+        """This function is called whenever the node recives a message bound for this service"""
+        """Return True if message is handled correctly
+        Return False if things go horribly wrong
+        """
+        ##switch based on "type"
+        msgtype = msg.get_content("type")
+        response = None
+        if msgtype = "FIND":
+            response = Update_Message(self.owner, self.return_node.key, self.owner, msg.finger)
+        elif msgtype = "UPDATE":
+            node.update_finger(msg.return_node, msg.finger)
+        elif msgtype = "STABILIZE":
+            response = Stablize_Reply_Message(self.owner, self.return_node.key, node.predecessor)
+        elif msgtype = "STABILIZE_REPLY":
+            node.stabalize(msg)
+        elif msgtype = "NOTIFY":
+            node.get_notified(msg)
+        elif msgtype = "CHECK_PREDECESSOR":
+            response = Update_Message(self.owner, self.return_node.key, self.owner, 0)
+        else:
+            return False
+        if response != None:
+            send_message(response,msg.return_node)
+        return True
+            

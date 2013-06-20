@@ -59,17 +59,16 @@ except their methods aren't asynchronus.  Our changes are listed below
 """
 #Node
 
-IPAddr = net_server.getHostIP()
+
+IPAddr = ""
 ctrlPort = 7228
-key = hash_str(IPAddr+":"+str(ctrlPort))
+key = ""
 
 predecessor= None
 successor = None
 
 #Finger table
 fingerTable = None
-fingerTableLock = Lock()
-prevNodeLock = Lock()
 numFingerErrors = 0
 nextFinger = 0
 
@@ -114,6 +113,8 @@ def create():
     global successor
     global predecessor
     global fingerTable
+    global key
+    key = hash_str(IPAddr+":"+ctrlPort)
     predecessor = None
     thisNode = Node_Info(IPAddr, crtlPort, key, successor)
     successor = thisNode
@@ -149,9 +150,9 @@ def begin_stabalize():
 
 # need to account for sucessor being unreachable
 def stabalize(message):
+    global successor
     x = message.get_content("predecessor")
     if hash_between(x.key, thisNode.key, successor.key):
-        global successor
         successor = x
     send_message(Notify_Message(thisNode,successor))
 
@@ -178,6 +179,14 @@ def fix_fingers():
     target_key = add_keys(thisNode.key, generate_key_with_index(2**(nextFinger-1)))
     message = Find_Successor_Message(thisNode, target_key, thisNode, nextFinger)
     send_message(message)
+
+def update_finger(newNode,finger):
+    global fingerTable
+    fingerTable[finger] = newNode
+    if finger == 1:
+        sucessor = newNode
+    elif finger ==0:
+        predecessor = newNode
     
 
 # ping our predecessor.  pred = nil if no response
@@ -218,10 +227,9 @@ def handle_message(msg):
         msg.origin_node = thisNode
         send_message(msg, get_dest)
     else:
-        if msg.service!="INTERNAL":
-            try:
-                myservice = services[msg.service]
-            except IndexError:
-                return
-            myservice.handle_message(msg)
+        try:
+            myservice = services[msg.service]
+        except IndexError:
+            return
+        myservice.handle_message(msg)
             

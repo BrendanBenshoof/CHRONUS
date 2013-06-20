@@ -5,17 +5,20 @@ from hash_util import *
 #this is an abstract parent class
 #you could use it, but it would be boring
 
-def deserialize(in_string):
-    return pickle.loads(in_string)
-    #there are soo many exceptions I should be catching here
 
 class Message(object):
     def __init__(self):
-        self.contents = {}
-        self.service = None
-        self.destination_key = 0
-        self.origin_node = None
-        self.return_node = None
+        self.contents = {} #nasty collection
+        self.service = None #string right now could be int
+        self.destination_key = 0 #160 number or hash object
+        self.finger = None# int -1 to 160
+        self.origin_node = None #node object
+        self.return_node = None #node object -> hash_location, IP, port
+
+    @staticmethod
+    def deserialize(in_string):
+        return pickle.loads(in_string)
+        #there are soo many exceptions I should be catching here
 
     def serialize(self):
         #it would be great if this was encrypted
@@ -64,7 +67,7 @@ class Stablize_Message(Message):
 
 class Stablize_Reply_Message(Message):
     """docstring for Stablize_Message"""
-    def __init__(self, origin_node, destination_key):
+    def __init__(self, origin_node, destination_key, predecessor):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
@@ -98,3 +101,5 @@ class Database_Message(Message):
         self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)
+
+print Message().serialize()

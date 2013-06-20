@@ -19,12 +19,14 @@ import uuid
 import copy
 from optparse import OptionParser
 import random
-import dummy_network as net_server 
+#import dummy_network as  
 
 
 # Debug variables
 TEST_MODE = False   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
+
+net_server = None
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -54,7 +56,7 @@ except their methods aren't asynchronus.  Our changes are listed below
     which will make the node call notify()
 """
 
-
+thisNode = None
 IPAddr = ""
 ctrlPort = 7228
 key = ""
@@ -99,10 +101,10 @@ def find_ideal_forward(key):
 # create a new Chord ring.
 # TODO: finger table?
 def create():
-    global successor, predecessor, fingerTable, key
-    key = hash_str(IPAddr+":"+ctrlPort)
+    global successor, predecessor, fingerTable, key, thisNode
+    key = hash_str(IPAddr+":"+str(ctrlPort))
     predecessor = None
-    thisNode = Node_Info(IPAddr, crtlPort, key, successor)
+    thisNode = Node_Info(IPAddr, ctrlPort, key)
     successor = thisNode
     fingerTable = [successor]  
     for i in range(1,KEY_SIZE+1):
@@ -190,9 +192,10 @@ def exit():
 ###############################
 
 
-def add_service(service, callback):
+def add_service(service):
     global services
-    services[service.attach(callback)] = service
+    global thisNode
+    services[service.attach(thisNode, send_message)] = service
     if VERBOSE: 
         print "Service " + service.service_id + "attached" 
 

@@ -6,11 +6,11 @@ import network_handler as net
 import hash_util as hash
 from message import *
 import node as node
+import service as serve
 from dummy_network import *
 
-myself = node.Node()
-print myself.myinfo
-
-Dummy = Dummy_Network()
-Dummy.add_node(myself.attach_to_network(Dummy))
+node.create()
+Internal_service = serve.Internal_Service()
+node.add_service(Internal_service)
+node.net_server = start(node.thisNode, node.handle_message)
 

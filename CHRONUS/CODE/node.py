@@ -31,22 +31,18 @@ class Node_Info():
     We use this, rather than the node class itself, for entries in the finger table
     as well as successor and predecessor.   
     """
-    def __init__(self, IPAddr, crtlPort, key=None, successor=None):
-        if successor == None:
-            successor = self
+    def __init__(self, IPAddr, crtlPort, key=None):
         if Key(None)==key:
             self.key = hash_str(IPAddr+":"+ctrlPort)
         else:
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = crtlPort
-        self.successor = successor
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
-
-# Class
-
+        
+        
 """This class represents the current node in the Chord Network.
 We try to follow Stoica et al's scheme as closely as possible here,
 except their methods aren't asynchronus.  Our changes are listed below
@@ -57,7 +53,6 @@ except their methods aren't asynchronus.  Our changes are listed below
     We don't have the other node's node object available to us, so we send it a message
     which will make the node call notify()
 """
-#Node
 
 
 IPAddr = ""
@@ -85,7 +80,7 @@ servRelay = None
 # Find Sucessor
 ###########
 
-#
+#  This is find sucessor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
     if hash_between_right_inclusive(key, thisNode.key, sucessor.key):
         return sucessor
@@ -95,12 +90,6 @@ def find_ideal_forward(key):
                 return n
     return thisNode
 
-def handle_find_successor(message):
-    """ Send an update message back across the ring """
-    pass
-
-def handle_update(message):
-    pass
 
 ######
 # Ring Creation

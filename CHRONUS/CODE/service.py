@@ -31,7 +31,7 @@ class Internal_Service(object):
     """Handler of Chord behavoir and internal messages"""
     def __init__(self, arg):
         super(Find_Service, self).__init__()
-        self.service_id = "INTERNAL"
+        self.service_id = INTERNAL
     
     def handle_message(self, msg):
         """This function is called whenever the node recives a message bound for this service"""
@@ -41,17 +41,17 @@ class Internal_Service(object):
         ##switch based on "type"
         msgtype = msg.get_content("type")
         response = None
-        if msgtype = "FIND":
+        if msgtype = FIND:
             response = Update_Message(self.owner, self.return_node.key, self.owner, msg.finger)
-        elif msgtype = "UPDATE":
+        elif msgtype = UPDATE:
             node.update_finger(msg.return_node, msg.finger)
-        elif msgtype = "STABILIZE":
+        elif msgtype = STABILIZE:
             response = Stablize_Reply_Message(self.owner, self.return_node.key, node.predecessor)
-        elif msgtype = "STABILIZE_REPLY":
+        elif msgtype = STABILIZE_REPLY:
             node.stabalize(msg)
-        elif msgtype = "NOTIFY":
+        elif msgtype = NOTIFY:
             node.get_notified(msg)
-        elif msgtype = "CHECK_PREDECESSOR":
+        elif msgtype = CHECK_PREDECESSOR:
             response = Update_Message(self.owner, self.return_node.key, self.owner, 0)
         else:
             return False

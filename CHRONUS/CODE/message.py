@@ -5,6 +5,13 @@ from hash_util import *
 #this is an abstract parent class
 #you could use it, but it would be boring
 
+INTERNAL = "INTERNAL"
+FIND = "FIND"
+UPDATE =  "UPDATE"
+STABILIZE = "STABILIZE"
+STABILIZE_REPLY = "STABILIZE_REPLY"
+NOTIFY = "NOTIFY"
+CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
 
 class Message(object):
     def __init__(self):
@@ -43,8 +50,8 @@ class Find_Successor_Message(Message):
         self.destination_key = destination_key  # the key we're trying to find the node responsible for
         self.return_node = requester
         self.finger = finger
-        self.add_content("type","FIND")
-        self.service = "INTERNAL"
+        self.add_content("type",FIND)
+        self.service = INTERNAL
 
 class Update_Message(Message):
     def __init__(self, origin_node, destination_key, node, finger):
@@ -53,8 +60,8 @@ class Update_Message(Message):
         self.destination_key = destination_key
         self.finger = finger        # entry in the finger table to update.
         self.return_node = node     # the node to connect to
-        self.add_content("type","UPDATE")
-        self.service = "INTERNAL"
+        self.add_content("type",UPDATE)
+        self.service = INTERNAL
 
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
@@ -62,8 +69,8 @@ class Stablize_Message(Message):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = add_keys(origin.key, generate_key_with_index(0))
-        self.service = "INTERNAL"
-        self.add_content("type","STABILIZE")
+        self.service = INTERNAL
+        self.add_content("type",STABILIZE)
 
 class Stablize_Reply_Message(Message):
     """docstring for Stablize_Message"""
@@ -71,8 +78,8 @@ class Stablize_Reply_Message(Message):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = "INTERNAL"
-        self.add_content("type","STABILIZE_REPLY")
+        self.service = INTERNAL
+        self.add_content("type",STABILIZE_REPLY)
         self. add_content("predecessor", predecessor)
 
 class Notify_Message(Message):
@@ -81,18 +88,16 @@ class Notify_Message(Message):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = "INTERNAL"
-        self.add_content("type","NOTIFY")
+        self.service = INTERNAL
+        self.add_content("type",NOTIFY)
 
 class Check_Predecessor_Message(Message):
     def __init__(self, origin_node,destination_key):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = "INTERNAL"
-        self.add_content("type","CHECK_PREDECESSOR")
-
-        
+        self.service = INTERNAL
+        self.add_content("type",CHECK_PREDECESSOR)
 
 class Database_Message(Message):
     def __init__(self, origin_node, destination_key, file_type):
@@ -101,5 +106,3 @@ class Database_Message(Message):
         self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)
-
-print Message().serialize()

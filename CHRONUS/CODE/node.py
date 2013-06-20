@@ -19,6 +19,7 @@ import uuid
 import copy
 from optparse import OptionParser
 import random
+import message
 #import dummy_network as  
 
 
@@ -34,8 +35,8 @@ class Node_Info():
     as well as successor and predecessor.   
     """
     def __init__(self, IPAddr, crtlPort, key=None):
-        if Key(None)==key:
-            self.key = hash_str(IPAddr+":"+ctrlPort)
+        if key is None:
+            self.key = hash_str(IPAddr+":"+str(ctrlPort))
         else:
             self.key = key
         self.IPAddr = IPAddr
@@ -117,7 +118,7 @@ def join(node):
     global thisNode
     global predecessor
     predecessor = None
-    find =  Find_Successor_Message(thisNode, thisNode.key,thisNode)
+    find =  message.Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
 
 
@@ -203,7 +204,7 @@ def send_message(msg, destination=None):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)
-    net_server.send_message(msg.serialize(), destination)
+    net_server.send_message(msg, destination)
 
 # called when node is passed a message
 def handle_message(msg):

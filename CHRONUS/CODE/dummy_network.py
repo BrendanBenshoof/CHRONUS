@@ -25,19 +25,20 @@ def ensure_dir(f):
 
 class Dummy_Network():
     def __init__(self):
-        self.message_handle_callback = None
+        self.mynode = None
         self.root_mailbox_path = "/home/brendan/CHRONUS/CHRONUS/dummy_messages/"
         self.my_mailbox_path = self.root_mailbox_path
         self.callback = None
 
     def setup_node(self, mynode):
+    	self.mynode = mynode
         node_name = mynode.IPAddr+"_"+str(mynode.ctrlPort)
         self.my_mailbox_path = self.root_mailbox_path+node_name+"/"
         print self.my_mailbox_path
         ensure_dir(self.my_mailbox_path)
 
     def send_message(self, msg, dest):
-    	node_name = mynode.IPAddr+"_"+str(mynode.ctrlPort)
+    	node_name = self.mynode.IPAddr+"_"+str(self.mynode.ctrlPort)
         dest_path = self.root_mailbox_path+"/"+node_name+"/"+str(hash_util.generate_random_key())
         outfile = file(dest_path,"w+")
         outfile.write(msg.serialize())
@@ -46,20 +47,26 @@ class Dummy_Network():
     def check_for_messages(self):
     	while True:
     		time.sleep(5.0)
-        	print os.listdir(self.my_mailbox_path)
+        	L = os.listdir(self.my_mailbox_path)
+            for m in L:
+                time.sleep(0.5)
+                self.get_message(m)
+
 
     def get_message(self, msg_path):
         infile = file(mas_path, "r")
         msg_data = infile.read()
         msg = message.Message.deserialize(msg_data)
-        node.handle_message(msg, msg.origin_node)
         infile.close()
+        os.remove(msg_path)
+        self.callback(msg, msg.origin_node)
+        
 
 def start(mynode, callback):
 	mynetwork = Dummy_Network()
 	mynetwork.setup_node(mynode)
 	mynetwork.callback = callback
-	mynetwork.setup_node(Node_Info("localhost", 999, key=hash_util.generate_random_key()))
+	mynetwork.setup_node(mynode)
 	t=threading.Thread(target=mynetwork.check_for_messages)
 	t.start()
 	return mynetwork

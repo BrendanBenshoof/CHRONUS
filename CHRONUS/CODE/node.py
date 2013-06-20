@@ -110,10 +110,7 @@ def handle_update(message):
 # create a new Chord ring.
 # TODO: finger table?
 def create():
-    global successor
-    global predecessor
-    global fingerTable
-    global key
+    global successor, predecessor, fingerTable, key
     key = hash_str(IPAddr+":"+ctrlPort)
     predecessor = None
     thisNode = Node_Info(IPAddr, crtlPort, key, successor)

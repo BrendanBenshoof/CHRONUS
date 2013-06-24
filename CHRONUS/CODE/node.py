@@ -80,13 +80,13 @@ servCtrl = None
 servRelay = None
 
 ###########
-# Find Sucessor
+# Find successor
 ###########
 
-#  This is find sucessor and find closest predecessor rolled into one.
+#  This is find successor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
-    if hash_between_right_inclusive(key, thisNode.key, sucessor.key):
-        return sucessor
+    if hash_between_right_inclusive(key, thisNode.key, successor.key):
+        return successor
     for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
@@ -137,7 +137,7 @@ def begin_stabalize():
     message = Stabilize_Message(thisNode,successor)
     send_message(message)
 
-# need to account for sucessor being unreachable
+# need to account for successor being unreachable
 def stabalize(message):
     global successor
     x = message.get_content("predecessor")
@@ -145,7 +145,7 @@ def stabalize(message):
         successor = x
     send_message(Notify_Message(thisNode,successor))
 
-# we couldn't reach our sucessor;
+# we couldn't reach our successor;
 # He's dead, Jim.
 # goto next item in the finger table
 def stabalize_failed():
@@ -173,7 +173,7 @@ def update_finger(newNode,finger):
     global fingerTable
     fingerTable[finger] = newNode
     if finger == 1:
-        sucessor = newNode
+        successor = newNode
     elif finger ==0:
         predecessor = newNode
     
@@ -208,11 +208,11 @@ def send_message(msg, destination=None):
 
 # called when node is passed a message
 def handle_message(msg):
-    """Need to fix this.  Say I'm node 1, and my message is looking to find key 2, and node 3 is my sucessor.  
+    """Need to fix this.  Say I'm node 1, and my message is looking to find key 2, and node 3 is my successor.  
     So.  I go thru my finger table, checking each finger in turn to see if it's between me and the key, finally we get to finger[1] (3).  
     3 is between 1 and 3, so we return me being the closest preceding node (which is correct)
     But the assumption here is that get_dest = me means that I'm responsible for key 2 (I'm not)"""
-    get_dest = find_ideal_forward(msg.destination_key)  # do find sucessor instead, otherwise a sucessor will never actually get it
+    get_dest = find_ideal_forward(msg.destination_key)  # do find successor instead, otherwise a successor will never actually get it
     if not get_dest == thisNode:
         msg.origin_node = thisNode
         send_message(msg, get_dest)

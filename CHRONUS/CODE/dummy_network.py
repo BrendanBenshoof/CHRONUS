@@ -40,7 +40,7 @@ class Dummy_Network():
         ensure_dir(self.my_mailbox_path)
 
     def send_message(self, msg, dest):
-        node_name = self.mynode.IPAddr+"_"+str(self.mynode.ctrlPort)
+        node_name = dest.IPAddr+"_"+str(dest.ctrlPort)
         dest_path = self.root_mailbox_path+"/"+node_name+"/"+str(hash_util.generate_random_key())
         outfile = file(dest_path,"w+")
         outfile.write(msg.serialize())
@@ -50,18 +50,19 @@ class Dummy_Network():
         while True:
             time.sleep(5.0)
             L = os.listdir(self.my_mailbox_path)
+            print L
             for m in L:
                 time.sleep(0.5)
                 self.get_message(m)
 
 
     def get_message(self, msg_path):
-        infile = file(mas_path, "r")
+        infile = file(self.my_mailbox_path+"/"+msg_path, "r")
         msg_data = infile.read()
         msg = message.Message.deserialize(msg_data)
         infile.close()
-        os.remove(msg_path)
-        self.callback(msg, msg.origin_node)
+        os.remove(self.my_mailbox_path+"/"+msg_path)
+        self.callback(msg)
         
 
 def start(mynode, callback):

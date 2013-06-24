@@ -19,7 +19,7 @@ import uuid
 import copy
 from optparse import OptionParser
 import random
-import message
+from message import *
 #import dummy_network as  
 
 
@@ -118,7 +118,7 @@ def join(node):
     global thisNode
     global predecessor
     predecessor = None
-    find =  message.Find_Successor_Message(thisNode, thisNode.key,thisNode)
+    find = Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
 
 

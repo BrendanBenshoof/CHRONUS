@@ -1,5 +1,4 @@
-#currently just a test script
-#eventually to be the startup scrip for CHRONUS
+#!/usr/bin/env python
 
 import database as db 
 import network_handler as net
@@ -10,6 +9,7 @@ import service as serve
 from dummy_network import *
 import random
 import sys
+from threading import *
 
 try:
 	node.ctrlPort = int(sys.argv[1])
@@ -23,8 +23,20 @@ try:
 		node_name = sys.argv[2]
 		node_port = int(sys.argv[3])
 		othernode = node.Node_Info(node_name, node_port)
-		node.join(othernode)
+		f = lambda : node.join(othernode)
+		t = Thread(target=f)
+		t.start()
 	else:
-		node.join(node.thisNode)
+		f = lambda : node.join(node.thisNode)
+		t = Thread(target=f)
+		t.start()
+	while True:
+		cmd = raw_input(">>")
+		if cmd[:6] == "get f ":
+			x = int(cmd[6:])
+			print node.fingerTable[x]
+		else:
+			print "successor", node.successor
+			print "predecessor", node.predecessor
 except KeyboardInterrupt:
 	exit

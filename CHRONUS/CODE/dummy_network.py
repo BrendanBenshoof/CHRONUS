@@ -17,10 +17,11 @@ LAN_mode = True
 def ensure_dir(f):
     try:
         os.mkdir(f)
-        print "made dir"
+        #print "made dir"
     except OSError:
         print "I think there is already dir"
-    print "done ensure"
+        pass
+    #print "done ensure"
 
 
 class Dummy_Network():
@@ -36,7 +37,7 @@ class Dummy_Network():
         self.mynode = mynode
         node_name = mynode.IPAddr+"_"+str(mynode.ctrlPort)
         self.my_mailbox_path = self.root_mailbox_path+node_name+"/"
-        print self.my_mailbox_path
+        #print self.my_mailbox_path
         ensure_dir(self.my_mailbox_path)
 
     def send_message(self, msg, dest):
@@ -50,7 +51,7 @@ class Dummy_Network():
         while True:
             time.sleep(5.0)
             L = os.listdir(self.my_mailbox_path)
-            print L
+            #print L
             for m in L:
                 time.sleep(0.5)
                 self.get_message(m)

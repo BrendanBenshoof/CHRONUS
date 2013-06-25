@@ -24,7 +24,6 @@ def get_fingers(pop):
     loc = 0
     current = ideal_fingers[0]
     for i in pop:
-        foudn = False
         while hash_greater_than(i.key, current):
             fingers[loc] = i
             loc+=1

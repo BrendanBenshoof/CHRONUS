@@ -23,5 +23,5 @@ try:
 		node_port = int(sys.argv[3])
 		othernode = node.Node_Info(node_name, node_port)
 		node.join(othernode)
-except KeyboardInterupt:
+except KeyboardInterrupt:
 	exit

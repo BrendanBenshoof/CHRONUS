@@ -110,6 +110,8 @@ def create():
     fingerTable = [successor]  
     for i in range(1,KEY_SIZE+1):
         fingerTable.append(None)
+    t = Thread(target=kickstart)
+    t.start()
 
 # join node node's ring
 # TODO: finger table?
@@ -133,10 +135,25 @@ def join(node):
 # called periodically. n asks the successor
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
-def begin_stabalize():
-    message = Stabilize_Message(thisNode,successor)
-    send_message(message)
 
+def kickstart():
+    begin_stabalize()
+    while True:
+        time.sleep(1.0)
+        fix_fingers()
+        time.sleep(1.0)
+        fix_fingers()
+        time.sleep(1.0)
+        fix_fingers()
+        time.sleep(1.0)
+        begin_stabalize()
+    
+    
+
+def begin_stabalize():
+    message = Stablize_Message(thisNode)
+    send_message(message)
+    
 # need to account for successor being unreachable
 def stabalize(message):
     global successor

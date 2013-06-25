@@ -8,7 +8,7 @@ class Service(object):
         self.callback = None
         self.owner = None
 
-    def attach(self, callback, owner):
+    def attach(self, owner, callback):
         """Called when the service is attached to the node"""
         """Should return the ID that the node will see on messages to pass it"""
         self.callback = callback
@@ -42,20 +42,20 @@ class Internal_Service(Service):
         msgtype = msg.get_content("type")
         response = None
         if msgtype == FIND:
-            response = Update_Message(self.owner, self.return_node.key, self.owner, msg.finger)
+            response = Update_Message(self.owner, msg.return_node.key, self.owner, msg.finger)
         elif msgtype == UPDATE:
             node.update_finger(msg.return_node, msg.finger)
         elif msgtype == STABILIZE:
-            response = Stablize_Reply_Message(self.owner, self.return_node.key, node.predecessor)
+            response = Stablize_Reply_Message(self.owner, msg.return_node.key, node.predecessor)
         elif msgtype == STABILIZE_REPLY:
             node.stabalize(msg)
         elif msgtype == NOTIFY:
             node.get_notified(msg)
         elif msgtype == CHECK_PREDECESSOR:
-            response = Update_Message(self.owner, self.return_node.key, self.owner, 0)
+            response = Update_Message(self.owner, msg.return_node.key, self.owner, 0)
         else:
             return False
         if response != None:
-            send_message(response,msg.return_node)
+            self.callback(response,msg.return_node)
         return True
             

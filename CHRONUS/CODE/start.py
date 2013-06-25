@@ -15,22 +15,23 @@ from threading import *
 try:
     node.ctrlPort = int(sys.argv[1])
     node.IPAddr = "localhost"
-    node.create()
+    node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
     Internal_service = serve.Internal_Service()
     node.add_service(Internal_service)
     node.net_server = start(node.thisNode, node.handle_message)
-    node.startup()
     if len(sys.argv) > 2:
         node_name = sys.argv[2]
         node_port = int(sys.argv[3])
         othernode = node.Node_Info(node_name, node_port)
-        f = lambda : node.join(othernode)
-        t = Thread(target=f)
-        t.start()
+        node.join(othernode)
+        #f = lambda : node.join(othernode)
+        #t = Thread(target=f)
+        #t.start()
     else:
-        f = lambda : node.join(node.thisNode)
-        t = Thread(target=f)
-        t.start()
+        node.create()
+        #t = Thread(target = node.create)
+        #t.start()
+    node.startup()
     while True:
         cmd = raw_input(">>")
         if cmd[:6] == "get f ":

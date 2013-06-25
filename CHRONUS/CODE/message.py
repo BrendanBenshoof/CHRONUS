@@ -74,7 +74,7 @@ class Stablize_Message(Message):
         self.add_content("type",STABILIZE)
 
 class Stablize_Reply_Message(Message):
-    """docstring for Stablize_Message"""
+    """docstring for Stablize_Reply_Message"""
     def __init__(self, origin_node, destination_key, predecessor):
         Message.__init__(self)
         self.origin_node = origin_node

@@ -96,7 +96,7 @@ def find_ideal_forward(key):
 
 
 ######
-# Ring Creation
+# Ring and Node Creation
 ######
 
 
@@ -104,17 +104,16 @@ def find_ideal_forward(key):
 # TODO: finger table?
 def create():
     global successor, predecessor, fingerTable, key, thisNode
-    key = hash_str(IPAddr+":"+str(ctrlPort))
+    key = thisNode.key
     predecessor = None
-    thisNode = Node_Info(IPAddr, ctrlPort, key)
     successor = thisNode
-    fingerTable = [successor]  
-    for i in range(1,KEY_SIZE+1):
+    fingerTable = [None, successor]  
+    for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
 
 
 # join node node's ring
-# TODO: finger table?
+# TODO: finger table?   CHeck to refactor
 # this we need to modify for asynchronus stuff 
 def join(node):
     global thisNode
@@ -123,8 +122,9 @@ def join(node):
     global successor
     predecessor = None
     successor = node
-    fingerTable[1] = node
-    fingerTable[0] = None
+    fingerTable = [None, successor]  
+    for i in range(2,KEY_SIZE+1):
+        fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
     
@@ -132,21 +132,10 @@ def establish_netowork(netwrk):
     net_server = netwrk
 
 
-
-
-
-#############
-# Maintenence
-#############
-    
-# TODO:  Async
-# called periodically. n asks the successor
-# about its predecessor, verifies if n's immediate
-# successor is consistent, and tells the successor about n
-
 def startup():
     t = Thread(target=kickstart)
     t.start()
+    print "New thread started!"
 
 def kickstart():
     begin_stabalize()
@@ -159,6 +148,18 @@ def kickstart():
         fix_fingers()
         time.sleep(1.0)
         begin_stabalize()
+
+
+
+#############
+# Maintenence
+#############
+    
+# TODO:  Async
+# called periodically. n asks the successor
+# about its predecessor, verifies if n's immediate
+# successor is consistent, and tells the successor about n
+
     
     
 

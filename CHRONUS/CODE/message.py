@@ -68,7 +68,8 @@ class Stablize_Message(Message):
     def __init__(self, origin_node):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_key = add_keys(origin.key, generate_key_with_index(0))
+        self.destination_key = add_keys(self.origin_node.key, generate_key_with_index(0))
+        self.return_node = origin_node
         self.service = INTERNAL
         self.add_content("type",STABILIZE)
 
@@ -81,6 +82,7 @@ class Stablize_Reply_Message(Message):
         self.service = INTERNAL
         self.add_content("type",STABILIZE_REPLY)
         self. add_content("predecessor", predecessor)
+        self.return_node = origin_node
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
@@ -90,6 +92,7 @@ class Notify_Message(Message):
         self.destination_key = destination_key
         self.service = INTERNAL
         self.add_content("type",NOTIFY)
+        self.return_node = origin_node
 
 class Check_Predecessor_Message(Message):
     def __init__(self, origin_node,destination_key):
@@ -98,6 +101,7 @@ class Check_Predecessor_Message(Message):
         self.destination_key = destination_key
         self.service = INTERNAL
         self.add_content("type",CHECK_PREDECESSOR)
+        self.return_node = origin_node
 
 class Database_Message(Message):
     def __init__(self, origin_node, destination_key, file_type):
@@ -106,3 +110,4 @@ class Database_Message(Message):
         self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)
+        self.return_node = origin_node

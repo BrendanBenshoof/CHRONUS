@@ -18,10 +18,13 @@ try:
 	Internal_service = serve.Internal_Service()
 	node.add_service(Internal_service)
 	node.net_server = start(node.thisNode, node.handle_message)
+	node.startup()
 	if len(sys.argv) > 2:
 		node_name = sys.argv[2]
 		node_port = int(sys.argv[3])
 		othernode = node.Node_Info(node_name, node_port)
 		node.join(othernode)
+	else:
+		node.join(node.thisNode)
 except KeyboardInterrupt:
 	exit

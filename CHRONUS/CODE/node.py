@@ -85,7 +85,8 @@ servRelay = None
 
 #  This is find successor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
-    if hash_between_right_inclusive(key, thisNode.key, successor.key):
+    print key
+    if successor!= None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor
     for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
@@ -110,8 +111,7 @@ def create():
     fingerTable = [successor]  
     for i in range(1,KEY_SIZE+1):
         fingerTable.append(None)
-    t = Thread(target=kickstart)
-    t.start()
+
 
 # join node node's ring
 # TODO: finger table?
@@ -119,9 +119,17 @@ def create():
 def join(node):
     global thisNode
     global predecessor
+    global fingerTable
+    global successor
     predecessor = None
+    successor = node
+    fingerTable[1] = node
+    fingerTable[0] = None
     find = Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
+    
+def establish_netowork(netwrk):
+    net_server = netwrk
 
 
 
@@ -135,6 +143,10 @@ def join(node):
 # called periodically. n asks the successor
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
+
+def startup():
+    t = Thread(target=kickstart)
+    t.start()
 
 def kickstart():
     begin_stabalize()
@@ -158,9 +170,9 @@ def begin_stabalize():
 def stabalize(message):
     global successor
     x = message.get_content("predecessor")
-    if hash_between(x.key, thisNode.key, successor.key):
+    if x==None or hash_between(x.key, thisNode.key, successor.key):
         successor = x
-    send_message(Notify_Message(thisNode,successor))
+    send_message(Notify_Message(thisNode,successor.key))
 
 # we couldn't reach our successor;
 # He's dead, Jim.
@@ -221,6 +233,7 @@ def send_message(msg, destination=None):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)
+    print net_server
     net_server.send_message(msg, destination)
 
 # called when node is passed a message

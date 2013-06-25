@@ -36,11 +36,12 @@ class Node_Info():
     """
     def __init__(self, IPAddr, crtlPort, key=None):
         if key is None:
-            self.key = hash_str(IPAddr+":"+str(ctrlPort))
+            self.key = hash_str(IPAddr+":"+str(crtlPort))
         else:
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = crtlPort
+        print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
@@ -116,7 +117,6 @@ def create():
 # TODO: finger table?   CHeck to refactor
 # this we need to modify for asynchronus stuff 
 def join(node):
-    global thisNode
     global predecessor
     global fingerTable
     global successor

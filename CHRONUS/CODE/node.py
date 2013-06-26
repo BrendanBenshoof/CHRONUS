@@ -24,10 +24,10 @@ from message import *
 
 
 # Debug variables
-TEST_MODE = False   #duh
+TEST_MODE = True   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 net_server = None
-MAINTENANCE_PERIOD = 3.0
+MAINTENANCE_PERIOD = 1.0
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -68,9 +68,8 @@ successor = None
 
 #Finger table
 fingerTable = None
-numFingerErrors = 0
-nextFinger = 0
-
+#numFingerErrors = 0
+next_finger = 0
 
 #services
 services =  {}
@@ -105,6 +104,8 @@ def find_ideal_forward(key):
 # TODO: finger table?
 def create():
     global successor, predecessor, fingerTable, key, thisNode
+    if TEST_MODE:
+        print "Create"
     key = thisNode.key
     predecessor = None
     successor = thisNode
@@ -120,6 +121,8 @@ def join(node):
     global predecessor
     global fingerTable
     global successor
+    if TEST_MODE:
+        print "Join"
     predecessor = None
     successor = node
     fingerTable = [None, successor]  
@@ -133,11 +136,15 @@ def establish_network(network):
 
 
 def startup():
+    if TEST_MODE:
+        print "Startup"
     t = Thread(target=kickstart)
     t.start()
     print "New thread started!"
 
 def kickstart():
+    if TEST_MODE:
+        print "Kickstart"
     begin_stabalize()
     while True:
         time.sleep(MAINTENANCE_PERIOD)
@@ -160,12 +167,16 @@ def kickstart():
 # successor is consistent, and tells the successor about n
 
 def begin_stabalize():
+    if TEST_MODE:
+        print "Begin Stabilize"
     message = Stablize_Message(thisNode)
-    send_message(message)
+    send_message(message, successor)
     
 # need to account for successor being unreachable
 def stabalize(message):
     global successor
+    if TEST_MODE:
+        print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         successor = x
@@ -178,6 +189,8 @@ def stabalize(message):
 def stabalize_failed():
     global fingerTable
     global successor
+    if TEST_MODE:
+        print "Stabilize Failed"
     for entry in fingerTable[2:]:
         if entry != None:
             successor = entry
@@ -191,24 +204,32 @@ def stabalize_failed():
 def get_notified(message):
     global predecessor
     global fingerTable
+    if TEST_MODE:
+        print "Get Notified"
     other =  message.origin_node
-    if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
+    if(predecessor == None or hash_between(other.key, predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
         fingerTable[0] = predecessor
 
 def fix_fingers():
-    global nextFinger
-    nextFinger = nextFinger + 1
-    if nextFinger > KEY_SIZE:
-        nextFinger = 1
-    target_key = add_keys(thisNode.key, generate_key_with_index(2**(nextFinger-1)))
-    message = Find_Successor_Message(thisNode, target_key, thisNode, nextFinger)
-    send_message(message)
+    global next_finger
+    if successor != None and predecessor != None:
+        next_finger = next_finger + 1
+        if next_finger > KEY_SIZE:
+            next_finger = 1
+        if TEST_MODE:
+            print "Fix Fingers + " + str(next_finger)
+        target_key = add_keys(thisNode.key, generate_key_with_index(2**(next_finger-1)))
+        message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
+        send_message(message)
 
 def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
+    global predecessor
+    if TEST_MODE:
+        print "Update finger + " + str(finger)
     fingerTable[finger] = newNode
     if finger == 1:
         successor = newNode
@@ -251,6 +272,9 @@ def handle_message(msg):
     3 is between 1 and 3, so we return me being the closest preceding node (which is correct)
     But the assumption here is that get_dest = me means that I'm responsible for key 2 (I'm not)"""
     get_dest = find_ideal_forward(msg.destination_key)  # do find successor instead, otherwise a successor will never actually get it
+    if TEST_MODE:
+        #print "Message "  + str(msg)  + " has get_dest = " + str(get_dest) 
+        pass
     if not get_dest == thisNode:
         msg.origin_node = thisNode
         send_message(msg, get_dest)
@@ -260,4 +284,3 @@ def handle_message(msg):
         except IndexError:
             return
         myservice.handle_message(msg)
-            

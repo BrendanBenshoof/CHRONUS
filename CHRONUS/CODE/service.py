@@ -41,6 +41,8 @@ class Internal_Service(Service):
         ##switch based on "type"
         msgtype = msg.get_content("type")
         response = None
+        if node.TEST_MODE:
+            print "Got " + str(msgtype) +  " from " + str(msg.origin_node)
         if msgtype == FIND:
             response = Update_Message(self.owner, msg.return_node.key, self.owner, msg.finger)
         elif msgtype == UPDATE:

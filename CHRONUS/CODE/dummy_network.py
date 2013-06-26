@@ -42,7 +42,8 @@ class Dummy_Network():
 
     def send_message(self, msg, dest):
         node_name = dest.IPAddr+"_"+str(dest.ctrlPort)
-        dest_path = self.root_mailbox_path+"/"+node_name+"/"+str(hash_util.generate_random_key())
+        dest_path = self.root_mailbox_path+node_name+"/"+str(hash_util.generate_random_key())
+        print "sending to: "+dest_path
         outfile = file(dest_path,"w+")
         outfile.write(msg.serialize())
         outfile.close()

@@ -55,6 +55,9 @@ class Node_Info():
         if other == None:
             return True
         return not self.key == other.key
+
+    def __str__(self):
+        return str(self.IPAddr)+":"+str(self.crtlPort)+":"+str(self.key)
         
         
 """This class represents the current node in the Chord Network.
@@ -115,7 +118,7 @@ def find_successor(message):
     else:
         closest = closest_preceding_node(key)
         if thisNode == closest:
-            print "bad message, this shouldn't happend"
+            print "bad message, this shouldn't have happened"
         else:
             message.origin_node = thisNode
             send_message(message, closest)
@@ -302,7 +305,14 @@ def send_message(msg, destination=None):
 
 # called when node is passed a message
 
+"""
+Our problem is that there are three scenarios for handling the message, not 2
+1) I'm responsible
+2) I'm not responsible, but I know who is (ie, the successor)
+3) I don't know, but I know who else to ask
 
+Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
+"""
 def handle_message(msg):
     if hash_equal(thisNode.key, msg.destination_key):   # if I'm responsible for this key
         try:
@@ -310,25 +320,21 @@ def handle_message(msg):
         except IndexError:
             return
         myservice.handle_message(msg)
+    if hash_between_right_inclusive(msg.destination_key,thisNode.key, successor.key): #successor should NEVER EVER BE NONE.  At worst it should be thisNode
+        pass
     else:
         foward_message(msg)
 
-    if not msg.destination_key == thisNode.key:
-        get_dest = find_ideal_forward(msg.destination_key)
-    if not get_dest == thisNode:
-        msg.origin_node = thisNode
-        send_message(msg, get_dest)
-    else:
-        try:
-            myservice = services[msg.service]
-        except IndexError:
-            return
-        myservice.handle_message(msg)
-
-
 def forward_message(message):
+    closest =  closest_preceding_node(key)
     if TEST_MODE:
-        print "not mine; forwarding"
+        print "not mine; forwarding to " + closest
+    if closest==thisNode:
+        if TEST_MODE:
+            print "I'm the closest, how did that happen"
+    else:
+        message.origin_node = thisNode
+        send_message(message, closest)
 
 
 
@@ -336,6 +342,8 @@ def forward_message(message):
 
 """ 
 Don't mind this, I lost my train of thought, maybe it will come back.
+
+
 So here is the problem that influnences EVERYTHING, and that is how other services are going to find the responsible node.
     You see, there are assumptions, and we need to be on the same page.
 

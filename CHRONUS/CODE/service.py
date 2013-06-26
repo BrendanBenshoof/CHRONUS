@@ -46,7 +46,7 @@ class Internal_Service(Service):
                 print "Got " + str(msgtype) +  " from " + str(msg.origin_node)
         if msgtype == FIND:  # This might not ever happen with new changes
             response = Update_Message(self.owner, msg.reply_to.key, msg.finger)
-        elif msgtype == UPDATE: # This might not ever happen with new changes
+        elif msgtype == UPDATE: 
             node.update_finger(msg.reply_to, msg.finger)
         elif msgtype == STABILIZE:
             response = Stablize_Reply_Message(self.owner, msg.reply_to.key, node.predecessor)

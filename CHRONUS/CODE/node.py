@@ -107,13 +107,18 @@ def find_ideal_forward(key):
 
 #node n should find the successor f
 # At it's heart, this is a remote procedure call 
-def find_successor(key):
+def find_successor(message):
+    key = message.destination_key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
-        return successor # send update
-        reply = Update_Message()
-        send_message() 
+        reply = Update_Message(thisNode, message.reply_to.key, message.finger)
+        send_message(reply, reply_to) 
     else:
         closest = closest_preceding_node(key)
+        if thisNode == closest:
+            print "bad message, this shouldn't happend"
+        else:
+            message.origin_node = thisNode
+            send_message(message, closest)
         # find successor
         # send closest a message
 

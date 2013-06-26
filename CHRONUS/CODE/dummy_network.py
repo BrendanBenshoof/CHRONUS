@@ -44,7 +44,7 @@ class Dummy_Network():
         node_name = dest.IPAddr+"_"+str(dest.ctrlPort)
         dest_path = self.root_mailbox_path+node_name+"/"+str(hash_util.generate_random_key())
         if msg.service == "INTERNAL" :
-            print "sending " + msg.get_content("type") + "to: " + dest_path
+            print "sending " + msg.get_content("type") + " to: " + dest_path
         outfile = file(dest_path,"w+")
         outfile.write(msg.serialize())
         outfile.close()

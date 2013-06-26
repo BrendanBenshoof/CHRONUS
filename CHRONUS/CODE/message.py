@@ -65,10 +65,10 @@ class Update_Message(Message):
 
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
-    def __init__(self, origin_node):
+    def __init__(self, origin_node, successor):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_key = add_keys(self.origin_node.key, generate_key_with_index(0))
+        self.destination_key = successor.key
         self.reply_to = origin_node
         self.service = INTERNAL
         self.add_content("type",STABILIZE)

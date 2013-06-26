@@ -47,9 +47,14 @@ class Node_Info():
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
     
     def __eq__(self,other):
-        if type(other) is type(self):
-            self.key == other.key
-        return False
+        if other == None:
+            return False
+        return self.key == other.key
+        
+    def __ne__(self,other):
+        if other == None:
+            return True
+        return not self.key == other.key
         
         
 """This class represents the current node in the Chord Network.
@@ -92,7 +97,6 @@ servRelay = None
 def find_ideal_forward(key):
     #print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
-        print "!", successor
         return successor
     for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
@@ -113,9 +117,9 @@ def create():
     if TEST_MODE:
         print "Create"
     key = thisNode.key
-    predecessor = successor
+    predecessor = None
     successor = thisNode
-    fingerTable = [successor, successor]  
+    fingerTable = [None, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
 
@@ -175,7 +179,7 @@ def kickstart():
 def begin_stabalize():
     if TEST_MODE:
         print "Begin Stabilize"
-    message = Stablize_Message(thisNode)
+    message = Stablize_Message(thisNode,successor)
     send_message(message, successor)
     
 # need to account for successor being unreachable
@@ -213,7 +217,7 @@ def get_notified(message):
     if TEST_MODE:
         print "Get Notified"
     other =  message.origin_node
-    if(predecessor == None or hash_between(other.key, predecessor.key, thisNode.key) or predecessor==thisNode):
+    if(predecessor == None or hash_between(other.key, predecessor.key, thisNode.key)):
         predecessor = other
         fingerTable[0] = predecessor
 
@@ -277,13 +281,16 @@ def handle_message(msg):
     So.  I go thru my finger table, checking each finger in turn to see if it's between me and the key, finally we get to finger[1] (3).  
     3 is between 1 and 3, so we return me being the closest preceding node (which is correct)
     But the assumption here is that get_dest = me means that I'm responsible for key 2 (I'm not)"""
-    get_dest = find_ideal_forward(msg.destination_key)  # do find successor instead, otherwise a successor will never actually get it
+    get_dest = thisNode
+    if not msg.destination_key == thisNode.key:
+        get_dest = find_ideal_forward(msg.destination_key)
     if TEST_MODE:
         #print "Message "  + str(msg)  + " has get_dest = " + str(get_dest) 
         pass
     if not get_dest == thisNode:
-        print get_dest, thisNode
         print "not mine; forwarding"
+        print get_dest
+        print thisNode
         msg.origin_node = thisNode
         send_message(msg, get_dest)
     else:

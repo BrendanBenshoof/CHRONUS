@@ -38,11 +38,12 @@ class Internal_Service(Service):
         """Return True if message is handled correctly
         Return False if things go horribly wrong
         """
-        ##switch based on "type"
+        ## switch based on "type"
         msgtype = msg.get_content("type")
         response = None
         if node.TEST_MODE:
-            print "Got " + str(msgtype) +  " from " + str(msg.origin_node)
+            if msg.origin_node != node.thisNode:
+                print "Got " + str(msgtype) +  " from " + str(msg.origin_node)
         if msgtype == FIND:
             response = Update_Message(self.owner, msg.reply_to.key, msg.finger)
         elif msgtype == UPDATE:

@@ -26,8 +26,8 @@ from message import *
 # Debug variables
 TEST_MODE = False   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
-
 net_server = None
+MAINTENANCE_PERIOD = 3.0
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -128,8 +128,8 @@ def join(node):
     find = Find_Successor_Message(thisNode, thisNode.key,thisNode)
     send_message(find, node)
     
-def establish_netowork(netwrk):
-    net_server = netwrk
+def establish_network(network):
+    net_server = network
 
 
 def startup():
@@ -140,13 +140,13 @@ def startup():
 def kickstart():
     begin_stabalize()
     while True:
-        time.sleep(1.0)
+        time.sleep(MAINTENANCE_PERIOD)
         fix_fingers()
-        time.sleep(1.0)
+        time.sleep(MAINTENANCE_PERIOD)
         fix_fingers()
-        time.sleep(1.0)
+        time.sleep(MAINTENANCE_PERIOD)
         fix_fingers()
-        time.sleep(1.0)
+        time.sleep(MAINTENANCE_PERIOD)
         begin_stabalize()
 
 
@@ -154,14 +154,10 @@ def kickstart():
 #############
 # Maintenence
 #############
-    
-# TODO:  Async
+
 # called periodically. n asks the successor
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
-
-    
-    
 
 def begin_stabalize():
     message = Stablize_Message(thisNode)
@@ -175,16 +171,26 @@ def stabalize(message):
         successor = x
     send_message(Notify_Message(thisNode,successor.key))
 
+# TODO: Call this function
 # we couldn't reach our successor;
 # He's dead, Jim.
 # goto next item in the finger table
 def stabalize_failed():
-    pass
+    global fingerTable
+    global successor
+    for entry in fingerTable[2:]:
+        if entry != None:
+            successor = entry
+            fingerTable[1] = entry
+            begin_stabalize()
+            return
+    #what to do here???
 
 # we were notified by node other;
 # other thinks it might be our predecessor
 def get_notified(message):
-    global predecessor, fingerTable
+    global predecessor
+    global fingerTable
     other =  message.origin_node
     if(predecessor == None or hash_between(other.key,predecessor.key, thisNode.key) or predecessor==thisNode):
         predecessor = other
@@ -201,6 +207,8 @@ def fix_fingers():
 
 def update_finger(newNode,finger):
     global fingerTable
+    global successor
+    global predecessor
     fingerTable[finger] = newNode
     if finger == 1:
         successor = newNode

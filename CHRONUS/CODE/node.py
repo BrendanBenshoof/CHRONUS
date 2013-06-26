@@ -98,12 +98,30 @@ def find_ideal_forward(key):
     #print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor
+    for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
+        if finger != None: 
+            if hash_between(finger.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
+                return finger   #this could be the source of our problem;  how do we distinguish between him being repsonsible and him preceding
+    return thisNode
+
+
+#node n should find the successor f
+def find_successor(key):
+    if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
+        return successor # send update
+        reply = Update_Message()
+        send_message() 
+    else:
+        closest = closest_preceding_node(key)
+        # find successor
+        # send closest a message
+
+def closest_preceding_node(key):
     for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
             if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return n
-    return thisNode
-
+    return thisNode  # I'm the closest preceding node.
 
 ######
 # Ring and Node Creation
@@ -155,7 +173,7 @@ def startup():
 def kickstart():
     if TEST_MODE:
         print "Kickstart"
-    begin_stabalize()
+    begin_stabilize()
     while True:
         time.sleep(MAINTENANCE_PERIOD)
         fix_fingers()
@@ -164,7 +182,7 @@ def kickstart():
         time.sleep(MAINTENANCE_PERIOD)
         fix_fingers()
         time.sleep(MAINTENANCE_PERIOD)
-        begin_stabalize()
+        begin_stabilize()
 
 
 
@@ -176,27 +194,27 @@ def kickstart():
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
 
-def begin_stabalize():
+def begin_stabilize():
     if TEST_MODE:
         print "Begin Stabilize"
     message = Stablize_Message(thisNode,successor)
     send_message(message, successor)
     
 # need to account for successor being unreachable
-def stabalize(message):
+def stabilize(message):
     global successor
     if TEST_MODE:
         print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         successor = x
-    send_message(Notify_Message(thisNode,successor.key))
+    send_message(Notify_Message(thisNode, successor.key))
 
 # TODO: Call this function
 # we couldn't reach our successor;
 # He's dead, Jim.
 # goto next item in the finger table
-def stabalize_failed():
+def stabilize_failed():
     global fingerTable
     global successor
     if TEST_MODE:
@@ -205,7 +223,7 @@ def stabalize_failed():
         if entry != None:
             successor = entry
             fingerTable[1] = entry
-            begin_stabalize()
+            begin_stabilize()
             return
     #what to do here???
 
@@ -277,10 +295,6 @@ def send_message(msg, destination=None):
 
 # called when node is passed a message
 def handle_message(msg):
-    """Need to fix this.  Say I'm node 1, and my message is looking to find key 2, and node 3 is my successor.  
-    So.  I go thru my finger table, checking each finger in turn to see if it's between me and the key, finally we get to finger[1] (3).  
-    3 is between 1 and 3, so we return me being the closest preceding node (which is correct)
-    But the assumption here is that get_dest = me means that I'm responsible for key 2 (I'm not)"""
     get_dest = thisNode
     if not msg.destination_key == thisNode.key:
         get_dest = find_ideal_forward(msg.destination_key)

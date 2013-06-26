@@ -27,7 +27,7 @@ from message import *
 TEST_MODE = True   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 net_server = None
-MAINTENANCE_PERIOD = 1.0
+MAINTENANCE_PERIOD = 3.0
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -45,6 +45,11 @@ class Node_Info():
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
+    
+    def __eq__(self,other):
+        if type(other) is type(self):
+            self.key == other.key
+        return False
         
         
 """This class represents the current node in the Chord Network.
@@ -86,7 +91,8 @@ servRelay = None
 #  This is find successor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
     #print key
-    if successor!= None and hash_between_right_inclusive(key, thisNode.key, successor.key):
+    if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
+        print "!", successor
         return successor
     for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if n != None: 
@@ -107,9 +113,9 @@ def create():
     if TEST_MODE:
         print "Create"
     key = thisNode.key
-    predecessor = None
+    predecessor = successor
     successor = thisNode
-    fingerTable = [None, successor]  
+    fingerTable = [successor, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
 
@@ -128,8 +134,8 @@ def join(node):
     fingerTable = [None, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
-    find = Find_Successor_Message(thisNode, thisNode.key,thisNode)
-    send_message(find, node)
+    find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
+    send_message(find, successor)
     
 def establish_network(network):
     net_server = network
@@ -229,11 +235,11 @@ def update_finger(newNode,finger):
     global predecessor
     global predecessor
     if TEST_MODE:
-        print "Update finger + " + str(finger)
+        print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
     if finger == 1:
         successor = newNode
-    elif finger ==0:
+    elif finger == 0:
         predecessor = newNode
     
 
@@ -276,6 +282,8 @@ def handle_message(msg):
         #print "Message "  + str(msg)  + " has get_dest = " + str(get_dest) 
         pass
     if not get_dest == thisNode:
+        print get_dest, thisNode
+        print "not mine; forwarding"
         msg.origin_node = thisNode
         send_message(msg, get_dest)
     else:

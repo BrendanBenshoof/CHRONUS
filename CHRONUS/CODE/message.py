@@ -15,12 +15,12 @@ CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
 
 class Message(object):
     def __init__(self):
-        self.contents = {} #nasty collection
-        self.service = None #string right now could be int
-        self.destination_key = 0 #160 number or hash object
-        self.finger = None# int -1 to 160
-        self.origin_node = None #node object
-        self.return_node = None #node object -> hash_location, IP, port
+        self.origin_node = None     # One hop origin
+        self.destination_key = 0    # 160 number or hash object
+        self.reply_to = None        # Node to reply to
+        self.contents = {}          # All other data
+        self.service = None         # What service handles this
+        self.finger = None          # int -1 to 160
 
     @staticmethod
     def deserialize(in_string):
@@ -46,20 +46,20 @@ class Message(object):
 class Find_Successor_Message(Message):
     def __init__(self, origin_node, destination_key, requester, finger = 1):
         Message.__init__(self)
-        self.one_hop_origin_node = origin_node  # node that just sent this message
+        self.origin_node = origin_node  # node that just sent this message
         self.destination_key = destination_key  # the key we're trying to find the node responsible for
-        self.return_node = requester
+        self.reply_to = requester
         self.finger = finger
         self.add_content("type",FIND)
         self.service = INTERNAL
 
 class Update_Message(Message):
-    def __init__(self, origin_node, destination_key, node, finger):
+    def __init__(self, origin_node, destination_key, finger):
         Message.__init__(self)
         self.origin_node = origin_node
-        self.destination_key = destination_key
+        self.destination_key = destination_key  #key we are sending it back to
         self.finger = finger        # entry in the finger table to update.
-        self.return_node = node     # the node to connect to
+        self.reply_to = origin_node     # the node to connect to
         self.add_content("type",UPDATE)
         self.service = INTERNAL
 
@@ -69,7 +69,7 @@ class Stablize_Message(Message):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = add_keys(self.origin_node.key, generate_key_with_index(0))
-        self.return_node = origin_node
+        self.reply_to = origin_node
         self.service = INTERNAL
         self.add_content("type",STABILIZE)
 
@@ -82,7 +82,7 @@ class Stablize_Reply_Message(Message):
         self.service = INTERNAL
         self.add_content("type",STABILIZE_REPLY)
         self. add_content("predecessor", predecessor)
-        self.return_node = origin_node
+        self.reply_to = origin_node
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
@@ -92,7 +92,7 @@ class Notify_Message(Message):
         self.destination_key = destination_key
         self.service = INTERNAL
         self.add_content("type",NOTIFY)
-        self.return_node = origin_node
+        self.reply_to = origin_node
 
 class Check_Predecessor_Message(Message):
     def __init__(self, origin_node,destination_key):
@@ -101,7 +101,7 @@ class Check_Predecessor_Message(Message):
         self.destination_key = destination_key
         self.service = INTERNAL
         self.add_content("type",CHECK_PREDECESSOR)
-        self.return_node = origin_node
+        self.reply_to = origin_node
 
 class Database_Message(Message):
     def __init__(self, origin_node, destination_key, file_type):
@@ -110,4 +110,4 @@ class Database_Message(Message):
         self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)
-        self.return_node = origin_node
+        self.reply_to = origin_node

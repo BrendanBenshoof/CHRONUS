@@ -43,18 +43,19 @@ class Dummy_Network():
     def send_message(self, msg, dest):
         node_name = dest.IPAddr+"_"+str(dest.ctrlPort)
         dest_path = self.root_mailbox_path+node_name+"/"+str(hash_util.generate_random_key())
-        print "sending to: "+dest_path
+        if msg.service == "INTERNAL" :
+            print "sending " + msg.get_content("type") + "to: " + dest_path
         outfile = file(dest_path,"w+")
         outfile.write(msg.serialize())
         outfile.close()
 
     def check_for_messages(self):
         while True:
-            time.sleep(5.0)
+            time.sleep(0.01)
             L = os.listdir(self.my_mailbox_path)
             #print L
             for m in L:
-                time.sleep(0.5)
+                time.sleep(0.01)
                 self.get_message(m)
 
 
@@ -63,7 +64,10 @@ class Dummy_Network():
         msg_data = infile.read()
         msg = message.Message.deserialize(msg_data)
         infile.close()
-        os.remove(self.my_mailbox_path+"/"+msg_path)
+        try:
+            os.remove(self.my_mailbox_path+"/"+msg_path)
+        except OSError: 
+            print "HERP DERP FAILED TO DELETE"
         self.callback(msg)
         
 

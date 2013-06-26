@@ -44,20 +44,20 @@ class Internal_Service(Service):
         if node.TEST_MODE:
             print "Got " + str(msgtype) +  " from " + str(msg.origin_node)
         if msgtype == FIND:
-            response = Update_Message(self.owner, msg.return_node.key, self.owner, msg.finger)
+            response = Update_Message(self.owner, msg.reply_to.key, msg.finger)
         elif msgtype == UPDATE:
-            node.update_finger(msg.return_node, msg.finger)
+            node.update_finger(msg.reply_to, msg.finger)
         elif msgtype == STABILIZE:
-            response = Stablize_Reply_Message(self.owner, msg.return_node.key, node.predecessor)
+            response = Stablize_Reply_Message(self.owner, msg.reply_to.key, node.predecessor)
         elif msgtype == STABILIZE_REPLY:
             node.stabalize(msg)
         elif msgtype == NOTIFY:
             node.get_notified(msg)
         elif msgtype == CHECK_PREDECESSOR:
-            response = Update_Message(self.owner, msg.return_node.key, self.owner, 0)
+            response = Update_Message(self.owner, msg.reply_to.key, 0)
         else:
             return False
         if response != None:
-            self.callback(response,msg.return_node)
+            self.callback(response, msg.reply_to)
         return True
             

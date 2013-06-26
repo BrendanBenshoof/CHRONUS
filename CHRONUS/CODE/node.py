@@ -222,7 +222,7 @@ def check_predecessor():
         send_message(Check_Predecessor_Message(thisNode, predecessor.key),predecessor)
    
 #politely leave the network 
-def exit():
+def exit_network():
     pass
 
 

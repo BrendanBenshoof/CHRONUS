@@ -145,9 +145,9 @@ def create():
     if TEST_MODE:
         print "Create"
     key = thisNode.key
-    predecessor = None
+    predecessor = thisNode
     successor = thisNode
-    fingerTable = [None, successor]  
+    fingerTable = [thisNode, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
 
@@ -161,9 +161,9 @@ def join(node):
     global successor
     if TEST_MODE:
         print "Join"
-    predecessor = None
+    predecessor = thisNode
     successor = node
-    fingerTable = [None, successor]  
+    fingerTable = [thisNode, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
@@ -224,6 +224,7 @@ def stabilize(message):
 # we couldn't reach our successor;
 # He's dead, Jim.
 # goto next item in the finger table
+# TODO: if pred is thisNode. 
 def stabilize_failed():
     global fingerTable
     global successor
@@ -239,19 +240,20 @@ def stabilize_failed():
 
 # we were notified by node other;
 # other thinks it might be our predecessor
+# TODO: if pred is thisNode.
 def get_notified(message):
     global predecessor
     global fingerTable
     if TEST_MODE:
         print "Get Notified"
     other =  message.origin_node
-    if(predecessor == None or hash_between(other.key, predecessor.key, thisNode.key)):
+    if(predecessor == thisNode or hash_between(other.key, predecessor.key, thisNode.key)):
         predecessor = other
         fingerTable[0] = predecessor
 
 def fix_fingers():
     global next_finger
-    if successor != None and predecessor != None:
+    if successor != thisNode and predecessor != thisNode:
         next_finger = next_finger + 1
         if next_finger > KEY_SIZE:
             next_finger = 1
@@ -314,27 +316,31 @@ Our problem is that there are three scenarios for handling the message, not 2
 Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
 def handle_message(msg):
-    if hash_equal(thisNode.key, msg.destination_key):   # if I'm responsible for this key
+    if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
         try:
             myservice = services[msg.service]
         except IndexError:
             return
         myservice.handle_message(msg)
-    if hash_between_right_inclusive(msg.destination_key,thisNode.key, successor.key): #successor should NEVER EVER BE NONE.  At worst it should be thisNode
-        pass
     else:
         foward_message(msg)
 
 def forward_message(message):
-    closest =  closest_preceding_node(key)
-    if TEST_MODE:
-        print "not mine; forwarding to " + closest
-    if closest==thisNode:
-        if TEST_MODE:
-            print "I'm the closest, how did that happen"
-    else:
+    if hash_between_right_inclusive(message.destination_key, thisNode.key, successor.key):
         message.origin_node = thisNode
-        send_message(message, closest)
+        if TEST_MODE:
+            print "not mine; forwarding to " + successor
+        send_message(message, successor)
+    else:
+        closest =  closest_preceding_node(key)
+        if TEST_MODE:
+            print "not mine; forwarding to " + closest
+        if closest==thisNode:
+            if TEST_MODE:
+                print "I'm the closest, how did that happen"
+        else:
+            message.origin_node = thisNode
+            send_message(message, closest)
 
 
 

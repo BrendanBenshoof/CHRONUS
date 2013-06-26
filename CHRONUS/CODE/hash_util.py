@@ -18,11 +18,7 @@ class Key():
         self.key = key
 
     def __eq__(self, other):
-        if other == None:
-            return False
-        if self.key == other.key:
-            return True
-        return False
+        return hash_equal(self, other)
 
     def __str__(self):
         return str(self.key)

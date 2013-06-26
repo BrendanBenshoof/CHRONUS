@@ -106,6 +106,7 @@ def find_ideal_forward(key):
 
 
 #node n should find the successor f
+# At it's heart, this is a remote procedure call 
 def find_successor(key):
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor # send update

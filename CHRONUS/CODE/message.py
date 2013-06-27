@@ -16,7 +16,7 @@ CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
 class Message(object):
     def __init__(self):
         self.origin_node = None     # One hop origin
-        self.destination_key = 0    # 160 number or hash object
+        self.destination_key = generate_random_key()    # 160 number or hash object
         self.reply_to = None        # Node to reply to
         self.contents = {}          # All other data
         self.service = None         # What service handles this
@@ -24,7 +24,12 @@ class Message(object):
 
     @staticmethod
     def deserialize(in_string):
-        return pickle.loads(in_string)
+        try:
+                return pickle.loads(in_string)
+        except EOFError:
+                fail_message = Message()
+                fail_message.service = "FAILURE"
+                return fail_message
         #there are soo many exceptions I should be catching here
 
     def serialize(self):

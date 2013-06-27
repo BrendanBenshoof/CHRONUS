@@ -41,6 +41,8 @@ try:
             print node.fingerTable[x]
         elif cmd == 'q' or cmd ==  'Q' :
             quit()
+        elif cmd == 'g' or cmd == 'G':
+            print "estimate:", node.estimate_ring_density()
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

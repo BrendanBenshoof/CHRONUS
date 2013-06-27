@@ -27,7 +27,7 @@ from message import *
 TEST_MODE = True   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 net_server = None
-MAINTENANCE_PERIOD = 3.0
+MAINTENANCE_PERIOD = 1.0
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -233,7 +233,7 @@ def stabilize_failed():
     for entry in fingerTable[2:]:
         if entry != None:
             successor = entry
-            fingerTable[1] = entry
+            fingegenerate_key_with_indexrTable[1] = entry
             begin_stabilize()
             return
     #what to do here???
@@ -319,7 +319,7 @@ def handle_message(msg):
     if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
         try:
             myservice = services[msg.service]
-        except IndexError:
+        except KeyError:
             return
         myservice.handle_message(msg)
     else:
@@ -342,7 +342,22 @@ def forward_message(message):
             message.origin_node = thisNode
             send_message(message, closest)
 
-
+def estimate_ring_density():
+    total = 0
+    i = 80
+    count = 0
+    for f in fingerTable[80:]:
+        if not f is None:
+            ideal = int(generate_key_with_index(i).key, 16)
+            actual = int(f.key.key, 16)
+            distance = actual-ideal
+            total += distance*2
+            i+=1
+            count +=1
+    average = total/count
+    ring_size = 0x01 << 160
+    return ring_size / average
+    
 
 
 

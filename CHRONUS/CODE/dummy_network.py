@@ -11,6 +11,7 @@ import message
 import threading
 import time
 LAN_mode = True
+from os.path import expanduser
 
 
 
@@ -27,7 +28,7 @@ def ensure_dir(f):
 class Dummy_Network():
     def __init__(self):
         self.mynode = None
-        home = os.environ["HOME"]
+        home = expanduser("~")
         self.root_mailbox_path = home + "/dummy_messages/"
         ensure_dir(self.root_mailbox_path)
         self.my_mailbox_path = self.root_mailbox_path

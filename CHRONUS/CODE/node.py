@@ -41,7 +41,7 @@ class Node_Info():
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = crtlPort
-        print self.IPAddr, self.ctrlPort, str(self.key)
+        #print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
@@ -57,7 +57,7 @@ class Node_Info():
         return not self.key == other.key
 
     def __str__(self):
-        return str(self.IPAddr)+":"+str(self.crtlPort)+":"+str(self.key)
+        return str(self.IPAddr)+":"+str(self.ctrlPort)+":"+str(self.key)
         
         
 """This class represents the current node in the Chord Network.
@@ -259,7 +259,7 @@ def fix_fingers():
             next_finger = 1
         if TEST_MODE:
             print "Fix Fingers + " + str(next_finger)
-        target_key = add_keys(thisNode.key, generate_key_with_index(2**(next_finger-1)))
+        target_key = add_keys(thisNode.key, generate_key_with_index(next_finger-1))
         message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
         send_message(message)
 
@@ -275,7 +275,7 @@ def update_finger(newNode,finger):
         successor = newNode
     elif finger == 0:
         predecessor = newNode
-    
+
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
@@ -323,18 +323,18 @@ def handle_message(msg):
             return
         myservice.handle_message(msg)
     else:
-        foward_message(msg)
+        forward_message(msg)
 
 def forward_message(message):
     if hash_between_right_inclusive(message.destination_key, thisNode.key, successor.key):
         message.origin_node = thisNode
         if TEST_MODE:
-            print "not mine; forwarding to " + successor
+            print "not mine; forwarding to " + str(successor)
         send_message(message, successor)
     else:
-        closest =  closest_preceding_node(key)
+        closest =  closest_preceding_node(message.destination_key)
         if TEST_MODE:
-            print "not mine; forwarding to " + closest
+            print "not mine; forwarding to " + str(closest)
         if closest==thisNode:
             if TEST_MODE:
                 print "I'm the closest, how did that happen"

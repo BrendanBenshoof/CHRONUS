@@ -27,7 +27,7 @@ from message import *
 TEST_MODE = True   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 net_server = None
-MAINTENANCE_PERIOD = 1.0
+MAINTENANCE_PERIOD = 2.0
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -162,12 +162,12 @@ def join(node):
     if TEST_MODE:
         print "Join"
     predecessor = thisNode
-    successor = node
+    successor = thisNode
     fingerTable = [thisNode, successor]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
-    send_message(find, successor)
+    send_message(find, node)
     
 def establish_network(network):
     net_server = network
@@ -186,14 +186,11 @@ def kickstart():
     begin_stabilize()
     while True:
         time.sleep(MAINTENANCE_PERIOD)
-        fix_fingers()
-        time.sleep(MAINTENANCE_PERIOD)
-        fix_fingers()
-        time.sleep(MAINTENANCE_PERIOD)
-        fix_fingers()
-        time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
-
+        time.sleep(MAINTENANCE_PERIOD)
+        begin_stabilize()        
+        time.sleep(MAINTENANCE_PERIOD)
+        fix_fingers(10)
 
 
 #############
@@ -251,17 +248,18 @@ def get_notified(message):
         predecessor = other
         fingerTable[0] = predecessor
 
-def fix_fingers():
+def fix_fingers(n=1):
     global next_finger
-    if successor != thisNode and predecessor != thisNode:
-        next_finger = next_finger + 1
-        if next_finger > KEY_SIZE:
-            next_finger = 1
-        if TEST_MODE:
-            print "Fix Fingers + " + str(next_finger)
-        target_key = add_keys(thisNode.key, generate_key_with_index(next_finger-1))
-        message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
-        send_message(message)
+    for i in range(0,n):
+        if successor != thisNode and predecessor != thisNode:
+            next_finger = next_finger + 1
+            if next_finger > KEY_SIZE:
+                next_finger = 1
+            if TEST_MODE:
+                print "Fix Fingers + " + str(next_finger)
+            target_key = add_keys(thisNode.key, generate_key_with_index(next_finger-1))
+            message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
+            send_message(message)
 
 def update_finger(newNode,finger):
     global fingerTable

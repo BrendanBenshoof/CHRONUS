@@ -27,6 +27,15 @@ class Service(object):
 
 
 
+class ECHO_service(Service):
+    def __init__(self):
+        super(Service, self).__init__()
+        self.service_id = "ECHO"
+
+    def handle_message(self, msg):
+        for k in msg.contents.keys():
+            print msg.get_content(k)
+
 class Internal_Service(Service):
     """Handler of Chord behavoir and internal messages"""
     def __init__(self):

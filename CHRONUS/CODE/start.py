@@ -18,7 +18,10 @@ try:
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
     Internal_service = serve.Internal_Service()
     node.add_service(Internal_service)
+    node.add_service(serve.ECHO_service())
     node.net_server = start(node.thisNode, node.handle_message)
+    database = db.Database("/home/brendan/DATABASE")
+    node.add_service(database)
     if len(sys.argv) > 2:
         node_name = sys.argv[2]
         node_port = int(sys.argv[3])
@@ -43,6 +46,11 @@ try:
             quit()
         elif cmd == 'g' or cmd == 'G':
             print "estimate:", node.estimate_ring_density()
+        elif cmd[:4] == "get ":
+            database.get_record(cmd[4:])
+        elif cmd[:4] == "put ":
+            arg_str = cmd[4:].split(' ',1)
+            database.put_record(arg_str[0],arg_str[1])
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

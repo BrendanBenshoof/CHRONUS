@@ -109,10 +109,11 @@ class Check_Predecessor_Message(Message):
         self.reply_to = origin_node
 
 class Database_Message(Message):
-    def __init__(self, origin_node, destination_key, file_type):
+    def __init__(self, origin_node, destination_key,Reponse_service="DATABASE", file_type="GET"):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = "DATABASE"
         self.add_content("type",file_type)
+        self.add_content("service",Reponse_service)
         self.reply_to = origin_node

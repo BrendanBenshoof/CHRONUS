@@ -24,7 +24,7 @@ from message import *
 
 
 # Debug variables
-TEST_MODE = True   #duh
+TEST_MODE = False   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 net_server = None
 MAINTENANCE_PERIOD = 2.0
@@ -41,7 +41,7 @@ class Node_Info():
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = crtlPort
-        #print self.IPAddr, self.ctrlPort, str(self.key)
+        ##print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
@@ -98,7 +98,7 @@ servRelay = None
 
 #  This is find successor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
-    #print key
+    ##print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))

@@ -357,7 +357,25 @@ def estimate_ring_density():
     return ring_size / average
     
 
-
+def message_failed(msg, intended_dest):
+    for i in range(0,160)[::-1]:
+        if fingerTable[i] == intended_dest:
+            if i == 1: #we lost our successor
+                fingerTable[1] = thiNode
+                fingerTable[1] = find_ideal_forward(thisNode.key)
+                successor = fingerTable[1] 
+            if i == 0: #we lost our predecessor
+                fingerTable[0] = thisNode
+                print "THIS SHOULD NOT HAPPEN. PANIC NOW"
+                if fingerTable[-1] is None:
+                    predecessor = thisNode
+                else:
+                    predecessor = fingerTable[-1]
+                    fingerTable[0] = fingerTable[-1]
+            else: #we just lost a finger
+                fingerTable[i] = None #cut it off properly
+    send_message(msg)
+                
 
 """ 
 Don't mind this, I lost my train of thought, maybe it will come back.

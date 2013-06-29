@@ -22,6 +22,14 @@ class Service(object):
         """
         return msg.service == self.service_id
 
+    def attach_to_console(self):
+        ### return a dict of command-strings
+        return None
+
+    def handle_command(self, comand_st, arg_str):
+        ### one of your commands got typed in
+        return None
+
     def send_message(self, msg, dest=None):
         self.callback(msg, dest)
 

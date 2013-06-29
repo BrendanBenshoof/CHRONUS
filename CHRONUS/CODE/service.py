@@ -25,7 +25,7 @@ class Service(object):
     def send_message(self, msg, dest=None):
         self.callback(msg, dest)
 
-    def Change_in_Responsibility(self,new_pred_key, my_key):
+    def change_in_responsibility(self,new_pred_key, my_key):
         pass #this is called when a new, closer predicessor is found and we need to re-allocate
             #responsibilties
 

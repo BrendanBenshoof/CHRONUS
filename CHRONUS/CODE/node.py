@@ -106,36 +106,16 @@ def find_ideal_forward(key):
     ##print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor
+    return closest_preceding_node(key)
+
+
+
+def closest_preceding_node(key):
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if finger != None: 
             if hash_between(finger.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return finger   #this could be the source of our problem;  how do we distinguish between him being repsonsible and him preceding
     return thisNode
-
-
-#node n should find the successor f
-# At it's heart, this is a remote procedure call 
-def find_successor(message):
-    key = message.destination_key
-    if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
-        reply = Update_Message(thisNode, message.reply_to.key, message.finger)
-        send_message(reply, reply_to) 
-    else:
-        closest = closest_preceding_node(key)
-        if thisNode == closest:
-            print "bad message, this shouldn't have happened"
-        else:
-            message.origin_node = thisNode
-            send_message(message, closest)
-        # find successor
-        # send closest a message
-
-def closest_preceding_node(key):
-    for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
-        if n != None: 
-            if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
-                return n
-    return thisNode  # I'm the closest preceding node.
 
 
 ######
@@ -173,11 +153,7 @@ def join(node):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
     send_message(find, node)
-    
-def establish_network(network):
-    net_server = network
-
-
+#########We shoudl clean this up    
 def startup():
     if TEST_MODE:
         print "Startup"
@@ -194,9 +170,12 @@ def kickstart():
         time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
         time.sleep(MAINTENANCE_PERIOD)
-        begin_stabilize()        
+        begin_stabilize()
+        check_predecessor()        
         time.sleep(MAINTENANCE_PERIOD)
         fix_fingers(10)
+
+##END CLEANUP
 
 
 #############
@@ -241,7 +220,7 @@ def stabilize_failed():
     for entry in fingerTable[2:]:
         if entry != None:
             successor = entry
-            fingegenerate_key_with_indexrTable[1] = entry
+            fingerTable[1] = entry
             begin_stabilize()
             fingerTable_lock.release()
             successor_lock.release()
@@ -291,8 +270,6 @@ def update_finger(newNode,finger):
     predecessor_lock.acquire(True)
     successor_lock.acquire(True)
     fingerTable_lock.acquire(True)
-                    
-                    
     if TEST_MODE:
         print "Update finger: " + str(finger)
     fingerTable[finger] = newNode

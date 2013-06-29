@@ -3,6 +3,7 @@ from service import Service
 from message import Database_Message
 import hash_util
 from threading import Lock
+
 class Database(Service):
     """docstring for Database"""
     def __init__(self, root_directory):
@@ -60,4 +61,3 @@ class Database(Service):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,"ECHO","GET")
         self.callback(newmsg)
-

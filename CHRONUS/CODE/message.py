@@ -12,6 +12,9 @@ STABILIZE = "STABILIZE"
 STABILIZE_REPLY = "STABILIZE_REPLY"
 NOTIFY = "NOTIFY"
 CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
+POLITE_QUIT = "POLITE_QUIT"
+DATABASE = "DATABASE"
+FAILURE = "FAILURE"
 
 class Message(object):
     def __init__(self):
@@ -28,7 +31,7 @@ class Message(object):
                 return pickle.loads(in_string)
         except EOFError:
                 fail_message = Message()
-                fail_message.service = "FAILURE"
+                fail_message.service = FAILURE
                 return fail_message
         #there are soo many exceptions I should be catching here
 
@@ -109,11 +112,21 @@ class Check_Predecessor_Message(Message):
         self.reply_to = origin_node
 
 class Database_Message(Message):
-    def __init__(self, origin_node, destination_key,Reponse_service="DATABASE", file_type="GET"):
+    def __init__(self, origin_node, destination_key,Reponse_service=DATABASE, file_type="GET"):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = "DATABASE"
+        self.service = DATABASE
         self.add_content("type",file_type)
         self.add_content("service",Reponse_service)
+        self.reply_to = origin_node
+
+class Exit_Message(Message):
+    """docstring for Notify_Message"""
+    def __init__(self, origin_node,destination_key):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.service = INTERNAL
+        self.add_content("type",POLITE_QUIT)
         self.reply_to = origin_node

@@ -2,12 +2,15 @@
 from service import Service
 from message import Database_Message
 import hash_util
+from threading import Lock
+
 class Database(Service):
     """docstring for Database"""
     def __init__(self, root_directory):
         super(Database, self).__init__()
         self.root_directory = root_directory
         self.service_id = "DATABASE"
+        self.write_lock = Lock()
 
     def lookup_record(self,hash_name):
         try:
@@ -22,11 +25,13 @@ class Database(Service):
             return "404 Error"
 
     def write_record(self,hash_name, file_contents):
+        self.write_lock.acquire()
         print "writing record"
         path = self.root_directory+"/"+hash_name
         record_file= file(path,"w+")
         record_file.write(file_contents)
         record_file.close()
+        self.write_lock.release()
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:
@@ -38,7 +43,7 @@ class Database(Service):
             return_service = msg.get_content("service")
             newmsg = Database_Message(self.owner, msg.reply_to.key, return_service, "RESP")
             newmsg.add_content("file_contents",content)
-            self.callback(newmsg, msg.reply_to)
+            self.send_message(newmsg, msg.reply_to)
         if msg.get_content("type") == "PUT":
             filename = str(msg.destination_key)
             self.write_record(filename, msg.get_content("file_contents"))
@@ -50,10 +55,9 @@ class Database(Service):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,"DATABASE","PUT")
         newmsg.add_content("file_contents",data)
-        self.callback(newmsg)
+        self.send_message(newmsg)
 
     def get_record(self,name):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,"ECHO","GET")
-        self.callback(newmsg)
-
+        self.send_message(newmsg)

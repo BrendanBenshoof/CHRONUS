@@ -70,7 +70,10 @@ class Dummy_Network():
             os.remove(self.my_mailbox_path+"/"+msg_path)
         except OSError: 
             print "HERP DERP FAILED TO DELETE"
-        self.callback(msg)
+        tocall = lambda: self.callback(msg)
+        t=threading.Thread(target=tocall)
+        t.setDaemon(True)
+        t.start()    
         
 
 def start(mynode, callback):
@@ -79,6 +82,7 @@ def start(mynode, callback):
     mynetwork.callback = callback
     mynetwork.setup_node(mynode)
     t=threading.Thread(target=mynetwork.check_for_messages)
+    t.setDaemon(True)
     t.start()
     return mynetwork
 

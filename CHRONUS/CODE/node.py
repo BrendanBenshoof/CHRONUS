@@ -34,13 +34,13 @@ class Node_Info():
     We use this, rather than the node class itself, for entries in the finger table
     as well as successor and predecessor.   
     """
-    def __init__(self, IPAddr, crtlPort, key=None):
+    def __init__(self, IPAddr, ctrlPort, key=None):
         if key is None:
-            self.key = hash_str(IPAddr+":"+str(crtlPort))
+            self.key = hash_str(IPAddr+":"+str(ctrlPort))
         else:
             self.key = key
         self.IPAddr = IPAddr
-        self.ctrlPort = crtlPort
+        self.ctrlPort = ctrlPort
         ##print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
@@ -77,15 +77,20 @@ ctrlPort = 7228
 key = ""
 
 predecessor= None
+predecessor_lock = Lock()
+
 successor = None
+successor_lock = Lock()
 
 #Finger table
 fingerTable = None
+fingerTable_lock = Lock()
 #numFingerErrors = 0
 next_finger = 0
 
 #services
-services =  {}
+services = {}
+services_lock = Lock()
 
 
 #Network connections
@@ -101,36 +106,16 @@ def find_ideal_forward(key):
     ##print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
         return successor
+    return closest_preceding_node(key)
+
+
+
+def closest_preceding_node(key):
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if finger != None: 
             if hash_between(finger.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
                 return finger   #this could be the source of our problem;  how do we distinguish between him being repsonsible and him preceding
     return thisNode
-
-
-#node n should find the successor f
-# At it's heart, this is a remote procedure call 
-def find_successor(message):
-    key = message.destination_key
-    if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
-        reply = Update_Message(thisNode, message.reply_to.key, message.finger)
-        send_message(reply, reply_to) 
-    else:
-        closest = closest_preceding_node(key)
-        if thisNode == closest:
-            print "bad message, this shouldn't have happened"
-        else:
-            message.origin_node = thisNode
-            send_message(message, closest)
-        # find successor
-        # send closest a message
-
-def closest_preceding_node(key):
-    for n in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
-        if n != None: 
-            if hash_between(n.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
-                return n
-    return thisNode  # I'm the closest preceding node.
 
 
 ######
@@ -168,15 +153,12 @@ def join(node):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
     send_message(find, node)
-    
-def establish_network(network):
-    net_server = network
-
-
+#########We shoudl clean this up    
 def startup():
     if TEST_MODE:
         print "Startup"
     t = Thread(target=kickstart)
+    t.setDaemon(True)
     t.start()
     print "New thread started!"
 
@@ -188,9 +170,12 @@ def kickstart():
         time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
         time.sleep(MAINTENANCE_PERIOD)
-        begin_stabilize()        
+        begin_stabilize()
+        check_predecessor()        
         time.sleep(MAINTENANCE_PERIOD)
         fix_fingers(10)
+
+##END CLEANUP
 
 
 #############
@@ -210,12 +195,15 @@ def begin_stabilize():
 # need to account for successor being unreachable
 def stabilize(message):
     global successor
+    successor_lock.acquire(True)            
     if TEST_MODE:
         print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         successor = x
     send_message(Notify_Message(thisNode, successor.key))
+    successor_lock.release()
+            
 
 # TODO: Call this function
 # we couldn't reach our successor;
@@ -225,14 +213,21 @@ def stabilize(message):
 def stabilize_failed():
     global fingerTable
     global successor
+    fingerTable_lock.acquire(True)
+    successor_lock.acquire(True)
     if TEST_MODE:
         print "Stabilize Failed"
     for entry in fingerTable[2:]:
         if entry != None:
             successor = entry
-            fingegenerate_key_with_indexrTable[1] = entry
+            fingerTable[1] = entry
             begin_stabilize()
+            fingerTable_lock.release()
+            successor_lock.release()
             return
+    fingerTable_lock.release()
+    successor_lock.release()
+            
     #what to do here???
 
 # we were notified by node other;
@@ -245,8 +240,15 @@ def get_notified(message):
         print "Get Notified"
     other =  message.origin_node
     if(predecessor == thisNode or hash_between(other.key, predecessor.key, thisNode.key)):
+        fingerTable_lock.acquire(True)
+        predecessor_lock.acquire(True)
         predecessor = other
         fingerTable[0] = predecessor
+        fingerTable_lock.release()
+        predecessor_lock.release()
+        for s in services.values():
+            s.change_in_responsibility(predecessor.key, thisNode.key)
+
 
 def fix_fingers(n=1):
     global next_finger
@@ -265,15 +267,19 @@ def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    global predecessor
+    predecessor_lock.acquire(True)
+    successor_lock.acquire(True)
+    fingerTable_lock.acquire(True)
     if TEST_MODE:
         print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
+    fingerTable_lock.release()
     if finger == 1:
         successor = newNode
     elif finger == 0:
         predecessor = newNode
-
+    successor_lock.release()
+    predecessor_lock.release()
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
@@ -314,6 +320,7 @@ Our problem is that there are three scenarios for handling the message, not 2
 Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
 def handle_message(msg):
+
     if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
         try:
             myservice = services[msg.service]
@@ -368,14 +375,49 @@ def message_failed(msg, intended_dest):
                 fingerTable[0] = thisNode
                 print "THIS SHOULD NOT HAPPEN. PANIC NOW"
                 if fingerTable[-1] is None:
+                    predecessor_lock.acquire(True)
                     predecessor = thisNode
+                    predecessor_lock.release()
                 else:
+                    predecessor_lock.acquire(True)
                     predecessor = fingerTable[-1]
+                    predecessor_lock.release()
                     fingerTable[0] = fingerTable[-1]
             else: #we just lost a finger
                 fingerTable[i] = None #cut it off properly
     send_message(msg)
-                
+
+def peer_polite_exit(leaveing_node):
+    print "peer leaving"
+    global predecessor
+    global successor
+    global fingerTable
+    fingerTable_lock.acquire(True)
+    for i in range(0,160)[::-1]:
+        if fingerTable[i] == leaveing_node:
+            if i == 1: #we lost our successor
+                fingerTable[1] = thisNode
+                fingerTable[1] = find_ideal_forward(thisNode.key)
+                successor_lock.acquire(True)
+                successor = fingerTable[1] 
+                successor_lock.release()
+            if i == 0: #we lost our predecessor
+                fingerTable[0] = thisNode
+                print "My sucessor dropped out"
+                predecessor = thisNode
+
+            else: #we just lost a finger
+                fingerTable[i] = None #cut it off properly
+    fingerTable_lock.release()                
+
+def my_polite_exit():
+    done = []
+    for p in fingerTable:
+        if not p is None:
+            quitMSG = Exit_Message(thisNode, p.key)
+            send_message(quitMSG,p)
+            done.append(p)
+
 
 """ 
 Don't mind this, I lost my train of thought, maybe it will come back.

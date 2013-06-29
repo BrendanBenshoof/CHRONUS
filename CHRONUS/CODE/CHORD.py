@@ -49,23 +49,28 @@ def no_join():
     node.create()
 
 def console():
+    cmd = "-"
     try:
         cmd = raw_input()
-        while not ( cmd == "q" or cmd == "Q"):
-            command, args = None, None
-            splitted = cmd.split(' ',1)
-            if len(splitted) >= 1:
-                command = splitted[0]
-            if len(splitted) == 2:
-                args = splitted[1]
-            if command in commands.keys():
-                commands[command].handle_command(command, args)
-            else:
-                print "successor", node.successor
-                print "predecessor", node.predecessor
-            cmd = raw_input()
     except EOFError: #the user does not have a terminal
         pass
+    while not ( cmd == "q" or cmd == "Q"):
+        command, args = None, None
+        splitted = cmd.split(' ',1)
+        if len(splitted) >= 1:
+            command = splitted[0]
+        if len(splitted) == 2:
+            args = splitted[1]
+        if command in commands.keys():
+            commands[command].handle_command(command, args)
+        elif cmd != "-":
+            print "successor", node.successor
+            print "predecessor", node.predecessor
+        try:
+            cmd = raw_input()
+        except EOFError: #the user does not have a terminal
+            pass
+
 def main():
     args = sys.argv
     local_port = None

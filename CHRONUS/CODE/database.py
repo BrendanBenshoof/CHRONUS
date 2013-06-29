@@ -2,12 +2,14 @@
 from service import Service
 from message import Database_Message
 import hash_util
+from threads import Lock
 class Database(Service):
     """docstring for Database"""
     def __init__(self, root_directory):
         super(Database, self).__init__()
         self.root_directory = root_directory
         self.service_id = "DATABASE"
+        self.write_lock = Lock()
 
     def lookup_record(self,hash_name):
         try:
@@ -22,11 +24,13 @@ class Database(Service):
             return "404 Error"
 
     def write_record(self,hash_name, file_contents):
+        self.write_lock.aquire()
         print "writing record"
         path = self.root_directory+"/"+hash_name
         record_file= file(path,"w+")
         record_file.write(file_contents)
         record_file.close()
+        self.write_lock.release()
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:

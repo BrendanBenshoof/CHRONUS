@@ -12,6 +12,8 @@ import sys
 import os
 from threading import *
 
+import Topology_Service
+
 try:
     node.ctrlPort = int(sys.argv[1])
     node.IPAddr = "localhost"
@@ -20,8 +22,12 @@ try:
     node.add_service(Internal_service)
     node.add_service(serve.ECHO_service())
     node.net_server = start(node.thisNode, node.handle_message)
-    database = db.Database("/home/brendan/DATABASE")
+    database = db.Database("F:\DATABASE")
     node.add_service(database)
+
+    TOPO = Topology_Service.Topology()
+    node.add_service(TOPO)
+
     if len(sys.argv) > 2:
         node_name = sys.argv[2]
         node_port = int(sys.argv[3])
@@ -51,6 +57,8 @@ try:
         elif cmd[:4] == "put ":
             arg_str = cmd[4:].split(' ',1)
             database.put_record(arg_str[0],arg_str[1])
+        elif cmd == "plot":
+            TOPO.start_inquery()
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

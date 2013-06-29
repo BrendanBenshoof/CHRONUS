@@ -34,13 +34,13 @@ class Node_Info():
     We use this, rather than the node class itself, for entries in the finger table
     as well as successor and predecessor.   
     """
-    def __init__(self, IPAddr, crtlPort, key=None):
+    def __init__(self, IPAddr, ctrlPort, key=None):
         if key is None:
-            self.key = hash_str(IPAddr+":"+str(crtlPort))
+            self.key = hash_str(IPAddr+":"+str(ctrlPort))
         else:
             self.key = key
         self.IPAddr = IPAddr
-        self.ctrlPort = crtlPort
+        self.ctrlPort = ctrlPort
         ##print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
@@ -77,15 +77,20 @@ ctrlPort = 7228
 key = ""
 
 predecessor= None
+predecessor_lock = Lock()
+
 successor = None
+successor_lock = Lock()
 
 #Finger table
 fingerTable = None
+fingerTable_lock = Lock()
 #numFingerErrors = 0
 next_finger = 0
 
 #services
-services =  {}
+services = {}
+services_lock = Lock()
 
 
 #Network connections
@@ -210,12 +215,15 @@ def begin_stabilize():
 # need to account for successor being unreachable
 def stabilize(message):
     global successor
+    successor_lock.acquire(True)            
     if TEST_MODE:
         print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         successor = x
     send_message(Notify_Message(thisNode, successor.key))
+    successor_lock.release()
+            
 
 # TODO: Call this function
 # we couldn't reach our successor;
@@ -225,6 +233,8 @@ def stabilize(message):
 def stabilize_failed():
     global fingerTable
     global successor
+    fingerTable_lock.acquire(True)
+    successor_lock.acquire(True)
     if TEST_MODE:
         print "Stabilize Failed"
     for entry in fingerTable[2:]:
@@ -232,7 +242,12 @@ def stabilize_failed():
             successor = entry
             fingegenerate_key_with_indexrTable[1] = entry
             begin_stabilize()
+            fingerTable_lock.release()
+            successor_lock.release()
             return
+    fingerTable_lock.release()
+    successor_lock.release()
+            
     #what to do here???
 
 # we were notified by node other;
@@ -245,8 +260,12 @@ def get_notified(message):
         print "Get Notified"
     other =  message.origin_node
     if(predecessor == thisNode or hash_between(other.key, predecessor.key, thisNode.key)):
+        fingerTable_lock.acquire(True)
+        predecessor_lock.acquire(True)
         predecessor = other
         fingerTable[0] = predecessor
+        fingerTable_lock.release()
+        predecessor_lock.release()
 
 def fix_fingers(n=1):
     global next_finger
@@ -265,15 +284,21 @@ def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    global predecessor
+    predecessor_lock.acquire(True)
+    successor_lock.acquire(True)
+    fingerTable_lock.acquire(True)
+                    
+                    
     if TEST_MODE:
         print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
+    fingerTable_lock.release()
     if finger == 1:
         successor = newNode
     elif finger == 0:
         predecessor = newNode
-
+    successor_lock.release()
+    predecessor_lock.release()
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
@@ -314,6 +339,7 @@ Our problem is that there are three scenarios for handling the message, not 2
 Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
 def handle_message(msg):
+
     if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
         try:
             myservice = services[msg.service]
@@ -368,9 +394,13 @@ def message_failed(msg, intended_dest):
                 fingerTable[0] = thisNode
                 print "THIS SHOULD NOT HAPPEN. PANIC NOW"
                 if fingerTable[-1] is None:
+                    predecessor_lock.acquire(True)
                     predecessor = thisNode
+                    predecessor_lock.release()
                 else:
+                    predecessor_lock.acquire(True)
                     predecessor = fingerTable[-1]
+                    predecessor_lock.release()
                     fingerTable[0] = fingerTable[-1]
             else: #we just lost a finger
                 fingerTable[i] = None #cut it off properly

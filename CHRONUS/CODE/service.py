@@ -22,7 +22,7 @@ class Service(object):
         """
         return msg.service == self.service_id
 
-    def send_message(self, msg, dest):
+    def send_message(self, msg, dest=None):
         self.callback(msg, dest)
 
     def Change_in_Responsibility(new_pred_key, my_key):

@@ -60,7 +60,7 @@ class Internal_Service(Service):
         Return False if things go horribly wrong
         """
         ## switch based on "type"
-        msgtype = msg.get_content("type")
+        msgtype = msg.type
         response = None
         if node.TEST_MODE:
             if msg.origin_node != node.thisNode:

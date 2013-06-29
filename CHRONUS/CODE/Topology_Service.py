@@ -13,6 +13,7 @@ class Toplogy_Poll_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = "TOPOLOGY"
+        self.type =  "TOPOLOGY"
         self.add_content("server_list",[origin_node])
         self.add_content("start",origin_node.key)
         self.add_content("end",destination_key)

@@ -320,7 +320,6 @@ Our problem is that there are three scenarios for handling the message, not 2
 Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
 def handle_message(msg):
-
     if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
         try:
             myservice = services[msg.service]

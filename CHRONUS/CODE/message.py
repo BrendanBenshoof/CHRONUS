@@ -6,6 +6,9 @@ from hash_util import *
 #you could use it, but it would be boring
 
 INTERNAL = "INTERNAL"
+DATABASE = "DATABASE"
+NETWORK  = "NETWORK"
+
 FIND = "FIND"
 UPDATE =  "UPDATE"
 STABILIZE = "STABILIZE"
@@ -13,7 +16,6 @@ STABILIZE_REPLY = "STABILIZE_REPLY"
 NOTIFY = "NOTIFY"
 CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
 POLITE_QUIT = "POLITE_QUIT"
-DATABASE = "DATABASE"
 FAILURE = "FAILURE"
 
 class Message(object):
@@ -24,6 +26,7 @@ class Message(object):
         self.contents = {}          # All other data
         self.service = None         # What service handles this
         self.finger = None          # int -1 to 160
+        self.type = None
 
     @staticmethod
     def deserialize(in_string):
@@ -58,8 +61,8 @@ class Find_Successor_Message(Message):
         self.destination_key = destination_key  # the key we're trying to find the node responsible for
         self.reply_to = requester
         self.finger = finger
-        self.add_content("type",FIND)
         self.service = INTERNAL
+        self.type = FIND
 
 class Update_Message(Message):
     def __init__(self, origin_node, destination_key, finger):
@@ -68,8 +71,8 @@ class Update_Message(Message):
         self.destination_key = destination_key  #key we are sending it back to
         self.finger = finger        # entry in the finger table to update.
         self.reply_to = origin_node     # the node to connect to
-        self.add_content("type",UPDATE)
         self.service = INTERNAL
+        self.type = UPDATE
 
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
@@ -79,7 +82,7 @@ class Stablize_Message(Message):
         self.destination_key = successor.key
         self.reply_to = origin_node
         self.service = INTERNAL
-        self.add_content("type",STABILIZE)
+        self.type = STABILIZE
 
 class Stablize_Reply_Message(Message):
     """docstring for Stablize_Reply_Message"""
@@ -88,8 +91,8 @@ class Stablize_Reply_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = INTERNAL
-        self.add_content("type",STABILIZE_REPLY)
-        self. add_content("predecessor", predecessor)
+        self.type = STABILIZE_REPLY
+        self.add_content("predecessor", predecessor)
         self.reply_to = origin_node
 
 class Notify_Message(Message):
@@ -99,7 +102,7 @@ class Notify_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = INTERNAL
-        self.add_content("type",NOTIFY)
+        self.type = NOTIFY
         self.reply_to = origin_node
 
 class Check_Predecessor_Message(Message):
@@ -108,7 +111,7 @@ class Check_Predecessor_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = INTERNAL
-        self.add_content("type",CHECK_PREDECESSOR)
+        self.type = CHECK_PREDECESSOR
         self.reply_to = origin_node
 
 class Database_Message(Message):
@@ -117,7 +120,7 @@ class Database_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = DATABASE
-        self.add_content("type",file_type)
+        self.type = file_type
         self.add_content("service",Reponse_service)
         self.reply_to = origin_node
 
@@ -128,5 +131,5 @@ class Exit_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = INTERNAL
-        self.add_content("type",POLITE_QUIT)
+        self.type = POLITE_QUIT)
         self.reply_to = origin_node

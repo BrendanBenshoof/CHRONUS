@@ -24,3 +24,18 @@ def map_reduce(data, map_function, reduce_function):
     pairs  = assignKeys()
     send_map_reduce()
 
+#########Brendan's work starts
+
+class Map_Reduce(Service):
+    def __init__(self):
+        super(Service, self).__init__()
+        self.service_id = "MAP_REDUCE"
+        self.responsible_start = self.owner.key
+        self.responsible_end = self.owner.key
+
+    def Change_in_Responsibility(new_pred_key, my_key):
+        self.responsible_start = new_pred_key
+        self.responsible_end = my_key 
+
+
+##########Brendan's work ends

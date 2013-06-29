@@ -266,6 +266,9 @@ def get_notified(message):
         fingerTable[0] = predecessor
         fingerTable_lock.release()
         predecessor_lock.release()
+        for s in services.values():
+            s.Change_in_Responsibility(predecessor.key, thisNode.key)
+
 
 def fix_fingers(n=1):
     global next_finger

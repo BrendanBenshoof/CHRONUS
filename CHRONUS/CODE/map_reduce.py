@@ -14,11 +14,19 @@ class Map_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service  = "MAP_REDUCE"
-        self.key_range =  key_range
-        self.map_function = map_function
-        self.reduce_function = reduce_function
-        self.job_id = job_id
-        
+        self.add_content = ("key_range", key_range)
+        self.add_content = ("map_function", map_function)
+        self.add_content = ("reduce_function", reduce_function)
+        self.add_content = ("job_id", job_id)
+
+class Reduce_Message(Message):
+    def __init__(self, origin_node, destination_key, key_range, reduce_function, job_id):
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.service  = "MAP_REDUCE"
+        self.add_content = ("key_range", key_range)
+        self.add_content = ("reduce_function", reduce_function)
+        self.add_content = ("job_id", job_id)
 
 def map_reduce(data, map_function, reduce_function):
     pairs  = assignKeys()

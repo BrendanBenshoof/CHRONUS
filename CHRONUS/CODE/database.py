@@ -43,7 +43,7 @@ class Database(Service):
             return_service = msg.get_content("service")
             newmsg = Database_Message(self.owner, msg.reply_to.key, return_service, "RESP")
             newmsg.add_content("file_contents",content)
-            self.callback(newmsg, msg.reply_to)
+            self.send_message(newmsg, msg.reply_to)
         if msg.get_content("type") == "PUT":
             filename = str(msg.destination_key)
             self.write_record(filename, msg.get_content("file_contents"))
@@ -55,9 +55,9 @@ class Database(Service):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,"DATABASE","PUT")
         newmsg.add_content("file_contents",data)
-        self.callback(newmsg)
+        self.send_message(newmsg)
 
     def get_record(self,name):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,"ECHO","GET")
-        self.callback(newmsg)
+        self.send_message(newmsg)

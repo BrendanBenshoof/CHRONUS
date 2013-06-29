@@ -12,6 +12,7 @@ STABILIZE = "STABILIZE"
 STABILIZE_REPLY = "STABILIZE_REPLY"
 NOTIFY = "NOTIFY"
 CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
+POLITE_QUIT = "POLITE_QUIT"
 
 class Message(object):
     def __init__(self):
@@ -116,4 +117,14 @@ class Database_Message(Message):
         self.service = "DATABASE"
         self.add_content("type",file_type)
         self.add_content("service",Reponse_service)
+        self.reply_to = origin_node
+
+class Exit_Message(Message):
+    """docstring for Notify_Message"""
+    def __init__(self, origin_node,destination_key):
+        Message.__init__(self)
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.service = INTERNAL
+        self.add_content("type",POLITE_QUIT)
         self.reply_to = origin_node

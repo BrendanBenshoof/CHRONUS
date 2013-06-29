@@ -2,7 +2,7 @@
 from service import Service
 from message import Database_Message
 import hash_util
-from threads import Lock
+from threading import Lock
 class Database(Service):
     """docstring for Database"""
     def __init__(self, root_directory):
@@ -24,7 +24,7 @@ class Database(Service):
             return "404 Error"
 
     def write_record(self,hash_name, file_contents):
-        self.write_lock.aquire()
+        self.write_lock.acquire()
         print "writing record"
         path = self.root_directory+"/"+hash_name
         record_file= file(path,"w+")

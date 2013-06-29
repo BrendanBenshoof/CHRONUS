@@ -182,6 +182,7 @@ def startup():
     if TEST_MODE:
         print "Startup"
     t = Thread(target=kickstart)
+    t.setDaemon(True)
     t.start()
     print "New thread started!"
 
@@ -408,7 +409,37 @@ def message_failed(msg, intended_dest):
             else: #we just lost a finger
                 fingerTable[i] = None #cut it off properly
     send_message(msg)
-                
+
+def peer_polite_exit(leaveing_node):
+    for i in range(0,160)[::-1]:
+        if fingerTable[i] == leaveing_node:
+            if i == 1: #we lost our successor
+                fingerTable[1] = thisNode
+                fingerTable[1] = find_ideal_forward(thisNode.key)
+                successor = fingerTable[1] 
+            if i == 0: #we lost our predecessor
+                fingerTable[0] = thisNode
+                print "THIS SHOULD NOT HAPPEN. PANIC NOW"
+                if fingerTable[-1] is None:
+                    predecessor_lock.acquire(True)
+                    predecessor = thisNode
+                    predecessor_lock.release()
+                else:
+                    predecessor_lock.acquire(True)
+                    predecessor = fingerTable[-1]
+                    predecessor_lock.release()
+                    fingerTable[0] = fingerTable[-1]
+            else: #we just lost a finger
+                fingerTable[i] = None #cut it off properly                
+
+def my_polite_exit():
+    done = []
+    for p in fingerTable:
+        if not p is None:
+            quitMSG = Exit_Message(thisNode, p.key)
+            send_message(quitMSG,p)
+            done.append(p)
+
 
 """ 
 Don't mind this, I lost my train of thought, maybe it will come back.

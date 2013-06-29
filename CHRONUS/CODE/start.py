@@ -49,7 +49,8 @@ try:
             x = int(cmd[6:])
             print node.fingerTable[x]
         elif cmd == 'q' or cmd ==  'Q' :
-            quit()
+            node.my_polite_exit()
+            exit()
         elif cmd == 'g' or cmd == 'G':
             print "estimate:", node.estimate_ring_density()
         elif cmd[:4] == "get ":
@@ -63,4 +64,4 @@ try:
             print "successor  ", node.successor
             print "predecessor", node.predecessor
 except KeyboardInterrupt:
-    exit
+    exit()

@@ -25,7 +25,7 @@ class Service(object):
     def send_message(self, msg, dest=None):
         self.callback(msg, dest)
 
-    def Change_in_Responsibility(new_pred_key, my_key):
+    def Change_in_Responsibility(self,new_pred_key, my_key):
         pass #this is called when a new, closer predicessor is found and we need to re-allocate
             #responsibilties
 
@@ -70,6 +70,9 @@ class Internal_Service(Service):
             node.get_notified(msg)
         elif msgtype == CHECK_PREDECESSOR:
             response = Update_Message(self.owner, msg.reply_to.key, 0)
+        elif msgtype == POLITE_QUIT:
+            node.peer_polite_exit(msg.reply_to)
+
         else:
             return False
         if response != None:

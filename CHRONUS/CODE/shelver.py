@@ -13,7 +13,7 @@ RESPONSE = "RESP"
 class Shelver(Service):
     """docstring for Database"""
     def __init__(self, db):
-        super(Database, self).__init__()
+        super(Shelver, self).__init__()
         self.service_id = DATABASE
         self.write_lock = Lock()
         self.db = db
@@ -53,12 +53,16 @@ class Shelver(Service):
     def handle_message(self, msg):
         if not msg.service == self.service_id:
             return False
-        if msg.get_content("type")  == GET:
-            name = str(msg.destination_key)
-            content = self.__lookup_record(name)  #str(index)
-            sendDataBack()
-        if msg.get_content("type")  == PUT:
-            name = str(msg.destination_key)
-            self.__write_record(name,msg.get_content("file_contents"))
-        if msg.get_content("type") == RESPONSE:
+        if msg.get_content("type") == "GET":
+            filename = str(msg.destination_key)
+            content = self.__lookup_record(str(filename))
+            #this add other instances of database messages are borked
+            return_service = msg.get_content("service")
+            newmsg = Database_Message(self.owner, msg.reply_to.key, return_service, "RESP")
+            newmsg.add_content("file_contents",content)
+            self.send_message(newmsg, msg.reply_to)
+        if msg.get_content("type") == "PUT":
+            filename = str(msg.destination_key)
+            self.__write_record(filename,msg.get_content("file_contents"))
+        if msg.get_content("type") == "RESP":
             print msg.get_content("file_contents")

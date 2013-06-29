@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import database as db 
+import shelver as db 
 import network_handler as net
 import hash_util as hash
 from message import *
@@ -22,7 +22,7 @@ try:
     node.add_service(Internal_service)
     node.add_service(serve.ECHO_service())
     node.net_server = start(node.thisNode, node.handle_message)
-    database = db.Database("F:\DATABASE")
+    database = db.Shelver("test.db")
     node.add_service(database)
 
     TOPO = Topology_Service.Topology()

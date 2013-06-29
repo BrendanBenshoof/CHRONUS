@@ -20,7 +20,7 @@ class Shelver(Service):
 
     def lookup_record(self, hash_name):
         records = shelve.open(self.db)
-        content None
+        content = None
         try:
             print "looking up:"+hash_name
             content = records[hash_name]    #this retrieved COPY OF CONTENT

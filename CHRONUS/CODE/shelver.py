@@ -19,7 +19,6 @@ class Shelver(Service):
         self.db = db
 
     def lookup_record(self, hash_name):
-        self.write_lock.acquire(blocking = False)
         records = shelve.open(self.db)
         content None
         try:
@@ -29,7 +28,6 @@ class Shelver(Service):
             content =  "404 Error"
         finally:
             records.close()
-            self.write_lock.release
             return content
 
     def write_record(self, hash_name,content):

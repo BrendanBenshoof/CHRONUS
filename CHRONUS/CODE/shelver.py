@@ -18,7 +18,7 @@ class Shelver(Service):
         self.write_lock = Lock()
         self.db = db
 
-    def lookup_record(self, hash_name):
+    def __lookup_record(self, hash_name):
         records = shelve.open(self.db)
         content = None
         try:
@@ -30,7 +30,7 @@ class Shelver(Service):
             records.close()
             return content
 
-    def write_record(self, hash_name,content):
+    def __write_record(self, hash_name,content):
         self.write_lock.acquire()
         records = shelve.open(self.db)
         records[hash_name] = content
@@ -42,12 +42,12 @@ class Shelver(Service):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,DATABASE,PUT)
         newmsg.add_content("file_contents",data)
-        self.callback(newmsg)
+        self.send_message(newmsg)
 
     def get_record(self,name):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,ECHO,GET)
-        self.callback(newmsg)
+        self.send_message(newmsg)
 
 
     def handle_message(self, msg):
@@ -55,10 +55,10 @@ class Shelver(Service):
             return False
         if msg.get_content("type")  == GET:
             name = str(msg.destination_key)
-            content = self.lookup_record(name)  #str(index)
+            content = self.__lookup_record(name)  #str(index)
             sendDataBack()
         if msg.get_content("type")  == PUT:
             name = str(msg.destination_key)
-            self.write_record(name,msg.get_content("file_contents"))
+            self.__write_record(name,msg.get_content("file_contents"))
         if msg.get_content("type") == RESPONSE:
             print msg.get_content("file_contents")

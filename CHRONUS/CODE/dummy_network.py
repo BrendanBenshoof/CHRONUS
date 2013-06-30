@@ -1,8 +1,4 @@
 #dummy network object untill we get a real one working
-import socket
-import getIP
-import urllib2
-import NATPMP
 #import node
 from node import Node_Info
 import os

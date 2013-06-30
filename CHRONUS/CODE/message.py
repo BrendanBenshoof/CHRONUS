@@ -131,5 +131,5 @@ class Exit_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = INTERNAL
-        self.type = POLITE_QUIT)
+        self.type = POLITE_QUIT
         self.reply_to = origin_node

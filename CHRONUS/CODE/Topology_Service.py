@@ -32,6 +32,15 @@ class Topology(Service):
         self.send_message(new_query)
         print "Send Inquery"
 
+    def attach_to_console(self):
+        ### return a dict of command-strings
+        return ["plot"]
+
+    def handle_command(self, comand_st, arg_str):
+        ### one of your commands got typed in
+        self.start_inquery()
+
+
     def handle_message(self, msg):
             print "get inquery"
             """This function is called whenever the node recives a message bound for this service"""

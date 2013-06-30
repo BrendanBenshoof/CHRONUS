@@ -49,6 +49,20 @@ class Shelver(Service):
         newmsg = Database_Message(self.owner,hash_loc,ECHO,GET)
         self.send_message(newmsg)
 
+    def attach_to_console(self):
+        ### return a dict of command-strings
+        return ["put","get"]
+
+    def handle_command(self, comand_st, arg_str):
+        ### one of your commands got typed in
+        if comand_st == "put":
+            args = arg_str.split(" ",1)
+            key = args[0]
+            value = args[1]
+            self.put_record(key,value)
+        elif comand_st == "get":
+            self.get_record(arg_str)
+
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:

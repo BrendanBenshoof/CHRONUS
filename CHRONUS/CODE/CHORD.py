@@ -8,7 +8,6 @@ import random
 import dummy_network
 import node
 
-from dummy_network import *
 from threading import *
 import sys
 

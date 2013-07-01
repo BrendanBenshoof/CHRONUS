@@ -1,3 +1,5 @@
+from Queue import Queue
+
 
 class Message_Router():
     def __init__(self):
@@ -10,6 +12,4 @@ class Message_Router():
     def route(self, message):
         if self._services[message.service]:
             self._services[message.service].handle_message(message)
-
-
-
+            self._services[message.service].inbox.put(message)

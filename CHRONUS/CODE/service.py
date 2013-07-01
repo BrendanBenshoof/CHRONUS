@@ -1,12 +1,15 @@
 from message import *
 from hash_util import *
+from Queue import Queue
 import node
+
 class Service(object):
     """This object is intented to act as a parent/promise for Service Objects"""
     def __init__(self):
         self.service_id = None
         self.callback = None
         self.owner = None
+        self.inbox =  Queue()
 
     def attach(self, owner, callback):
         """Called when the service is attached to the node"""

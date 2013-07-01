@@ -3,8 +3,7 @@ from message import *
 import node
 import hash_util
 from math import pi
-import matplotlib.pyplot as plt
-import networkx as nx
+
 
 class Toplogy_Poll_Message(Message):
     def __init__(self, origin_node, destination_key):
@@ -80,6 +79,8 @@ class Topology(Service):
                 render(record, linkset)
 
 def render(record, edges):
+    import matplotlib.pyplot as plt
+    import networkx as nx
     G = nx.DiGraph()
     G.add_nodes_from(record)
     print record

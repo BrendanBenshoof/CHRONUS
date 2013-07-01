@@ -30,6 +30,7 @@ def setup_Node(addr="localhost", port=None):
     node.IPAddr = addr
     if port is None:
         port = random.randint(9000,9999)
+    node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
     node.net_server = dummy_network.start(node.thisNode, node.handle_message)
     #### setup services here
@@ -82,7 +83,7 @@ def main():
             other_IP = args[i]
         if i == 3:
             other_port = args[i]
-    setup_Node()
+    setup_Node(port = local_port)
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)
     else:

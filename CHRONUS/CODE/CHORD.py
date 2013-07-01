@@ -81,7 +81,7 @@ def main():
         if i == 2:
             other_IP = args[i]
         if i == 3:
-            other_port = arg[i]
+            other_port = args[i]
     setup_Node()
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)

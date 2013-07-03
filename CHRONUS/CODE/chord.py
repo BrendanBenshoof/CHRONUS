@@ -3,7 +3,7 @@
 import service
 import shelver as db 
 import Topology_Service
-import hash_util as hash
+import hash_util
 import random
 import dummy_network
 import node

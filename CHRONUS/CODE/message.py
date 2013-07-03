@@ -31,11 +31,11 @@ class Message(object):
     @staticmethod
     def deserialize(in_string):
         try:
-                return pickle.loads(in_string)
+            return pickle.loads(in_string)
         except EOFError:
-                fail_message = Message()
-                fail_message.service = FAILURE
-                return fail_message
+            fail_message = Message()
+            fail_message.service = FAILURE
+            return fail_message
         #there are soo many exceptions I should be catching here
 
     def serialize(self):

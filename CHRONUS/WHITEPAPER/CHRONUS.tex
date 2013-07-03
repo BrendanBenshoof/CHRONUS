@@ -64,7 +64,11 @@ Peer-to-peer networks generate an increasing amount of traffic each year as they
 
 
 \section{Introduction}
-Stuff
+
+\subsection{This doesn't belong here}
+Chord was designed as file sharing system as
+
+Chord was modified into CFS for a distrubuted file storage.
 
 \section{Background}
 Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
@@ -74,11 +78,11 @@ The most basic type of network is a structured, centralized  network.  Peers in 
 
 On the other side of the spectrum, there are unstructured, decentralized networks.  These networks create overlay links between nodes in a random manner. This leads to a very unstructured overlay, but it is one that is very easily constructed.  No single node is responsible for the whole of the network;  files are located by sending out requests to neighboring peers, which in turn request from their neighbors and so on. Should a file become suddenly popular, this flood of this requests can easily bring some peers to their knees, unable to deal with the high level of traffic \cite{Lv:2002:SRU:514191.514206}.  This makes these types of networks also a poor choice for implementation \cite{Overview}.
 
-%\subsection{DHT-based Peer-to-Peer Networks}
 Modern P2P implementations are hard to classify easily, due to the variety of methods used to create a working network that avoids the weaknesses of the two above network types.  Many networks today use a decentralized structured approach to distribute files, where the topology of the overlay is constructed and controlled by the protocol and the information about the network is distributed among the peers.  This distribution is typically accomplished by a distributed hash table (DHT).  Networks that use a DHT choose specific peers in which to place information about how to find particular files or data.  These peers are chosen so that the peer's ID in the network corresponds to the file or data's ID, typically by hashing both ID's and comparing them  \cite{SurveyCompare}. 
 
 In addition, the network topology is distributed among various peers.  Each peer has a table consisting of other peers in the network and the means of communicating with them.  The contents of this table are also controlled by the protocol.  The table handles the routing of requests from one node to another; when a peer receives a request it cannot fulfill, such as information about where to find a particular file, it directs the the request to the node that is "closest" to the destination of the request. How this works is determined by each protocol \cite{Chord}.  It should be noted that closeness is relative to the algorithm; depending on what identifiers are assigned, a node in New York City might be "close" to a node in Russia, but "far" from a node physically located only miles away.  Examples of protocols that use these techniques are trackerless BitTorrent \cite{BitTorrent}, Chord \cite{Chord}, and Kademlia \cite{Kademlia}. As our work is implemented using Chord, we provide more detail here. 
 
+\subsection{CHORD}
 Chord uses hashing and mapping functions to efficiently disseminate information throughout a network, using keys and nodes.  Keys can be identifiers for data, such as keywords and tags; the associated data would be the values under this mapping.  Chord takes peers in the network and gives them a node ID.  Both the keys and the nodes are hashed to produce an identifier of length $m$, $m$ being some value large enough that the hashing function would be extremely unlikely to assign two different nodes or keys the same hashed identifier.  For the sake of clarity, both the node ID and key refers to the corresponding hashed value in the following description.
 
 Chord takes the nodes and structures them into a circle composed of less than $2^m$ nodes, ordered clockwise by identifier from lowest to highest.  Chord then takes the keys and places each in the node that has the same hashed identifier as it or the node with the first identifier that follows this value.  The node that takes some key $\kappa$ is known as the $successor$ of $\kappa$, or $successor(\kappa)$.  
@@ -89,4 +93,17 @@ Each node could then find  the information of a key by asking the next node in t
 
 To aid in searching, each node stores the locations of up to $m$ other nodes in the network.  Specifically, entry $i$ in the "finger table" of a node with the id of $n$ will be the location of $successor(n+2^{i-1})$ $mod$ $2^m$. When a node wants to find some key, it looks to the entry in the finger table that will get it closest to the key without going past and request that information in the manner described above.  Fig ~\ref{net} \cite{Chordpic} gives an example network with a node pointing to the other nodes it knows the location of. This approach allows nodes to find a specific key in $O(log_mn)$ time.  For a more detailed explanation and psuedocode, please refer to Stoica \emph{et al.}'s paper on the Chord protocol \cite{Chord}.
 
+\subsection{MapReduce}
+
+\section{CHRONUS}
+
+
+\section{Experiments}
+
+\section{Results}
+
+\section{Conclusion}
+
+\bibliographystyle{plain}
+\bibliography{CHRONUS}
 \end{document}

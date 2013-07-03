@@ -3,6 +3,7 @@ from message import Database_Message
 from threading import Lock
 import hash_util
 import shelve
+from globals import *
 
 GET = "GET"
 PUT = "PUT"
@@ -12,9 +13,12 @@ RESPONSE = "RESP"
 
 class Shelver(Service):
     """docstring for Database"""
-    def __init__(self, db):
+    def __init__(self, message_router, db):
         super(Shelver, self).__init__()
-        self.service_id = DATABASE
+        self.message_router = message_router
+        self.service_id = SERVICE_SHELVER
+        message_router.register_service(self.service_id,self)
+
         self.write_lock = Lock()
         self.db = db
 

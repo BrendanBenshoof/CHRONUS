@@ -6,9 +6,6 @@
 # update request on node failure
 # Not closing connection properly - why?
 ############
-
-
-#imports 
 from hash_util import *
 from socket import *
 import time
@@ -20,8 +17,9 @@ import copy
 from optparse import OptionParser
 import random
 from message import *
-#import dummy_network as  
-
+from message_router import Message_Router
+#import dummy_network as
+import globals
 
 # Debug variables
 TEST_MODE = False   #duh
@@ -58,8 +56,8 @@ class Node_Info():
 
     def __str__(self):
         return str(self.IPAddr)+":"+str(self.ctrlPort)+":"+str(self.key)
-        
-        
+
+
 """This class represents the current node in the Chord Network.
 We try to follow Stoica et al's scheme as closely as possible here,
 except their methods aren't asynchronus.  Our changes are listed below
@@ -307,7 +305,12 @@ def send_message(msg, destination=None):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)
-    net_server.send_message(msg, destination)
+
+    Message_Router.instance().route(Message_Send_Peer_Data(
+        destination.IPAddr, destination.ctrlPort, msg.serialize(), failed_callback_msg=None))
+
+    #remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
+    #net_server.send_message(msg, destination)
 
 # called when node is passed a message
 
@@ -367,7 +370,7 @@ def message_failed(msg, intended_dest):
     for i in range(0,160)[::-1]:
         if fingerTable[i] == intended_dest:
             if i == 1: #we lost our successor
-                fingerTable[1] = thiNode
+                fingerTable[1] = thisNode
                 fingerTable[1] = find_ideal_forward(thisNode.key)
                 successor = fingerTable[1] 
             if i == 0: #we lost our predecessor

@@ -1,13 +1,10 @@
 #Message object Abstraction for CHRONOS application
 import pickle
+from globals import *
 from hash_util import *
 
 #this is an abstract parent class
 #you could use it, but it would be boring
-
-INTERNAL = "INTERNAL"
-DATABASE = "DATABASE"
-NETWORK  = "NETWORK"
 
 FIND = "FIND"
 UPDATE =  "UPDATE"
@@ -19,14 +16,17 @@ POLITE_QUIT = "POLITE_QUIT"
 FAILURE = "FAILURE"
 
 class Message(object):
-    def __init__(self):
+    def __init__(self, service, type, success_callback_msg = None, failed_callback_msg = None):
         self.origin_node = None     # One hop origin
         self.destination_key = generate_random_key()    # 160 number or hash object
         self.reply_to = None        # Node to reply to
         self.contents = {}          # All other data
-        self.service = None         # What service handles this
+        self.service = service      # What service handles this
+        self.type = type
+        self.success_callback_msg = success_callback_msg
+        self.failed_callback_msg = failed_callback_msg
         self.finger = None          # int -1 to 160
-        self.type = None
+
 
     @staticmethod
     def deserialize(in_string):
@@ -56,80 +56,89 @@ class Message(object):
 
 class Find_Successor_Message(Message):
     def __init__(self, origin_node, destination_key, requester, finger = 1):
-        Message.__init__(self)
+        Message.__init__(self, SERVICE_INTERNAL, FIND)
         self.origin_node = origin_node  # node that just sent this message
         self.destination_key = destination_key  # the key we're trying to find the node responsible for
         self.reply_to = requester
         self.finger = finger
-        self.service = INTERNAL
-        self.type = FIND
 
 class Update_Message(Message):
     def __init__(self, origin_node, destination_key, finger):
-        Message.__init__(self)
+        Message.__init__(self,SERVICE_INTERNAL, UPDATE)
         self.origin_node = origin_node
         self.destination_key = destination_key  #key we are sending it back to
         self.finger = finger        # entry in the finger table to update.
         self.reply_to = origin_node     # the node to connect to
-        self.service = INTERNAL
-        self.type = UPDATE
+
 
 class Stablize_Message(Message):
     """docstring for Stablize_Message"""
     def __init__(self, origin_node, successor):
-        Message.__init__(self)
+        Message.__init__(self, SERVICE_INTERNAL, STABILIZE)
         self.origin_node = origin_node
         self.destination_key = successor.key
         self.reply_to = origin_node
-        self.service = INTERNAL
-        self.type = STABILIZE
 
 class Stablize_Reply_Message(Message):
     """docstring for Stablize_Reply_Message"""
     def __init__(self, origin_node, destination_key, predecessor):
-        Message.__init__(self)
+        Message.__init__(self, SERVICE_INTERNAL, STABILIZE_REPLY)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = INTERNAL
-        self.type = STABILIZE_REPLY
         self.add_content("predecessor", predecessor)
         self.reply_to = origin_node
 
 class Notify_Message(Message):
     """docstring for Notify_Message"""
     def __init__(self, origin_node,destination_key):
-        Message.__init__(self)
+        Message.__init__(self, SERVICE_INTERNAL, NOTIFY)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = INTERNAL
-        self.type = NOTIFY
         self.reply_to = origin_node
 
 class Check_Predecessor_Message(Message):
     def __init__(self, origin_node,destination_key):
-        Message.__init__(self)
+        Message.__init__(self, SERVICE_INTERNAL, CHECK_PREDECESSOR)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = INTERNAL
-        self.type = CHECK_PREDECESSOR
         self.reply_to = origin_node
 
 class Database_Message(Message):
-    def __init__(self, origin_node, destination_key,Reponse_service=DATABASE, file_type="GET"):
-        Message.__init__(self)
+    def __init__(self, origin_node, destination_key, Response_service=SERVICE_DATABASE, file_type="GET"):
+        Message.__init__(self, SERVICE_DATABASE, file_type)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = DATABASE
-        self.type = file_type
-        self.add_content("service",Reponse_service)
+        self.add_content("service",Response_service)
         self.reply_to = origin_node
 
 class Exit_Message(Message):
     """docstring for Notify_Message"""
-    def __init__(self, origin_node,destination_key):
-        Message.__init__(self)
+    def __init__(self, origin_node, destination_key):
+        Message.__init__(self, SERVICE_INTERNAL, POLITE_QUIT)
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = INTERNAL
-        self.type = POLITE_QUIT
         self.reply_to = origin_node
+
+
+
+# Messages specific to Network_Service
+
+class Message_Start_Server(Message):
+    def __init__(self, host_ip, host_port, success_callback_msg=None, failed_callback_msg=None):
+        Message.__init__(self, SERVICE_NETWORK, MESSAGE_START_SERVER, success_callback_msg, failed_callback_msg)
+        self.host_ip = host_ip
+        self.host_port = host_port
+
+
+class Message_Stop_Server(Message):
+    def __init__(self, success_callback_msg=None, failed_callback_msg=None):
+        Message.__init__(self, SERVICE_NETWORK, MESSAGE_STOP_SERVER, success_callback_msg, failed_callback_msg)
+
+
+class Message_Send_Peer_Data(Message):
+    def __init__(self, remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
+        Message.__init__(self, SERVICE_NETWORK, MESSAGE_SEND_PEER_DATA, success_callback_msg, failed_callback_msg)
+        self.remote_ip = remote_ip
+        self.remote_port = remote_port
+        self.raw_data = raw_data
+

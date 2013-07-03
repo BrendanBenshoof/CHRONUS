@@ -6,6 +6,8 @@ import hash_util
 import message
 import threading
 import time
+from globals import *
+
 LAN_mode = True
 from os.path import expanduser
 
@@ -40,7 +42,7 @@ class Dummy_Network():
     def send_message(self, msg, dest):
         node_name = dest.IPAddr+"_"+str(dest.ctrlPort)
         dest_path = self.root_mailbox_path+node_name+"/"+str(hash_util.generate_random_key())
-        if msg.service == "INTERNAL" :
+        if msg.service == SERVICE_INTERNAL:
             pass
             #print "sending " + msg.get_content("type") + " to: " + dest_path
         outfile = file(dest_path,"w+")
@@ -83,11 +85,3 @@ def start(mynode, callback):
     return mynetwork
 
 myip = None
-def getHostIP():
-    global myip
-    if myip == None:
-        if LAN_mode:
-            myip = getIP.get_lan_ip()
-        else:
-            myip = NATPMP.get_public_address()
-    return myip

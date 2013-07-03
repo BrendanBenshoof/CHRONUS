@@ -4,14 +4,17 @@ import logging
 import collections
 import sys
 import multiprocessing
-from network_constant import Peer_Zero_Signal
+from globals import *
 
 
-class Peer_Zero_Server():  # inbound connections
+class Peer_Local():  # inbound connections
 
     def __init__(self, network_service, host_ip="", host_port=9999):
         self.exit = False
         self.network_service = network_service
+
+        if host_ip == "localhost" or host_ip == "127.0.0.1":
+            host_ip = ""
 
         # start the server
         logger.setLevel(logging.DEBUG)
@@ -28,8 +31,8 @@ class Peer_Zero_Server():  # inbound connections
         Coro(self.server_coro)
 
         # heuristic value (1 thread waiting plus 1 active at any given time)
-        for i in range(2 * multiprocessing.cpu_count()) :
-            Coro(self._connection_handler)
+        #for i in range(2 * multiprocessing.cpu_count()) :
+        Coro(self._connection_handler)
 
     def _connection_handler(self, coro=None):
         coro.set_daemon()
@@ -63,43 +66,43 @@ class Peer_Zero_Server():  # inbound connections
                 yield self.signal_item_queued.wait()
 
             cmd, item = self.queue.popleft()
-            if cmd == Peer_Zero_Signal.PEER_CONNECTED:
+            if cmd == NETWORK_PEER_CONNECTED:
                 client_socket, client_addr = item
                 logger.debug('SERVER: client %s connected', str(client_addr))
                 self.network_service.on_peer_connected(item)
                 clients.add((client_socket, client_addr))
-            elif cmd == Peer_Zero_Signal.PEER_DISCONNECTED:
+            elif cmd == NETWORK_PEER_DISCONNECTED:
                 client_socket, client_addr = item
                 logger.debug('SERVER: client %s disconnected', str(client_addr))
                 self.network_service.on_peer_disconnected(item)
                 clients.discard((client_socket, client_addr))
                 client_socket.close()
-            elif cmp == Peer_Zero_Signal.PEER_DATA_RECEIVED:
+            elif cmp == NETWORK_PEER_DATA_RECEIVED:
                 client_socket, client_addr, data = item
                 logger.debug('SERVER: Data received from %s (Data: %s)', str(client_addr), data)
                 self.network_service.on_peer_data_received(item)
-            elif cmp == Peer_Zero_Signal.PEER_DATA_SENT:
+            elif cmp == NETWORK_PEER_DATA_SENT:
                 client_socket, client_addr, data = item
                 logger.debug('SERVER: Data sent to %s (Data: %s)', str(client_addr), data)
                 self.network_service.on_peer_data_sent(item)
-            elif cmd == Peer_Zero_Signal.TERMINATE:
+            elif cmd == NETWORK_TERMINATE:
                 self.network_service.on_server_stop(item)
                 break
 
     # handle communication from the client
     def client_coro(self, client_socket, client_addr, coro=None):
 
-        self.queue.append((Peer_Zero_Signal.PEER_CONNECTED, (client_socket, client_addr)))
+        self.queue.append((NETWORK_PEER_CONNECTED, (client_socket, client_addr)))
         self.signal_item_queued.set()
 
         while True:
             data = yield client_socket.recv_msg()
             if not data:
-                self.queue.append((Peer_Zero_Signal.PEER_DISCONNECTED, (client_socket, client_addr)))
+                self.queue.append((NETWORK_PEER_DISCONNECTED, (client_socket, client_addr)))
                 self.signal_item_queued.set()
                 break
             else:
-                self.queue.append((Peer_Zero_Signal.PEER_DATA_RECEIVED, (client_socket, client_addr, data)))
+                self.queue.append((NETWORK_PEER_DATA_RECEIVED, (client_socket, client_addr, data)))
                 self.signal_item_queued.set()
 
 

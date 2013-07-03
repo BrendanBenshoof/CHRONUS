@@ -1,10 +1,10 @@
 from asyncoro import AsynCoroSocket, Coro, AsynCoro, Event, logger
 import socket
 import collections
-from network_constant import Peer_Zero_Signal
+from globals import *
 
 
-class Peer_Zero_Client():  # outbound connections
+class Peer_Remote():  # outbound connections
     def __init__(self, network_service, remote_ip, remote_port):
         self.exit = False
         self.network_service = network_service
@@ -40,12 +40,13 @@ class Peer_Zero_Client():  # outbound connections
                 self.signal_item_queued.clear()
                 yield self.signal_item_queued.wait()
             cmd, state = self.queue.popleft()
-            if cmd == Peer_Zero_Signal.PEER_DISCONNECT:
+            if cmd == NETWORK_PEER_DISCONNECT:
                 self.network_service.on_peer_disconnected(state)
                 break
 
-            logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,state.data)
-            yield self.outbound_socket.send_msg(state.data)
+            data, context = state
+            logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,data)
+            yield self.outbound_socket.send_msg(data)
             self.network_service.on_peer_data_sent(state)
         self.outbound_socket.shutdown(socket.SHUT_WR)
 
@@ -57,7 +58,7 @@ class Peer_Zero_Client():  # outbound connections
     def stop(self, context):
         self.exit = True
         logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
-        self.queue.append((Peer_Zero_Signal.PEER_DISCONNECT, context))
+        self.queue.append((NETWORK_PEER_DISCONNECT, context))
         self.signal_item_queued.set()
 
 

@@ -2,3 +2,6 @@
 *.db
 *.log
 *.dvi
+*.blg
+*.bbl
+*.fdb_latexmk

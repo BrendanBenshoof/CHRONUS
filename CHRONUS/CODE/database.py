@@ -3,14 +3,22 @@ from service import Service
 from message import Database_Message
 import hash_util
 from threading import Lock
+from globals import *
 
 class Database(Service):
     """docstring for Database"""
-    def __init__(self, root_directory):
+    def __init__(self, message_router, root_directory):
         super(Database, self).__init__()
+        self.message_router = message_router  # should be in base class used by all services
+        self.service_id = SERVICE_DATABASE
+        message_router.register_service(self.service_id, self)
+
         self.root_directory = root_directory
-        self.service_id = "DATABASE"
         self.write_lock = Lock()
+
+    def handle_message(self, msg):
+        if not msg.service == self.service_id:
+            raise Exception("Mismatched service recipient for message.")
 
     def lookup_record(self,hash_name):
         try:

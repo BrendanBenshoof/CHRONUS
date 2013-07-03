@@ -20,10 +20,16 @@ class Toplogy_Poll_Message(Message):
 
 
 class Topology(Service):
-    def __init__(self):
-        super(Service, self).__init__()
-        self.service_id = "TOPOLOGY"
+    def __init__(self, message_router):
+        super(Topology, self).__init__()
+        self.message_router = message_router  # should be in base class used by all services
+        self.service_id = SERVICE_TOPOLOGY
+        message_router.register_service(self.service_id, self)
         self.topology_guess = []
+
+    def handle_message(self, msg):
+        if not msg.service == self.service_id:
+            raise Exception("Mismatched service recipient for message.")
 
     def get_my_links(self):
         output = []

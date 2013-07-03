@@ -10,7 +10,15 @@ import node
 
 from threading import *
 import sys
+import message_router
+import network_service
+from message import Message_Start_Server
+from message_router import Message_Router
+from globals import *
 
+# backwards-compatibility use of global vars...encapsulation is easily
+# possible by ensuring all functionality lives in a service with a reference
+# to router which would then be instantiated in main()
 services = {}
 commands = {}
 
@@ -28,18 +36,22 @@ def attach_services():
 
 def setup_Node(addr="localhost", port=None):
     node.IPAddr = addr
-    if port is None:
-        port = random.randint(9000,9999)
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
-    node.net_server = dummy_network.start(node.thisNode, node.handle_message)
+    #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
+
     #### setup services here
-    add_service(service.Internal_Service())
-    add_service(service.ECHO_service())
-    add_service(Topology_Service.Topology())
-    add_service(db.Shelver("test.db"))
+    add_service(network_service.Network_Service(Message_Router.instance()))
+    add_service(service.Node_Service(Message_Router.instance()))
+    add_service(service.Internal_Service(Message_Router.instance()))
+    add_service(service.ECHO_service(Message_Router.instance()))
+    add_service(Topology_Service.Topology(Message_Router.instance()))
+    add_service(db.Shelver(Message_Router.instance(),"test.db"))
     ####
     attach_services()
+
+    # send service start messages
+    Message_Router.instance().route(Message_Start_Server(addr, port))
 
 def join_ring(node_name, node_port):
     othernode = node.Node_Info(node_name, node_port)
@@ -72,18 +84,13 @@ def console():
             pass
 
 def main():
+    global router
     args = sys.argv
-    local_port = None
-    other_IP = None
-    other_port = None
-    for i in range(0,len(args)):
-        if i == 1:
-            local_port = int(args[i])
-        if i == 2:
-            other_IP = args[i]
-        if i == 3:
-            other_port = args[i]
-    setup_Node(port = local_port)
+    local_port = int(args[1]) if len(args) > 1 else random.randint(9000, 9999)
+    other_IP = int(args[2]) if len(args) > 2 else None
+    other_port = int(args[3]) if len(args) > 3 else None
+
+    setup_Node(port=local_port)
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)
     else:
@@ -93,3 +100,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

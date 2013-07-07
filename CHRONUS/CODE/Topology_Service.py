@@ -7,7 +7,7 @@ from math import pi
 
 class Toplogy_Poll_Message(Message):
     def __init__(self, origin_node, destination_key):
-        Message.__init__(self)
+        Message.__init__(self,"TOPOLOGY","TOPOLOGY")
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.service = "TOPOLOGY"

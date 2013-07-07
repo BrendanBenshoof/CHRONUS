@@ -14,22 +14,22 @@ class Network_Service(Service):
         self.service_id = SERVICE_NETWORK
         message_router.register_service(self.service_id,self)
 
-        self._clients = {}
-        self._server = None
+        self.clients = {}
+        self.server = None
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:
             raise Exception("Mismatched service recipient for message.")
 
         if msg.type == MESSAGE_START_SERVER:
-            if not self._server:
-                self._server = Peer_Local(self, msg.host_ip, msg.host_port)
+            if not self.server:
+                self.server = Peer_Local(self, msg.host_ip, msg.host_port)
         elif msg.type == MESSAGE_STOP_SERVER:
-            if self._server:
-                self._server.stop(msg)
+            if self.server:
+                self.server.stop(msg)
         elif msg.type == MESSAGE_SEND_PEER_DATA:
             client = Peer_Remote(self, msg.remote_ip, msg.remote_port)
-            self._clients[msg.remote_ip + ":" + str(msg.remote_port)] = client
+            self.clients[msg.remote_ip + ":" + str(msg.remote_port)] = client
             client.send(msg.raw_data, (msg,client))
         elif msg.type == MESSAGE_DISCONNECT_PEER:
             client = self.clients[msg.remote_ip + ":" + str(msg.remote_port)]
@@ -44,7 +44,7 @@ class Network_Service(Service):
     def on_server_stop(self, context):
         # TODO: possibly route messages to anyone who cares and wants to clean up when
         # the server has shut down
-        self._server = None
+        self.server = None
         return None
 
     def on_peer_connected(self, context):
@@ -56,9 +56,12 @@ class Network_Service(Service):
     def on_peer_disconnected(self, context):
         # TODO: possibly route messages to anyone who cares and wants to clean up when
         # a node is no longer connected
-        msg, client = context
-        if self.clients[msg.remote_ip + ":" + str(msg.remote_port)]:
-            del self._connected_clients[msg.remote_ip + ":" + msg.remote_port]
+        msg, client = context #this is a stupid idea
+        try:
+            if self.clients[client[0] + ":" + str(client[1])]:
+                del self._connected_clients[client[0] + ":" + str(client[1])]
+        except KeyError:
+            pass
         return None
 
     def on_peer_data_received(self, context):
@@ -67,19 +70,20 @@ class Network_Service(Service):
         return None
 
     def on_peer_data_sent(self, context):
-        msg, client = context
-        result = True #add this to the context and have Peer tell us if successful
+        msg = context[0]
+        client = context[1]
+        result = True  #add this to the context and have Peer tell us if successful
 
         # TODO: Send a message to the person who requested data sent to let them know send was successful
         # e.g. if router.route( msg.callback ) where notify_completion_message is
         #      formed by the caller in the original message as an "event" notification
-        if msg.success_callback and result:
+        if msg.success_callback_msg and result:
             # could provide some info like msg.callback.property = value but prob unnecessary
-            self.message_router.route(msg.success_callback)
-        elif msg.failed_callback and not result:
-            self.message_router.route(msg.failed_callback)
+            self.message_router.route(msg.success_callback_msg)
+        elif msg.failed_callback_msg and not result:
+            self.message_router.route(msg.failed_callback_msg)
 
-        client.stop()
+        client.stop(context)
         return None
 
 

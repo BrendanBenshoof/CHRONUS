@@ -70,7 +70,7 @@ except their methods aren't asynchronus.  Our changes are listed below
 """
 
 thisNode = None
-IPAddr = ""
+IPAddr = "98.251.48.221"
 ctrlPort = 7228
 key = ""
 

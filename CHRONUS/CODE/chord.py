@@ -34,7 +34,7 @@ def attach_services():
             for c in commands_list:
                 commands[c] = services[s_name]
 
-def setup_Node(addr="localhost", port=None):
+def setup_Node(addr="98.251.48.221", port=None):
     node.IPAddr = addr
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
@@ -87,7 +87,7 @@ def main():
     global router
     args = sys.argv
     local_port = int(args[1]) if len(args) > 1 else random.randint(9000, 9999)
-    other_IP = int(args[2]) if len(args) > 2 else None
+    other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
 
     setup_Node(port=local_port)

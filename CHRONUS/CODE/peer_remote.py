@@ -17,10 +17,10 @@ class Peer_Remote():  # outbound connections
         Coro(self._server_connect)
 
     def _server_connect(self, coro=None):
-        logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
+        pass  #logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
         self.outbound_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         yield self.outbound_socket.connect((self.remote_ip, self.remote_port))
-        logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
+        pass  #logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
         Coro(self._client_send)
         Coro(self._client_recv)
 
@@ -29,9 +29,7 @@ class Peer_Remote():  # outbound connections
             data = yield self.outbound_socket.recv_msg()
             if not data:
                 break
-            logger.debug('CLIENT: received data to peer at %s:%s (Data: %s)',
-                         self.remote_ip, str(self.remote_port), data)
-            self.network_service.on_peer_data_received(data)
+                #PYTHON DOES NOT HANDLE MULTILINE COMMANDS WELL. STOP
 
     def _client_send(self, coro=None):
         coro.set_daemon()
@@ -40,14 +38,15 @@ class Peer_Remote():  # outbound connections
                 self.signal_item_queued.clear()
                 yield self.signal_item_queued.wait()
             cmd, state = self.queue.popleft()
+            data, context = state
             if cmd == NETWORK_PEER_DISCONNECT:
-                self.network_service.on_peer_disconnected(state)
+                self.network_service.on_peer_disconnected(context)
                 break
 
-            data, context = state
-            logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,data)
+            
+            pass  #logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,data)
             yield self.outbound_socket.send_msg(data)
-            self.network_service.on_peer_data_sent(state)
+            self.network_service.on_peer_data_sent(context) ##this used to br _sent(state). it is why nothing worked
         self.outbound_socket.shutdown(socket.SHUT_WR)
 
 
@@ -57,7 +56,7 @@ class Peer_Remote():  # outbound connections
 
     def stop(self, context):
         self.exit = True
-        logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
+        pass  #logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
         self.queue.append((NETWORK_PEER_DISCONNECT, context))
         self.signal_item_queued.set()
 

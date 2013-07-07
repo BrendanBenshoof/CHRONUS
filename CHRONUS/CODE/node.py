@@ -365,6 +365,7 @@ def estimate_ring_density():
     
 
 def message_failed(msg, intended_dest):
+    print "message failed"
     for i in range(0,160)[::-1]:
         if fingerTable[i] == intended_dest:
             if i == 1: #we lost our successor
@@ -374,15 +375,10 @@ def message_failed(msg, intended_dest):
             if i == 0: #we lost our predecessor
                 fingerTable[0] = thisNode
                 print "THIS SHOULD NOT HAPPEN. PANIC NOW"
-                if fingerTable[-1] is None:
-                    predecessor_lock.acquire(True)
-                    predecessor = thisNode
-                    predecessor_lock.release()
-                else:
-                    predecessor_lock.acquire(True)
-                    predecessor = fingerTable[-1]
-                    predecessor_lock.release()
-                    fingerTable[0] = fingerTable[-1]
+                predecessor_lock.acquire(True)
+                predecessor = thisNode
+                predecessor_lock.release()
+
             else: #we just lost a finger
                 fingerTable[i] = None #cut it off properly
     send_message(msg)

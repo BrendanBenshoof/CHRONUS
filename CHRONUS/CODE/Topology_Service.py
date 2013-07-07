@@ -10,8 +10,8 @@ class Toplogy_Poll_Message(Message):
         Message.__init__(self,"TOPOLOGY","TOPOLOGY")
         self.origin_node = origin_node
         self.destination_key = destination_key
-        self.service = "TOPOLOGY"
-        self.type =  "TOPOLOGY"
+        self.service = SERVICE_TOPOLOGY
+        self.type =  SERVICE_TOPOLOGY
         self.add_content("server_list",[str(origin_node)])
         self.add_content("link_list",{})
         self.add_content("start",origin_node.key)

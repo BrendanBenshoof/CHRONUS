@@ -365,22 +365,35 @@ def estimate_ring_density():
     
 
 def message_failed(msg, intended_dest):
+    global predecessor, successor, fingerTable
     print "message failed"
+    print msg, intended_dest
+    salvage_sucessor = False
     for i in range(0,160)[::-1]:
-        if fingerTable[i] == intended_dest:
-            if i == 1: #we lost our successor
-                fingerTable[1] = thisNode
-                fingerTable[1] = find_ideal_forward(thisNode.key)
-                successor = fingerTable[1] 
-            if i == 0: #we lost our predecessor
-                fingerTable[0] = thisNode
-                print "THIS SHOULD NOT HAPPEN. PANIC NOW"
-                predecessor_lock.acquire(True)
-                predecessor = thisNode
-                predecessor_lock.release()
+        if not fingerTable[i] is None:
+            if fingerTable[i].IPAddr == intended_dest.IPAddr and fingerTable[i].ctrlPort == intended_dest.ctrlPort:
+                if i == 1: #we lost our successor
+                    fingerTable[1] = thisNode
+                    #fingerTable[1] = find_ideal_forward(thisNode.key)
+                    successor_lock.acquire(True)
+                    successor = thisNode
+                    salvage_sucessor = True
+                    successor_lock.release()
+                elif i == 0: #we lost our predecessor
+                    fingerTable[0] = thisNode
+                    predecessor_lock.acquire(True)
+                    predecessor = thisNode
+                    predecessor_lock.release()
 
-            else: #we just lost a finger
-                fingerTable[i] = None #cut it off properly
+                else: #we just lost a finger
+                    print "lost finger",i
+                    fingerTable[i] = None #cut it off properly
+    if salvage_sucessor:
+        for i in range(1,160):
+            if not fingerTable[i] is None:
+                    successor_lock.acquire(True)
+                    successor = fingerTable[i]
+                    successor_lock.release()
     send_message(msg)
 
 def peer_polite_exit(leaveing_node):

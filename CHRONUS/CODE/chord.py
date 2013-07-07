@@ -12,6 +12,13 @@ from threading import *
 import sys
 from globals import *
 
+
+import json
+from urllib2 import urlopen
+
+def myIP():
+    return json.load(urlopen('http://httpbin.org/ip'))['origin']
+
 # backwards-compatibility use of global vars...encapsulation is easily
 # possible by ensuring all functionality lives in a service with a reference
 # to router which would then be instantiated in main()
@@ -30,7 +37,7 @@ def attach_services():
             for c in commands_list:
                 commands[c] = services[s_name]
 
-def setup_Node(addr="98.251.48.221", port=None):
+def setup_Node(addr="localhost", port=None):
     node.IPAddr = addr
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
@@ -68,7 +75,7 @@ def console():
         if command in commands.keys():
             commands[command].handle_command(command, args)
         elif cmd != "-":
-            print "successor", node.successor
+            print "successor  ", node.successor
             print "predecessor", node.predecessor
         try:
             cmd = raw_input()
@@ -82,7 +89,7 @@ def main():
     other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
 
-    setup_Node(port=local_port)
+    setup_Node(addr=myIP(),port=local_port)
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)
     else:

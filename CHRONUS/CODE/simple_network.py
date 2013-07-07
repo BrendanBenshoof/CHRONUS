@@ -5,6 +5,8 @@ import socket
 import node
 import message
 
+
+
 class NETWORK_SERVICE(object):
     def send_message(self,msg,dest):
         msg_function = lambda: client_send(dest,msg)
@@ -28,12 +30,12 @@ def client_send(dest, msg):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         # Connect to server and send data
+        sock.settimeout(3.0)
         sock.connect((HOST, PORT))
         sock.sendall(DATA + "DONEDONE")
 
         # Receive data from the server and shut down
-        received = sock.recv(1024)
-    except:
+    except IOError as inst: 
         sock.close()
         node.message_failed(msg,dest)
     finally:

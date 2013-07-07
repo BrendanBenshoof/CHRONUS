@@ -30,11 +30,11 @@ def client_send(dest, msg):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         # Connect to server and send data
-        sock.settimeout(3.0)
+        sock.settimeout(10.0)
         sock.connect((HOST, PORT))
         sock.sendall(DATA + "DONEDONE")
-
         # Receive data from the server and shut down
+        self.request.recv(1024)
     except IOError as inst: 
         sock.close()
         node.message_failed(msg,dest)

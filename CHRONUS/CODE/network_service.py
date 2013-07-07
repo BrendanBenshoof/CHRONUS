@@ -67,6 +67,7 @@ class Network_Service(Service):
     def on_peer_data_received(self, context):
         # TODO: buffer until a complete message is received then pass to
         # router.route(complete_message)
+        print context
         return None
 
     def on_peer_data_sent(self, context):

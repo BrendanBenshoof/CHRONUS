@@ -103,14 +103,6 @@ class Check_Predecessor_Message(Message):
         self.destination_key = destination_key
         self.reply_to = origin_node
 
-class Database_Message(Message):
-    def __init__(self, origin_node, destination_key, Response_service=SERVICE_DATABASE, file_type="GET"):
-        Message.__init__(self, SERVICE_DATABASE, file_type)
-        self.origin_node = origin_node
-        self.destination_key = destination_key
-        self.add_content("service",Response_service)
-        self.reply_to = origin_node
-
 class Exit_Message(Message):
     """docstring for Notify_Message"""
     def __init__(self, origin_node, destination_key):

@@ -17,12 +17,12 @@ class Peer_Local():  # inbound connections
             host_ip = ""
 
         # start the server
-        logger.setLevel(logging.DEBUG)
+        pass  #logger.setLevel(logging.DEBUG)
         self.server_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind(("", host_port))
         self.server_socket.listen(128)  # set backlog to max
-        logger.info('SERVER: listening at %s', str(self.server_socket.getsockname()))
+        pass  #logger.info('SERVER: listening at %s', str(self.server_socket.getsockname()))
 
         self.queue = collections.deque()
         self.signal_item_queued = Event()
@@ -40,7 +40,7 @@ class Peer_Local():  # inbound connections
         #for performance reasons we may need to put this in a thread pool (multiple outstanding accepts)
         while not self.exit:
             try:
-                logger.debug("SERVER: outstanding accept( )")
+                pass  #logger.debug("SERVER: outstanding accept( )")
                 client_socket, client_addr = yield self.server_socket.accept()
                 Coro(self.client_coro, client_socket, client_addr)
             except:

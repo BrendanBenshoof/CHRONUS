@@ -5,15 +5,11 @@ import shelver as db
 import Topology_Service
 import hash_util
 import random
-import dummy_network
+import simple_network
 import node
 
 from threading import *
 import sys
-import message_router
-import network_service
-from message import Message_Start_Server
-from message_router import Message_Router
 from globals import *
 
 # backwards-compatibility use of global vars...encapsulation is easily
@@ -39,19 +35,15 @@ def setup_Node(addr="98.251.48.221", port=None):
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
     #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
-
+    node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
     #### setup services here
-    add_service(network_service.Network_Service(Message_Router.instance()))
-    add_service(service.Node_Service(Message_Router.instance()))
-    add_service(service.Internal_Service(Message_Router.instance()))
-    add_service(service.ECHO_service(Message_Router.instance()))
-    add_service(Topology_Service.Topology(Message_Router.instance()))
-    add_service(db.Shelver(Message_Router.instance(),"test.db"))
+    add_service(service.Internal_Service())
+    add_service(service.ECHO_service())
+    add_service(Topology_Service.Topology())
+    add_service(db.Shelver("test.db"))
     ####
     attach_services()
 
-    # send service start messages
-    Message_Router.instance().route(Message_Start_Server(addr, port))
 
 def join_ring(node_name, node_port):
     othernode = node.Node_Info(node_name, node_port)

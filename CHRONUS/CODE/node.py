@@ -17,7 +17,6 @@ import copy
 from optparse import OptionParser
 import random
 from message import *
-from message_router import Message_Router
 #import dummy_network as
 import globals
 
@@ -300,17 +299,15 @@ def add_service(service):
     services[service.attach(thisNode, send_message)] = service
     if VERBOSE: 
         print "Service " + service.service_id + "attached" 
+    print services
 
 def send_message(msg, destination=None):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)
 
-    Message_Router.instance().route(Message_Send_Peer_Data(
-        destination.IPAddr, destination.ctrlPort, msg.serialize(), failed_callback_msg=None))
-
     #remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
-    #net_server.send_message(msg, destination)
+    net_server.send_message(msg, destination)
 
 # called when node is passed a message
 
@@ -327,6 +324,7 @@ def handle_message(msg):
         try:
             myservice = services[msg.service]
         except KeyError:
+            print "msg dropped: no service"
             return
         myservice.handle_message(msg)
     else:

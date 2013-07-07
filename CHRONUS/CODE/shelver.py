@@ -1,8 +1,8 @@
 from service import Service
-from message import Database_Message
 from threading import Lock
 import hash_util
 import shelve
+from message import Message
 from globals import *
 
 GET = "GET"
@@ -11,13 +11,19 @@ DATABASE = "DATABASE"
 ECHO = "ECHO"
 RESPONSE = "RESP"
 
+class Database_Message(Message):
+    def __init__(self, origin_node, destination_key, Response_service=SERVICE_SHELVER, file_type="GET"):
+        Message.__init__(self, SERVICE_SHELVER, file_type)
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.add_content("service",Response_service)
+        self.reply_to = origin_node
+
 class Shelver(Service):
     """docstring for Database"""
-    def __init__(self, message_router, db):
+    def __init__(self, db):
         super(Shelver, self).__init__()
-        self.message_router = message_router
         self.service_id = SERVICE_SHELVER
-        message_router.register_service(self.service_id,self)
 
         self.write_lock = Lock()
         self.db = db

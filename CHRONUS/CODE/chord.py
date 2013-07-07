@@ -17,7 +17,9 @@ import json
 from urllib2 import urlopen
 
 def myIP():
-    return json.load(urlopen('http://httpbin.org/ip'))['origin']
+    myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
+    print "just got my ip:", myip
+    return myip
 
 # backwards-compatibility use of global vars...encapsulation is easily
 # possible by ensuring all functionality lives in a service with a reference
@@ -83,13 +85,14 @@ def console():
             pass
 
 def main():
-    global router
+    myip = myIP()
+    node.IPAddr = myip
     args = sys.argv
     local_port = int(args[1]) if len(args) > 1 else random.randint(9000, 9999)
     other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
 
-    setup_Node(addr=myIP(),port=local_port)
+    setup_Node(addr=myip,port=local_port)
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)
     else:

@@ -69,8 +69,8 @@ except their methods aren't asynchronus.  Our changes are listed below
 """
 
 thisNode = None
-IPAddr = "98.251.48.221"
-ctrlPort = 7228
+IPAddr = "THIS IS WRONG"
+ctrlPort = 9500
 key = ""
 
 predecessor= None

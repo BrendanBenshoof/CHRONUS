@@ -95,7 +95,7 @@ To speed up the lookup time, each node builds and maintains a \emph{finger table
 
 When a node $n$ is told to find some key, $n$ looks to see if the key is between $n$ and $successor(n)$ and return $successor(n)$'s information to the requester. If not, it looks for the entry in the finger table for the closest preceding node $n'$ it knows and asks $n'$ to find the successor.  This allows each step in the to skip up to half the nodes in the network, giving a $\log_2(n)$ lookup time.  Because nodes can constantly join and leave the network, each entry in the table is periodically checked and updated. 
 
-To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.} .  Node $n$ relies on the stabilization routine to fully integrate into the network.
+To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.} .  Node $n$ relies on the stabilization routine to fully integrate into the ring.
 
 
 \subsection{CFS}

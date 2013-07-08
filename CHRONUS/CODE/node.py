@@ -377,6 +377,7 @@ def message_failed(msg, intended_dest):
                     #fingerTable[1] = find_ideal_forward(thisNode.key)
                     successor_lock.acquire(True)
                     successor = thisNode
+                    print "new sucessor", successor
                     salvage_sucessor = True
                     successor_lock.release()
                 elif i == 0: #we lost our predecessor

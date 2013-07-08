@@ -24,18 +24,33 @@ class NETWORK_SERVICE(object):
         t.start()
 
 def client_send(dest, msg):
+    #print "hello world"
     HOST = dest.IPAddr
     PORT = dest.ctrlPort
     DATA = msg.serialize()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    length = len(DATA)
+    #print "outgoing length:", length
+    byte1 = length >> 8
+    byte2 = length % (2**8)
+    #print byte1, byte2
+    b1 = chr(byte1)
+    b2 = chr(byte2)
+    #print b1, b2, ord(b1), ord(b2)
     try:
         # Connect to server and send data
-        sock.settimeout(10.0)
+        sock.settimeout(3.0) 
         sock.connect((HOST, PORT))
-        sock.sendall(DATA + "DONEDONE")
+        sock.send(b1)
+        sock.send(b2)
+        ack = ""
+        while len(ack)==0:
+            ack = sock.recv(1)
+        sock.send(DATA)
+        sock.shutdown(socket.SHUT_WR)
         # Receive data from the server and shut down
         self.request.recv(1024)
-    except IOError as inst: 
+    except socket.timeout: 
         sock.close()
         node.message_failed(msg,dest)
     finally:
@@ -60,15 +75,22 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         # self.request is the TCP socket connected to the client
-        DONE = False
-        while not DONE:
-            self.data+=self.request.recv(1024)
-            if len(self.data)>=8:
-                if self.data[-8:]=="DONEDONE":
-                    DONE = True
-            #print self.data
-        # just send back the same data, but upper-cased
-        self.data = self.data[0:-8]
-        self.request.sendall("ACK")
-        msg = message.Message.deserialize(self.data)
+        b1 = ""
+        b2 = ""
+        while len(b1) == 0:
+            b1 = self.request.recv(1)
+        while len(b2) == 0:
+            b2 = self.request.recv(1)
+        #print b1, b2
+        b1 = ord(b1)
+        b2 = ord(b2)
+        length = (b1 << 8) + b2
+        #print length
+        self.request.send("0")
+        data = ""
+        while length > 0:
+            #print length
+            data += self.request.recv(length)
+            length-=len(data)
+        msg = message.Message.deserialize(data)
         node.handle_message(msg)

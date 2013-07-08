@@ -1,4 +1,4 @@
-\documentclass[10pt, conference, compsocconf, letterpaper]{IEEEtran}
+\documentclass[conference, compsocconf, letterpaper]{IEEEtran}
 
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
 
@@ -95,12 +95,16 @@ To speed up the lookup time, each node builds and maintains a \emph{finger table
 
 When a node $n$ is told to find some key, $n$ looks to see if the key is between $n$ and $successor(n)$ and return $successor(n)$'s information to the requester. If not, it looks for the entry in the finger table for the closest preceding node $n'$ it knows and asks $n'$ to find the successor.  This allows each step in the to skip up to half the nodes in the network, giving a $\log_2(n)$ lookup time.  Because nodes can constantly join and leave the network, each entry in the table is periodically checked and updated. 
 
-To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.} .  Node $n$ relies on the stabilization routine to fully integrate into the ring.
+To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.} .  Node $n$ relies on the stabilize routine to fully integrate into the ring.
 
+The stabilize routine helps the network adjust to churn. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the ( possibly) new successor,  essentially telling the successor "based on the information I have, I'm your predecessor.  Check to see if you need to update your predecessor information ", to which the successor obliges.  A more concrete example:
 
-\subsection{CFS}
-What is it and what are only the relevant parts for our paper
+Suppose Alice and Bob are members of the ring and Alice is quite sure that Bob is her successor.  Alice asks Bob who his predecessor is and Bob says Carol is.  If Carol's hash puts her between Alice and Bob, Alice changes her successor to Carol and notifies Carol.  Carol gets the nofitication from Alice.  If Carol sees Alice's hash is between Carol's own predecessor and herself, she makes Alice her predecessor. 
 
+During the next stabilization cycle, Alice will check to see who Carol's predecessor is and adjust her successor and predecessor based on that.
+
+\subsection{Redundency}
+The node $successor(\kappa)$ is responsible for all the values between it's  
 \section{MapReduce}
 At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  The map portion
 
@@ -129,6 +133,7 @@ A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite
 \section{Results}
 
 \section{Conclusion}
+Our stuff is awesome.
 
 \bibliographystyle{plain}
 \bibliography{CHRONUS}

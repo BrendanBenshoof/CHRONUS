@@ -16,10 +16,16 @@ from globals import *
 import json
 from urllib2 import urlopen
 
+local_mode=True
+
 def myIP():
-    myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
-    print "just got my ip:", myip
-    return myip
+    if not local_mode:
+        myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
+        print "just got my ip:", myip
+        return myip
+    else:
+        return "localhost"
+    
 
 # backwards-compatibility use of global vars...encapsulation is easily
 # possible by ensuring all functionality lives in a service with a reference

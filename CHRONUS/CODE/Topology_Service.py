@@ -25,10 +25,6 @@ class Topology(Service):
         self.service_id = SERVICE_TOPOLOGY
         self.topology_guess = []
 
-    def handle_message(self, msg):
-        if not msg.service == self.service_id:
-            raise Exception("Mismatched service recipient for message.")
-
     def get_my_links(self):
         output = []
         for n in node.fingerTable:

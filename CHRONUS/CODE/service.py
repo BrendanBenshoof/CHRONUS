@@ -11,7 +11,7 @@ class Service(object):
         self.service_id = None
         self.callback = None
         self.owner = None
-        self.inbox =  Queue()
+
 
     def attach(self, owner, callback):
         """Called when the service is attached to the node"""

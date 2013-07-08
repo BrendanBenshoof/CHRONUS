@@ -84,6 +84,7 @@ class Shelver(Service):
             return_service = msg.get_content("service")
             newmsg = Database_Message(self.owner, msg.reply_to.key, return_service, "RESP")
             newmsg.add_content("file_contents",content)
+            newmsg.add_content("destkey",msg.destination_key)
             self.send_message(newmsg, msg.reply_to)
         if msg.type == "PUT":
             filename = str(msg.destination_key)

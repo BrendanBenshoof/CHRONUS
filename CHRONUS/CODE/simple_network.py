@@ -39,7 +39,7 @@ def client_send(dest, msg):
     #print b1, b2, ord(b1), ord(b2)
     try:
         # Connect to server and send data
-        sock.settimeout(3.0) 
+        sock.settimeout(20.0) 
         sock.connect((HOST, PORT))
         sock.send(b1)
         sock.send(b2)
@@ -50,7 +50,8 @@ def client_send(dest, msg):
         sock.shutdown(socket.SHUT_WR)
         # Receive data from the server and shut down
         self.request.recv(1024)
-    except socket.timeout: 
+    except socket.timeout as e:
+        print e
         sock.close()
         node.message_failed(msg,dest)
     finally:

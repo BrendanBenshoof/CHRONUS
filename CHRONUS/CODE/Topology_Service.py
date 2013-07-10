@@ -88,6 +88,5 @@ def render(record, edges):
     for n in record:
         for k in edges[str(n)]:
             G.add_edge(n,k)
-    G.remove_node("None")
     nx.draw_circular(G, with_labels=True)
     plt.show()

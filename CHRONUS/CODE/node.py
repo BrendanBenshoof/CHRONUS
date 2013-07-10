@@ -22,7 +22,7 @@ import globals
 
 # Debug variables
 TEST_MODE = False   #duh
-VERBOSE = True      # True for various debug messages, False for a more silent execution.
+VERBOSE = False      # True for various debug messages, False for a more silent execution.
 net_server = None
 MAINTENANCE_PERIOD = 2.0
 

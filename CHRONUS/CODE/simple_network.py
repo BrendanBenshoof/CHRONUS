@@ -22,6 +22,8 @@ class NETWORK_SERVICE(object):
         t = threading.Thread(target=self.server.serve_forever)
         t.daemon = True
         t.start()
+    def stop(self):
+        self.server.shutdown()
 
 def client_send(dest, msg):
     #print "hello world"
@@ -30,7 +32,10 @@ def client_send(dest, msg):
     DATA = msg.serialize()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     length = len(DATA)
-    #print "outgoing length:", length
+    print "outgoing length:", length
+    padding = 8-length%8
+    DATA+=" "*padding
+    length = len(DATA)/8
     byte1 = length >> 8
     byte2 = length % (2**8)
     #print byte1, byte2
@@ -56,6 +61,7 @@ def client_send(dest, msg):
         node.message_failed(msg,dest)
     finally:
         sock.close()
+        print DATA[-20:],len(DATA)%8
         return True
 
 
@@ -85,7 +91,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         #print b1, b2
         b1 = ord(b1)
         b2 = ord(b2)
-        length = (b1 << 8) + b2
+        length = ((b1 << 8) + b2)*8
         #print length
         self.request.send("0")
         data = ""
@@ -93,5 +99,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             #print length
             data += self.request.recv(length)
             length-=len(data)
+        data = data.rstrip()
+        print "incoming length: " +str(len(data))
+        print "I GOT:", data[-20:]
         msg = message.Message.deserialize(data)
         node.handle_message(msg)

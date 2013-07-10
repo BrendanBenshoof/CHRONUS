@@ -7,10 +7,11 @@ import hash_util
 import random
 import simple_network
 import node
+import time
 
 from threading import *
 import sys
-from globals import *
+
 
 
 import json
@@ -24,7 +25,7 @@ def myIP():
         print "just got my ip:", myip
         return myip
     else:
-        return "localhost"
+        return "127.0.0.1"
     
 
 # backwards-compatibility use of global vars...encapsulation is easily
@@ -55,7 +56,8 @@ def setup_Node(addr="localhost", port=None):
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())
     add_service(Topology_Service.Topology())
-    add_service(db.Shelver("test.db"))
+    database_name = str(node.thisNode)+".db"
+    add_service(db.Shelver(database_name))
     ####
     attach_services()
 
@@ -81,14 +83,20 @@ def console():
         if len(splitted) == 2:
             args = splitted[1]
         if command in commands.keys():
-            commands[command].handle_command(command, args)
+            mytarget = lambda: commands[command].handle_command(command, args)
+            t = Thread(target=mytarget)
+            t.daemon = True
+            t.start()
         elif cmd != "-":
             print "successor  ", node.successor
             print "predecessor", node.predecessor
         try:
             cmd = raw_input()
         except EOFError: #the user does not have a terminal
+            time.sleep(1)
             pass
+    print "test"
+    node.net_server.stop()
 
 def main():
     myip = myIP()

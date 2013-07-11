@@ -47,7 +47,7 @@
 
 %%% The "real" document content comes below...
 
-\title{Reducing Traffic and Delays in P2P Systems with Replicated Mutable Files}
+\title{Using Chord as a Platform for Software as a Service.}
 \author{
 Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
 %\date{} % Activate to display a given date or no date (if empty),
@@ -57,17 +57,13 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 \maketitle
 
 \begin{abstract}
-Peer-to-peer networks generate an increasing amount of traffic each year as they become more widely used and as larger files become more common to share. This has led research into how peer-to-peer networks can be used for tasks such as keeping mutable files across a network up-to-date and using other points in the network to store temporary copies of the file to ease the load on the server by diverting traffic. The integrated file replication and consistency maintenance algorithm (IRM) combined the problems into one and examined the effects on a network using Chord. This paper proposes reducing the strain on the file owners by reducing polling and diverting  polling traffic to the replica nodes.  These changes can be accomplished without decreasing the hit rate at the replica nodes, while also decreasing the overall traffic in the network and average latency.
+DRAFT ABSTRACT:  We developed a Peer-to-peer architecture for software as a service. We show viability by implementing MapReduce.
 \end{abstract}
 
 
 
 \section{Introduction}
 
-\subsection{This doesn't belong here}
-Chord was designed as file sharing system as
-
-Chord was modified into CFS for a distrubuted file storage.
 
 \section{Background}
 Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
@@ -80,6 +76,13 @@ On the other side of the spectrum, there are unstructured, decentralized network
 Modern P2P implementations are hard to classify easily, due to the variety of methods used to create a working network that avoids the weaknesses of the two above network types.  Many networks today use a decentralized structured approach to distribute files, where the topology of the overlay is constructed and controlled by the protocol and the information about the network is distributed among the peers.  This distribution is typically accomplished by a distributed hash table (DHT).  Networks that use a DHT choose specific peers in which to place information about how to find particular files or data.  These peers are chosen so that the peer's ID in the network corresponds to the file or data's ID, typically by hashing both ID's and comparing them  \cite{SurveyCompare}. 
 
 In addition, the network topology is distributed among various peers.  Each peer has a table consisting of other peers in the network and the means of communicating with them.  The contents of this table are also controlled by the protocol.  The table handles the routing of requests from one node to another; when a peer receives a request it cannot fulfill, such as information about where to find a particular file, it directs the the request to the node that is "closest" to the destination of the request. How this works is determined by each protocol \cite{Chord}.  It should be noted that closeness is relative to the algorithm; depending on what identifiers are assigned, a node in New York City might be "close" to a node in Russia, but "far" from a node physically a few miles away.  Examples of protocols that use these techniques are trackerless BitTorrent \cite{BitTorrent}, Chord \cite{Chord}, and Kademlia \cite{Kademlia}. As our work is implemented using Chord, we provide more detail in the following section. 
+
+
+\subsection{Related Work}
+
+CFS is a file sharing system built on top of Chord \cite{CFS}.
+
+P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations
 
 \section{CHORD}
 The Chord protocol \cite{Chord} takes in some key and returns the identity (ID) of the node responsible for that key.  These keys are generated by hashing a value of the node, such as the IP address, or by hashing  the filename of a file.  The hashing process creates a $m$-bit hash identifier.
@@ -112,9 +115,6 @@ At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A ta
 
 Summary of MapReduce \cite{mapreduce} 
 
-
-\subsubsection{Differences with  Hadoop}
-
 Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 
 \subsection{Map}
@@ -124,7 +124,7 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 \section{CHRONUS}
 
 \subsection{Implementation}
-
+Parapgraph here about the bidding nature of the amazon market.
 
 Rather than the traditional tree structure, Chord takes advantage of the inherent ring structure.
 
@@ -133,7 +133,7 @@ A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite
 \section{Results}
 
 \section{Conclusion}
-Our stuff is awesome.
+Our stuff \cite{code} is awesome.
 
 \bibliographystyle{plain}
 \bibliography{CHRONUS}

@@ -93,7 +93,7 @@ class Shelver(Service):
         elif command_st == "get":
             self.get_record(arg_str)
         elif command_st == "test_store":
-            newfile = file("Accelerando.txt","r")
+            newfile = file("shelver.py","r")
             self.put_record("book",newfile.read())
             newfile.close()
         elif command_st == "test_get":

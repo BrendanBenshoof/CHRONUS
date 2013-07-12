@@ -30,7 +30,7 @@ class Service(object):
         return msg.service == self.service_id
 
     def attach_to_console(self):
-        ### return a dict of command-strings
+        ### return a list of command-strings
         return None
 
     def handle_command(self, comand_st, arg_str):

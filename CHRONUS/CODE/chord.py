@@ -8,6 +8,7 @@ import random
 import simple_network
 import node
 import time
+import filesystem_service
 
 from threading import *
 import sys
@@ -53,11 +54,13 @@ def setup_Node(addr="localhost", port=None):
     #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
     node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
     #### setup services here
+    database_name = str(node.thisNode)+".db"
+    add_service(db.Shelver(database_name))
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())
     add_service(Topology_Service.Topology())
-    database_name = str(node.thisNode)+".db"
-    add_service(db.Shelver(database_name))
+    add_service(filesystem_service.FileSystem())
+
     ####
     attach_services()
 

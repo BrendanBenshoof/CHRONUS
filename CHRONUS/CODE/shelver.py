@@ -74,7 +74,7 @@ class Shelver(Service):
         newmsg.add_content("file_contents",data)
         self.send_message(newmsg)
 
-    def get_record(self,name):
+    def get_record(self,name,return_service="DATABASE"):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,ECHO,GET)
         self.send_message(newmsg)
@@ -94,7 +94,11 @@ class Shelver(Service):
             self.get_record(arg_str)
         elif command_st == "test_store":
             newfile = file("shelver.py","r")
-            self.put_record("book",newfile.read())
+            counter=0
+            for l in newfile:
+                self.put_record("book:"+str(counter),l)
+                counter+=1
+                print counter
             newfile.close()
         elif command_st == "test_get":
             args = arg_str.split(" ",1)
@@ -114,6 +118,7 @@ class Shelver(Service):
             newmsg = Database_Message(self.owner, msg.reply_to.key, return_service, "RESP")
             newmsg.add_content("file_contents",content)
             newmsg.add_content("destkey",msg.destination_key)
+            newmsg.service=return_service
             self.send_message(newmsg, msg.reply_to)
         if msg.type == "PUT":
             filename = str(msg.destination_key)

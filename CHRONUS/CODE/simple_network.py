@@ -16,7 +16,6 @@ class NETWORK_SERVICE(object):
                     dest, msg = self.tosend.get(True,0.1)
                     client_send(dest,msg)
                     self.tosend.task_done()
-                    print "*",
                 except Queue.Empty:
                     time.sleep(0.1)
 

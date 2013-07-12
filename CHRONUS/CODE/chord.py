@@ -18,7 +18,7 @@ import sys
 import json
 from urllib2 import urlopen
 
-local_mode=True
+local_mode=False
 
 def myIP():
     if not local_mode:
@@ -54,7 +54,7 @@ def setup_Node(addr="localhost", port=None):
     #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
     node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
     #### setup services here
-    database_name = str(node.thisNode)+".db"
+    database_name = str(node.thisNode.key)+".db"
     add_service(db.Shelver(database_name))
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())

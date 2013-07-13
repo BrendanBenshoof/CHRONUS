@@ -2,6 +2,7 @@ from map_reduce import Data_Atom
 ## assume contents is a line of text
 def map_func(atom):
     results = {}
+    print "runnign a map"
     line = atom.contents
     line = line.strip()
     words  = line.split()
@@ -10,7 +11,8 @@ def map_func(atom):
             results[word] = results[word]+1
         except KeyError: 
             results[word] =  1
-    return Data_Atom(atom.jobid, 0, results)
+    atom.contents = results
+    return atom
 
 
 def reduce_func(atom1, atom2):
@@ -18,20 +20,22 @@ def reduce_func(atom1, atom2):
     results = atom1.contents
     for word, count in atom2.contents.iteritems():
         try:
-            results[word] +=  count
+           atom1.contents[word] +=  count
         except KeyError:
-            results[word] = count
-    return Data_Atom(atom1.jobid, 0, results)
+            atom1.contents[word] = count
+    return atom1
 
 
+def stage():
+    data  = open("accelerando.txt") 
+    atoms = []
+    for line in data:
+        atoms.append(Data_Atom("job",None,line))
+    data.close()
+    return atoms
 
-data  = open("accelerando.txt") 
-atoms = []
-for line in data:
-    atoms.append(Data_Atom(0,0,line))
+# stuff = map(map_func, atoms)
+# stuff = reduce(reduce_func, stuff).contents
 
-stuff = map(map_func, atoms)
-stuff = reduce(reduce_func, stuff).contents
-
-for key, value in sorted(stuff.iteritems(), key = lambda x: - x[1]):
-    print key, value
+# for key, value in sorted(stuff.iteritems(), key = lambda x: - x[1]):
+#     print key, value

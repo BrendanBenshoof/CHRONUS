@@ -23,6 +23,9 @@ class Key():
     def __str__(self):
         return str(self.key)
 
+    def __hash__(self):
+        return int(self.key,16)
+
 #key size
 KEY_SIZE = 160
 

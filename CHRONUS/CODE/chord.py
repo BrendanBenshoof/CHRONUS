@@ -99,7 +99,6 @@ def console():
         except EOFError: #the user does not have a terminal
             time.sleep(1)
             pass
-    print "test"
     node.net_server.stop()
 
 def main():

@@ -302,7 +302,7 @@ def add_service(service):
     services[service.attach(thisNode, send_message)] = service
     if VERBOSE: 
         print "Service " + service.service_id + "attached" 
-    print services
+
 
 def send_message(msg, destination=None):
     #TODO: write something to actually test this
@@ -327,7 +327,9 @@ def handle_message(msg):
         try:
             myservice = services[msg.service]
         except KeyError:
-            print "msg dropped: no service"
+            print "msg dropped!\n service was:", msg, msg.service
+            print "attached services are:"
+            print services.keys()
             return
         myservice.handle_message(msg)
     else:

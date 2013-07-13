@@ -56,6 +56,9 @@ class Node_Info():
     def __str__(self):
         return str(self.IPAddr)+":"+str(self.ctrlPort)+":"+str(self.key)
 
+    def  __hash__(self):
+        return int(self.key.key,16)
+
 
 """This class represents the current node in the Chord Network.
 We try to follow Stoica et al's scheme as closely as possible here,
@@ -83,7 +86,7 @@ successor_lock = Lock()
 fingerTable = None
 fingerTable_lock = Lock()
 #numFingerErrors = 0
-next_finger = 0
+next_finger = 100
 
 #services
 services = {}

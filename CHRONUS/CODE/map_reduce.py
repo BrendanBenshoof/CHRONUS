@@ -6,87 +6,86 @@ import node
 MAP_REDUCE = "MAP_REDUCE"
 MAP = "MAP"
 REDUCE = "REDUCE"
-DISSEMINATE = "DISSEMINATE" 
-
-class Disseminate_Message(Message):
-    pass
-
-class Map_Message(Message):
-    """docstring for Map_Message"""
-    def __init__(self, origin_node, destination_key, key_range, map_function, reduce_function, job_id):
-        Message.__init__(self)
-        self.origin_node = origin_node
-        self.destination_key = destination_key
-        self.service  = MAP_REDUCE
-        self.add_content = ("key_range", key_range)
-        self.add_content = ("map_function", map_function)
-        self.add_content = ("reduce_function", reduce_function)
-        self.add_content = ("job_id", job_id)
-
-class Reduce_Message(Message):
-    def __init__(self, origin_node, destination_key, key_range, reduce_function, job_id,data):
-        Message.__init__(self)
-        self.origin_node = origin_node
-        self.destination_key = destination_key
-        self.service  = MAP_REDUCE
-        self.add_content = ("key_range", key_range)
-        self.add_content = ("reduce_function", reduce_function)
-        self.add_content = ("job_id", job_id)
-        self.add_content = ("data", data)
 
 
-def disseminate_data(data, job_id):
-    pass
+def disribute_fairly(atoms):
+    distribution = {}
+    for a in atoms:
+        dest = node.closest_preceding_node(a.hashkeyID)
+        try:
+            distribution[str(dest)].append(a)
+        except KeyError:
+            distribution[str(dest)] = [a]
+    return distribution
 
-def map_reduce(data, map_function, reduce_function, job_id):
-    pairs  = assignKeys()
-    send_map_reduce()
+class Data_Atom(object):
+    def __init__(self, jobid, hashkeyID, contents):
+        self.jobid = jobid
+        self.hashkeyID = hashkeyID
+        self.contents = contents
 
-def handle_map():
-    pass
+##test for distribute 
+def test():
+    test_data = map(lambda x: Data_Atom(generate_random_key(),generate_random_key(),generate_random_key()), range(0,10))
+    print disribute_fairly(test_data)
 
-def handle_reduce():
-    pass
-
-def emit():
-    pass
-
-
-
-#########Brendan's work starts
-
-class Map_Reduce(Service):
+class Map_Reduce_Service(Service):
+    """This object is intented to act as a parent/promise for Service Objects"""
     def __init__(self):
-        super(Service, self).__init__()
+        super(Map_Reduce_Service,self).__init__()
         self.service_id = MAP_REDUCE
-        self.responsible_start = self.owner.key
-        self.responsible_end = self.owner.key
 
-    def change_in_responsibility(new_pred_key, my_key):
-        self.responsible_start = new_pred_key
-        self.responsible_end = my_key 
+    def attach(self, owner, callback):
+        """Called when the service is attached to the node"""
+        """Should return the ID that the node will see on messages to pass it"""
+        self.callback = callback
+        self.owner = owner
+        return self.service_id
 
     def handle_message(self, msg):
-        if node.TEST_MODE:
-            print("Got Map-Reduce")
-        if msg.service != self.service_id
-            cry()
-            return False
-        msgtype = msg.get_content("type")
-        if msgtype == DISSEMINATE:
-            pass
-        elif msgtype == MAP:
-            pass
-        elif msgtype == REDUCE:
-            pass
-        else:
-            cry()
-            return False
-        return True
+        """This function is called whenever the node recives a message bound for this service"""
+        """Return True if message is handled correctly
+        Return False if things go horribly wrong
+        """
+        #if not msg.service == self.service_id:
+        #    raise "Mismatched service recipient for message."
+        return msg.service == self.service_id
+
+    def attach_to_console(self):
+        ### return a list of command-strings
+        return ["test_dissiminate"]
+
+    def handle_command(self, comand_st, arg_str):
+        ### one of your commands got typed in
+        test()
+        return None
+
+    def send_message(self, msg, dest=None):
+        self.callback(msg, dest)
+
+    def change_in_responsibility(self,new_pred_key, my_key):
+        pass #this is called when a new, closer predicessor is found and we need to re-allocate
+            #responsibilties
 
 
 
-##########Brendan's work ends
+
+class Map_Message(Message):
+    def __init__(self, jobid, dataset, map_function, reduce_function):
+        super(Map_Message, self).__init__(self, MAP_REDUCE, MAP)
+        self.jobid = jobid
+        self.map_function = None  #store you function here
+        self.dataset = []  #list of atoms
+        self.reduce_function = None
+
+class Reduce_Message(Message):
+    def __init__(self):
+        super(Reduce_Message, self).__init__(self, MAP_REDUCE, REDUCE)
+
+
 
 def cry():
     print("Your code is bad, and you should feel bad. https://www.youtube.com/watch?v=BSKVEkMiTMI")
+
+##########Brendan's work starts
+

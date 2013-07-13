@@ -9,6 +9,7 @@ import simple_network
 import node
 import time
 import filesystem_service
+import map_reduce
 
 from threading import *
 import sys
@@ -60,7 +61,7 @@ def setup_Node(addr="localhost", port=None):
     add_service(service.ECHO_service())
     add_service(Topology_Service.Topology())
     add_service(filesystem_service.FileSystem())
-
+    add_service(map_reduce.Map_Reduce_Service())
     ####
     attach_services()
 

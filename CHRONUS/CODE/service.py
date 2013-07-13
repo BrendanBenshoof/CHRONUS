@@ -101,3 +101,14 @@ class Internal_Service(Service):
             self.callback(response, msg.reply_to)
         return True
 
+    def attach_to_console(self):
+        ### return a list of command-strings
+        return ["fingers"]
+
+    def handle_command(self, comand_st, arg_str):
+        ### one of your commands got typed in
+        count = 0
+        for f in node.fingerTable:
+            if not f is None:
+                count+=1
+        print "there are: "+str(count)+" finger entries"

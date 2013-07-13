@@ -24,7 +24,7 @@ class Map_Message(Message):
         self.add_content = ("job_id", job_id)
 
 class Reduce_Message(Message):
-    def __init__(self, origin_node, destination_key, key_range, reduce_function, job_id):
+    def __init__(self, origin_node, destination_key, key_range, reduce_function, job_id,data):
         Message.__init__(self)
         self.origin_node = origin_node
         self.destination_key = destination_key
@@ -32,6 +32,8 @@ class Reduce_Message(Message):
         self.add_content = ("key_range", key_range)
         self.add_content = ("reduce_function", reduce_function)
         self.add_content = ("job_id", job_id)
+        self.add_content = ("data", data)
+
 
 def disseminate_data(data, job_id):
     pass

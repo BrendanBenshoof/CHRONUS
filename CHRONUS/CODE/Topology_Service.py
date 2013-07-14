@@ -80,13 +80,23 @@ class Topology(Service):
 
 def render(record, edges):
     import matplotlib.pyplot as plt
-    import networkx as nx
-    G = nx.DiGraph()
-    G.add_nodes_from(record)
-    print record
-    print edges
-    for n in record:
-        for k in edges[str(n)]:
-            G.add_edge(n,k)
-    nx.draw_circular(G, with_labels=True)
+    import math
+    record_matrix = map(lambda x: x.split(":"), record)
+    myMax = int(2**160)
+    x_points = [0.0]
+    y_points = [0.0]
+    names = ["origin"]
+    print record_matrix
+    for r in record_matrix:
+        name = str(r[0])+":"+str(r[1])
+        int_id = int(r[2][2:],16)
+        ratio = int_id*1.0/myMax
+        theta = math.pi*2.0*ratio
+        x = math.sin(theta)
+        y = math.cos(theta)
+        print x, y, name
+        x_points.append(x)
+        y_points.append(y)
+        plt.annotate(name, xy = (x, y))
+    plt.plot(x_points,y_points,"o")
     plt.show()

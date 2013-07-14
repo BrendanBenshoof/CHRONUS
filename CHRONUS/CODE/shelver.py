@@ -11,7 +11,6 @@ from globals import *
 GET = "GET"
 PUT = "PUT"
 DATABASE = "DATABASE"
-ECHO = "ECHO"
 RESPONSE = "RESP"
 
 class Database_Message(Message):
@@ -76,7 +75,7 @@ class Shelver(Service):
 
     def get_record(self,name,return_service="DATABASE"):
         hash_loc = hash_util.hash_str(name)
-        newmsg = Database_Message(self.owner,hash_loc,ECHO,GET)
+        newmsg = Database_Message(self.owner,hash_loc,SERVICE_ECHO,GET)
         self.send_message(newmsg)
 
     def attach_to_console(self):

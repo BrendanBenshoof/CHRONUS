@@ -120,7 +120,7 @@ def generate_key_with_index(index):
     return Key(hex(0x01 << index).replace("L", ""))
 
 def generate_random_key():
-    return Key(hex(random.getrandbits(128)).replace("L", ""))
+    return Key(hex(random.getrandbits(160)).replace("L", ""))
 
 
 def generate_lookup_key_with_index(thisIndex, indexOfKey):

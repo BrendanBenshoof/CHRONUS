@@ -77,6 +77,7 @@ class Map_Reduce_Service(Service):
             newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
             newmsg.destination_key = msg.reply_to.key
             self.send_message(newmsg, msg.reply_to)
+        
         elif msg.type == REDUCE:
             jobid = msg.jobid
             print "in reduce",jobid

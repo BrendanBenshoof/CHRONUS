@@ -7,6 +7,7 @@ import message
 import Queue
 import time
 
+CHUNKSIZE = 64
 
 
 class NETWORK_SERVICE(object):
@@ -49,9 +50,9 @@ def client_send(dest, msg):
     #print len(DATA)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     length = len(DATA)
-    padding = 64-length%64
+    padding = CHUNKSIZE-length%CHUNKSIZE
     DATA+=" "*padding
-    length = len(DATA)/64
+    length = len(DATA)/CHUNKSIZE
     byte1 = length >> 8
     byte2 = length % (2**8)
     ##print byte1, byte2
@@ -67,8 +68,7 @@ def client_send(dest, msg):
         ack = ""
         while len(ack) < 1:
             ack = sock.recv(1)
-        count = 0
-        count = sock.send(DATA)
+        sock.send(DATA)
             
         
         # Receive data from the server and shut down
@@ -77,7 +77,7 @@ def client_send(dest, msg):
             ack = sock.recv(1)
     except socket.timeout as e:
         #print e
-        sock.close()
+        #sock.close()
         node.message_failed(msg,dest)
     finally:
         sock.close()
@@ -111,15 +111,15 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         ##print b1, b2
         b1 = ord(b1)
         b2 = ord(b2)
-        length = ((b1 << 8) + b2)*64
-        maxlength = length/64
+        length = ((b1 << 8) + b2)*CHUNKSIZE
+        maxlength = length/CHUNKSIZE
         self.request.send("0")
         data = ""
         data0=""
         while length > 0:
             ##print length
-            buff = 64
-            if length < 64:
+            buff = CHUNKSIZE
+            if length < CHUNKSIZE:
                 buff =length
             data0 = self.request.recv(buff)
             length-=len(data0)

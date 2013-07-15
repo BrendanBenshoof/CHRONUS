@@ -10,6 +10,7 @@ import node
 import time
 import filesystem_service
 import map_reduce
+import Queue
 
 from threading import *
 import sys
@@ -75,8 +76,13 @@ def no_join():
 
 def console():
     cmd = "-"
+    loaded_script = Queue.Queue()
     try:
-        cmd = raw_input()
+        if loaded_script.empty():
+            cmd = raw_input()
+        else:
+            cmd = loaded_script.get()
+            loaded_script.task_done()
     except EOFError: #the user does not have a terminal
         pass
     while not ( cmd == "q" or cmd == "Q"):
@@ -91,11 +97,20 @@ def console():
             t = Thread(target=mytarget)
             t.daemon = True
             t.start()
-        elif cmd != "-":
+        elif command == "run":
+            file2open = file(args,"r")
+            for l in file2open:
+                loaded_script.put(l)
+            file2open.close()
+        else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor
         try:
-            cmd = raw_input()
+            if loaded_script.empty():
+                cmd = raw_input()
+            else:
+                cmd = loaded_script.get()
+                loaded_script.task_done()
         except EOFError: #the user does not have a terminal
             time.sleep(1)
             pass

@@ -47,7 +47,7 @@
 
 %%% The "real" document content comes below...
 
-\title{Using Chord as a Platform for Software as a Service.}
+\title{Using Chord as a Platform for Software as a Service for a Generalized, Distributed MapReduce.}
 \author{
 Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
 %\date{} % Activate to display a given date or no date (if empty),
@@ -58,8 +58,8 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 
 \begin{abstract}
 DRAFT ABSTRACT:  We developed a Peer-to-peer architecture for software as a service. We show viability by implementing MapReduce.
+MapReduce does not automatically distribute work among slave nodes without configuration.  In Chord, nodes are evenly distributed and  are responsible for files based on their position in the network. We exploit this property to automatically distribute MapReduce tasks evenly among nodes in the same manner. 
 \end{abstract}
-
 
 
 \section{Introduction}
@@ -109,7 +109,7 @@ During the next stabilization cycle, Alice will check to see who Carol's predece
 \subsection{Redundency}
 The node $successor(\kappa)$ is responsible for all the values between it's  
 \section{MapReduce}
-At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  The map portion
+At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then preduces a result for each map operation.  This intermediate data is then reduced by orther slave nodes then returned to the user. 
 
 \subsection{Summary}
 
@@ -127,6 +127,11 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 Parapgraph here about the bidding nature of the amazon market.
 
 Rather than the traditional tree structure, Chord takes advantage of the inherent ring structure.
+
+\subsection{Distributed MapReduce}
+To do a fully distriuted map reduce, each node takes on responsiblitilies of both a slave and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.   
+
+One of the key issues in
 
 \section{Experiments}
 A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite{amazon-micro}.

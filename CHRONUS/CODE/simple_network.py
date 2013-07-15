@@ -46,11 +46,12 @@ def client_send(dest, msg):
     HOST = dest.IPAddr
     PORT = dest.ctrlPort
     DATA = msg.serialize()
+    #print len(DATA)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     length = len(DATA)
-    padding = 8-length%8
+    padding = 64-length%64
     DATA+=" "*padding
-    length = len(DATA)/8
+    length = len(DATA)/64
     byte1 = length >> 8
     byte2 = length % (2**8)
     ##print byte1, byte2
@@ -59,17 +60,21 @@ def client_send(dest, msg):
     ##print b1, b2, ord(b1), ord(b2)
     try:
         # Connect to server and send data
-        sock.settimeout(3.0) 
+        #sock.setblocking(1) 
         sock.connect((HOST, PORT))
         sock.send(b1)
         sock.send(b2)
         ack = ""
-        while len(ack)==0:
+        while len(ack) < 1:
             ack = sock.recv(1)
-        sock.send(DATA)
-        sock.shutdown(socket.SHUT_WR)
+        count = 0
+        count = sock.send(DATA)
+            
+        
         # Receive data from the server and shut down
-        self.request.recv(1024)
+        ack=""
+        while len(ack) < 1:
+            ack = sock.recv(1)
     except socket.timeout as e:
         #print e
         sock.close()
@@ -106,15 +111,22 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         ##print b1, b2
         b1 = ord(b1)
         b2 = ord(b2)
-        length = ((b1 << 8) + b2)*8
-        ##print length
+        length = ((b1 << 8) + b2)*64
+        maxlength = length/64
         self.request.send("0")
         data = ""
+        data0=""
         while length > 0:
             ##print length
-            data += self.request.recv(length)
-            length-=len(data)
-        data = data.rstrip()
+            buff = 64
+            if length < 64:
+                buff =length
+            data0 = self.request.recv(buff)
+            length-=len(data0)
+            data+=data0
+        self.request.send("0")
+        old_length = len(data)
+        data = data.rstrip(" ")
         #print "incoming length: " +str(len(data))
         #print "I GOT:", data[-20:]
         msg = message.Message.deserialize(data)

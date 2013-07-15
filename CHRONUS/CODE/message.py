@@ -33,15 +33,15 @@ class Message(object):
         try:
             return pickle.loads(in_string)
         except EOFError:
-            fail_message = Message()
-            fail_message.service = FAILURE
+            fail_message = Message(FAILURE,FAILURE)
             return fail_message
         #there are soo many exceptions I should be catching here
 
     def serialize(self):
         #it would be great if this was encrypted
         #would could also fix this with using a public-key algorithim for p2p communication
-        return pickle.dumps(self)
+        temp = pickle.dumps(self)
+        return temp
 
     def add_content(self, key, data):
         self.contents[key] = data

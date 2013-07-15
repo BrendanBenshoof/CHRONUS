@@ -8,14 +8,14 @@ MAP = "MAP"
 REDUCE = "REDUCE"
 
 
-def disribute_fairly(atoms):#do not trust yet
+def disribute_fairly(atoms):
     distribution = {}
     for a in atoms:
         dest = node.find_ideal_forward(a.hashkeyID)
         try:
-            distribution[str(dest)].append(a)
+            distribution[dest].append(a)
         except KeyError:
-            distribution[str(dest)] = [a]
+            distribution[dest] = [a]
     return distribution
 
 class Data_Atom(object):
@@ -56,13 +56,22 @@ class Map_Reduce_Service(Service):
         #    raise "Mismatched service recipient for message."
         if msg.type == MAP:
             stuff_to_map = msg.dataset
+            #forward stuff I do not car about first
+            forward_dests = disribute_fairly(stuff_to_map)
+            for k in forward_dests.keys():
+                if k != self.owner:
+                    msg.dataset = forward_dests[k]
+                    self.send_message(msg, k)
+                else:
+                    stuff_to_map = forward_dests[k]
+
             map_func = msg.map_function
             reduce_func = msg.reduce_function
             results = []
             for a in stuff_to_map:
                 results.append(map_func(a))
             if len(results) > 1:
-                final_result = reduce_function(reduce_func, results)
+                final_result = reduce(reduce_func, results)
             else:
                 final_result = results[0]
             newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
@@ -119,12 +128,13 @@ class Map_Reduce_Service(Service):
         import test
         jobid = hash_str("job")
         jobs = test.stage()
+        jobs_withdest = disribute_fairly(jobs)
         map_func = test.map_func
         reduce_func = test.reduce_func
-        for a in jobs:
-            msg = Map_Message(jobid, [a], map_func, reduce_func)
+        for k in jobs_withdest.keys():
+            msg = Map_Message(jobid, jobs_withdest[k], map_func, reduce_func)
             msg.reply_to = self.owner
-            self.send_message(msg,None)
+            self.send_message(msg,k)
 
 
 

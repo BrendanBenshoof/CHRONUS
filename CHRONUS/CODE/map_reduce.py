@@ -11,7 +11,10 @@ REDUCE = "REDUCE"
 def disribute_fairly(atoms):
     distribution = {}
     for a in atoms:
-        dest = node.find_ideal_forward(a.hashkeyID)
+        if node.I_own_hash(a.hashkeyID):
+            dest = node.thisNode
+        else:
+            dest = node.find_ideal_forward(a.hashkeyID)
         try:
             distribution[dest].append(a)
         except KeyError:
@@ -58,18 +61,19 @@ class Map_Reduce_Service(Service):
             stuff_to_map = msg.dataset
             #forward stuff I do not car about first
             forward_dests = disribute_fairly(stuff_to_map)
+            print "I got a map request, am forwarding to:",map( lambda x: str(x.key), forward_dests.keys())
             for k in forward_dests.keys():
                 if k != self.owner:
-                    msg.dataset = forward_dests[k]
-                    self.send_message(msg, k)
+                    print "I am forwarding: ",len(forward_dests[k])
+                    newmsg = Map_Message(msg.jobid, forward_dests[k], msg.map_function, msg.reduce_function)
+                    newmsg.reply_to = msg.reply_to
+                    self.send_message(newmsg, k)
                 else:
                     stuff_to_map = forward_dests[k]
 
             map_func = msg.map_function
             reduce_func = msg.reduce_function
-            results = []
-            for a in stuff_to_map:
-                results.append(map_func(a))
+            results = map(map_func, stuff_to_map)
             if len(results) > 1:
                 final_result = reduce(reduce_func, results)
             else:
@@ -126,12 +130,12 @@ class Map_Reduce_Service(Service):
             #responsibilties
     
     def test(self):
-        import test
+        import pi
         jobid = hash_str("job")
-        jobs = test.stage()
+        jobs = pi.stage()
         jobs_withdest = disribute_fairly(jobs)
-        map_func = test.map_func
-        reduce_func = test.reduce_func
+        map_func = pi.map_func
+        reduce_func = pi.reduce_func
         for k in jobs_withdest.keys():
             msg = Map_Message(jobid, jobs_withdest[k], map_func, reduce_func)
             msg.reply_to = self.owner
@@ -146,14 +150,16 @@ class Map_Message(Message):
         self.map_function = map_function  #store you function here
         self.dataset = dataset  #list of atoms
         self.reduce_function = reduce_function
+        self.type = MAP
 
 
 class Reduce_Message(Message):
     def __init__(self, jobid, dataAtom, reduce_function):
         super(Reduce_Message, self).__init__( MAP_REDUCE, REDUCE)
         self.jobid = jobid
-        self.dataAtom = dataAtom  #list of atoms
+        self.dataAtom = dataAtom  #single atom
         self.reduce_function = reduce_function
+        self.type = REDUCE
 
 
 def cry():

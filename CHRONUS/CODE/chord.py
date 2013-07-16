@@ -120,7 +120,11 @@ def main():
     myip = myIP()
     node.IPAddr = myip
     args = sys.argv
-    local_port = int(args[1]) if len(args) > 1 else random.randint(9000, 9999)
+    if len(args) > 1 and args[1] != "?":
+        local_port = int(args[1]) 
+    else: 
+        local_port = random.randint(9000, 9999)
+        
     other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
 

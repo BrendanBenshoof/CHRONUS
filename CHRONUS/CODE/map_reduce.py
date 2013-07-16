@@ -1,7 +1,10 @@
 from service import *
 from message import *
 from hash_util import *
+import Queue
 import node
+from threading import Thread
+import time
 
 MAP_REDUCE = "MAP_REDUCE"
 MAP = "MAP"
@@ -34,6 +37,7 @@ class Data_Atom(object):
 ##test for distribute 
 
 
+job_todo = Queue.Queue()
 
 
 class Map_Reduce_Service(Service):
@@ -48,6 +52,10 @@ class Map_Reduce_Service(Service):
         """Should return the ID that the node will see on messages to pass it"""
         self.callback = callback
         self.owner = owner
+        for i in range(0,1):
+            t = Thread(target=self.Mapreduce_worker)
+            t.daemon = True
+            t.start()
         return self.service_id
 
     def handle_message(self, msg):
@@ -57,42 +65,11 @@ class Map_Reduce_Service(Service):
         """
         #if not msg.service == self.service_id:
         #    raise "Mismatched service recipient for message."
-        if msg.type == MAP:
-            stuff_to_map = msg.dataset
-            #forward stuff I do not car about first
-            forward_dests = disribute_fairly(stuff_to_map)
-            print "I got a map request, am forwarding to:",map( lambda x: str(x.key), forward_dests.keys())
-            for k in forward_dests.keys():
-                if k != self.owner:
-                    print "I am forwarding: ",len(forward_dests[k])
-                    newmsg = Map_Message(msg.jobid, forward_dests[k], msg.map_function, msg.reduce_function)
-                    newmsg.reply_to = msg.reply_to
-                    self.send_message(newmsg, k)
-                else:
-                    stuff_to_map = forward_dests[k]
-
-            map_func = msg.map_function
-            reduce_func = msg.reduce_function
-            results = map(map_func, stuff_to_map)
-            if len(results) > 1:
-                final_result = reduce(reduce_func, results)
-            else:
-                final_result = results[0]
-            newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
-            newmsg.destination_key = msg.reply_to.key
-            self.send_message(newmsg, msg.reply_to)
-        
-        elif msg.type == REDUCE:
-            jobid = msg.jobid
-            print "in reduce",jobid
-            atom = msg.dataAtom
-            myreduce = msg.reduce_function
-            if jobid in self.temp_data.keys():
-                self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
-            else:
-                self.temp_data[jobid] = atom
-
-        return msg.service == self.service_id
+        if msg.service == self.service_id:
+            job_todo.put(msg)
+            return True
+        else:
+            return False
 
     def attach_to_console(self):
         ### return a list of command-strings
@@ -106,9 +83,7 @@ class Map_Reduce_Service(Service):
         if comand_st == "results":
             args = arg_str.split(" ")
             jobid = hash_str(args[0])
-            print jobid
-            print self.temp_data.keys()
-            
+            print jobid            
             if jobid in self.temp_data.keys():
                 if len(args) >1:
                     f = file(args[1],"w+")
@@ -116,9 +91,9 @@ class Map_Reduce_Service(Service):
                     print "wrote to: ",f
                     f.close()
                 else:
-                    print self.temp_data[jobid].contents
+                    print "results:",self.temp_data[jobid].contents
             else:
-                "no value on this job"
+                print "no value on this job"
 
         return None
 
@@ -131,7 +106,7 @@ class Map_Reduce_Service(Service):
     
     def test(self):
         import pi
-        jobid = hash_str("job")
+        jobid = hash_str("pi")
         jobs = pi.stage()
         jobs_withdest = disribute_fairly(jobs)
         map_func = pi.map_func
@@ -141,6 +116,51 @@ class Map_Reduce_Service(Service):
             msg.reply_to = self.owner
             self.send_message(msg,k)
 
+    def Mapreduce_worker(self):
+        while True:
+            time.sleep(0.1)
+            newjob = job_todo.get(True)
+            if newjob.type == MAP:
+                self.domap(newjob)
+                job_todo.task_done()
+            if newjob.type == REDUCE:
+                self.doreduce(newjob)
+                job_todo.task_done()
+
+    def doreduce(self,msg):
+            jobid = msg.jobid
+            print "in reduce",jobid
+            atom = msg.dataAtom
+            myreduce = msg.reduce_function
+            if jobid in self.temp_data.keys():
+                self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
+            else:
+                self.temp_data[jobid] = atom
+
+    def domap(self,msg):
+        stuff_to_map = msg.dataset
+        #forward stuff I do not care about first
+        forward_dests = disribute_fairly(stuff_to_map)
+        print "I got a map request, am forwarding to:",map( lambda x: str(x.key), forward_dests.keys())
+        for k in forward_dests.keys():
+            if k != self.owner:
+                print "I am forwarding: ",len(forward_dests[k])
+                newmsg = Map_Message(msg.jobid, forward_dests[k], msg.map_function, msg.reduce_function)
+                newmsg.reply_to = msg.reply_to
+                self.send_message(newmsg, k)
+            else:
+                stuff_to_map = forward_dests[k]
+
+        map_func = msg.map_function
+        reduce_func = msg.reduce_function
+        results = map(map_func, stuff_to_map)
+        if len(results) > 1:
+            final_result = reduce(reduce_func, results)
+        else:
+            final_result = results[0]
+        newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
+        newmsg.destination_key = msg.reply_to.key
+        self.send_message(newmsg, msg.reply_to)
 
 
 class Map_Message(Message):

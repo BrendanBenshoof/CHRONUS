@@ -2,6 +2,8 @@ from message import *
 from hash_util import *
 from Queue import Queue
 import node
+import os
+import time
 from globals import *
 
 
@@ -56,6 +58,7 @@ class ECHO_service(Service):
 
         for k in msg.contents.keys():
             print msg.get_content(k)
+
 
 
 class Internal_Service(Service):

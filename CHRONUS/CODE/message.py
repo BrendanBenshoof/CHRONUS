@@ -14,6 +14,7 @@ NOTIFY = "NOTIFY"
 CHECK_PREDECESSOR = "CHECK_PREDECESSOR"
 POLITE_QUIT = "POLITE_QUIT"
 FAILURE = "FAILURE"
+SERVICE_RELOAD = "RELOAD"
 
 class Message(object):
     def __init__(self, service, type, success_callback_msg = None, failed_callback_msg = None):
@@ -102,6 +103,7 @@ class Check_Predecessor_Message(Message):
         self.origin_node = origin_node
         self.destination_key = destination_key
         self.reply_to = origin_node
+
 
 class Exit_Message(Message):
     """docstring for Notify_Message"""

@@ -15,7 +15,7 @@ import Queue
 from threading import *
 import sys
 
-
+from woodsman import *
 
 import json
 from urllib2 import urlopen
@@ -25,7 +25,7 @@ local_mode=False
 def myIP():
     if not local_mode:
         myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
-        print "just got my ip:", myip
+        logPrint( "just got my ip:", myip )
         return myip
     else:
         return "127.0.0.1"
@@ -103,8 +103,8 @@ def console():
                 loaded_script.put(l)
             file2open.close()
         else:
-            print "successor  ", node.successor
-            print "predecessor", node.predecessor
+            logPrint( "successor  ", node.successor)
+            logPrint( "predecessor", node.predecessor)
         try:
             if loaded_script.empty():
                 cmd = raw_input()
@@ -112,7 +112,7 @@ def console():
                 cmd = loaded_script.get()
                 loaded_script.task_done()
         except EOFError: #the user does not have a terminal
-            print "I do not see a terminal!"
+            logPrint( "I do not see a terminal!" )
             time.sleep(1)
             pass
     node.net_server.stop()

@@ -74,7 +74,7 @@ P2P networks have resulted in an unprecedented amount of data being purveyed thr
 \subsubsection{SaaS}
 in recent years, there has been a trend to USE P2P AS A WAY OF DISTRIBUTING WORK FOR SPECIFIC APPLICATIONS.  Folding at home seti at home that kind f thing
 
-Our thing is totally way better because it we're making it generic, knatch.  Why is generic better?  becuase it makes it easier for developers.   
+Our thing is totally way better because it we're making it generic, knatch.  Why is generic better?  becuase it makes it easier for developers. 
 
 We create the system and genericized version of map-reduce 
 
@@ -123,9 +123,9 @@ To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,b
 The stabilize routine helps the network adjust to churn. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the ( possibly) new successor,  essentially telling the successor "based on the information I have, I'm your predecessor.  Check to see if you need to update your predecessor information," to which the successor obliges.  A more concrete example:
 
 
-Suppose Alice,Bob, Carol, and Dan are members of the ring and everyone happens to be ordered alphabetically. Alice is quite sure that Carol is her successor.  Alice asks Carol who her predecessor is and Carol says Bob is.  Since Bob is closer than Carol, Alice changes her successor to Bob and notifies him.  
+Suppose Alice, Bob, Carol, and Dan are members of the ring and everyone happens to be ordered alphabetically (Figure \ref{abcd1}). Alice is quite sure that Carol is her successor.  Alice asks Carol who her predecessor is and Carol says Bob is.  Since Bob is closer than Carol, Alice changes her successor to Bob and notifies him.  
 
-When Bob sees that notification, he can see Alice is closer than whoever his previous predecessor is and sets Alice to be his predecessor.  During the next stabilization cycle, Alice will see that she is still Bob's predecessor and notify him that she's still there.
+When Bob sees that notification, he can see Alice is closer than whoever his previous predecessor is and sets Alice to be his predecessor.  During the next stabilization cycle, Alice will see that she is still Bob's predecessor and notify him that she's still there (Figure \ref{abcd2}).
 
 \begin{figure}
     \includegraphics[width=\linewidth]{abcd1}
@@ -136,7 +136,7 @@ When Bob sees that notification, he can see Alice is closer than whoever his pre
 
 \begin{figure}
     \includegraphics[width=\linewidth]{abcd2}
-    \caption{After completing stabilize, Alice now has Bob as her successor. Bob has set Alice as his predecessor after getting notified by Alice}
+    \caption{After completing stabilize, Alice makes Bob her successor and notifies him. Bob then made Alice as his predecessor.}
     \label{abcd2}
 \end{figure}
 
@@ -168,16 +168,11 @@ Parapgraph here about the bidding nature of the amazon market.
 age of the inherent ring structure.
 
 
-\subsection{In which we address possible criticism}
 
-\subsubsection{The issue with chunking and IRM}
-Mutually incompatable
-
-\subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
 
 
 \subsubsection{Code Details}
-We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls..
+We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls.
 
 
 \subsubsection{chunking and mechanics }
@@ -187,7 +182,7 @@ Dabek CFS \cite{CFS}
 Design choice of CFS and replication 
 
 
-Rather than storing the whole file in the appropriate node, we instead split the file into abitrary-sized chunks of data.  Each of the chunks are then hashed and sent to their corresponding node.
+Rather than storing the whole file in the appropriate node, we instead split the file into arbitrary-sized chunks of data.  Each of the chunks are then hashed and sent to their corresponding node.
 
 \subsubsection{backup implementation and mechanics}
 Paragraph about backup
@@ -198,10 +193,27 @@ Paragraph about backup
 \subsubsection{The security we didn't do}
 
 
+
+
 \subsection{Distributed MapReduce}
 To do a fully distriuted map reduce, each node takes on responsiblitilies of both a slave and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.   
 
 One of the key issues in
+\subsubsection{Stage}
+\subsubsection{Map}
+\subsubsection{Reduce}
+
+
+\subsubsection{How do we know when we're done}
+
+
+\subsection{In which we address possible criticism}
+\subsubsection{The issue with chunking and IRM}
+Mutually incompatable
+
+\subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
+\subsubsection{Determining when you're done is expensive}
+As a whole yes, but merging two sorted lists is $O(n)$ time.  A distributed merge sort is $O( \frac{n \cdot \log (n)}{m} $ time????? CITATION NEEDED, where $m$ is 
 
 
 \section{Experiments}

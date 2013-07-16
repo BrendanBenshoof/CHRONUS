@@ -13,12 +13,9 @@ CHUNKSIZE = 64
 class NETWORK_SERVICE(object):
     def sender_loop(self):
             while True:
-                try:
-                    dest, msg = self.tosend.get(True,0.1)
-                    client_send(dest,msg)
-                    self.tosend.task_done()
-                except Queue.Empty:
-                    time.sleep(0.1)
+                dest, msg = self.tosend.get(True)
+                client_send(dest,msg)
+                self.tosend.task_done()
 
     def send_message(self,msg,dest):
         msg_pack = (dest,msg)
@@ -49,6 +46,7 @@ def client_send(dest, msg):
     DATA = msg.serialize()
     #print len(DATA)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1.0)
     length = len(DATA)
     padding = CHUNKSIZE-length%CHUNKSIZE
     DATA+=" "*padding

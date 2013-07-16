@@ -118,16 +118,14 @@ To speed up the lookup time, each node builds and maintains a \emph{finger table
 
 When a node $n$ is told to find some key, $n$ looks to see if the key is between $n$ and $successor(n)$ and return $successor(n)$'s information to the requester. If not, it looks for the entry in the finger table for the closest preceding node $n'$ it knows and asks $n'$ to find the successor.  This allows each step in the to skip up to half the nodes in the network, giving a $\log_2(n)$ lookup time.  Because nodes can constantly join and leave the network, each entry in the table is periodically checked and updated. 
 
-To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.} .  Node $n$ relies on the stabilize routine to fully integrate into the ring.
+To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,but those nodes won't  acknowledge $n$'s presence in the ring yet\footnote{This is fine. You don't have to be \emph{in} the ring to interact with it.  You just have to be able to talk to a node in the ring.}.  Node $n$ relies on the stabilize routine to fully integrate into the ring.
 
-The stabilize routine helps the network adjust to churn. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the ( possibly) new successor,  essentially telling the successor "based on the information I have, I'm your predecessor.  Check to see if you need to update your predecessor information ", to which the successor obliges.  A more concrete example:
+The stabilize routine helps the network adjust to churn. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the ( possibly) new successor,  essentially telling the successor "based on the information I have, I'm your predecessor.  Check to see if you need to update your predecessor information," to which the successor obliges.  A more concrete example:
 
 
-REWRITE
-Suppose Alice and Bob are members of the ring and Alice is quite sure that Bob is her successor.  Alice asks Bob who his predecessor is and Bob says Carol is.  If Carol's hash puts her between Alice and Bob, Alice changes her successor to Carol and notifies Carol.  Carol gets the nofitication from Alice.  If Carol sees Alice's hash is between Carol's own predecessor and herself, she makes Alice her predecessor. 
+Suppose Alice,Bob, Carol, and Dan are members of the ring and everyone happens to be ordered alphabetically. Alice is quite sure that Carol is her successor.  Alice asks Carol who her predecessor is and Carol says Bob is.  Since Bob is closer than Carol, Alice changes her successor to Bob and notifies him.  
 
-During the next stabilization cycle, Alice will check to see who Carol's predecessor is and adjust her successor and predecessor based on that.
-REWRITE
+When Bob sees that notification, he can see Alice is closer than whoever his previous predecessor is and sets Alice to be his predecessor.  During the next stabilization cycle, Alice will see that she is still Bob's predecessor and notify him that she's still there.
 
 \begin{figure}
     \includegraphics[width=\linewidth]{abcd1}
@@ -162,7 +160,7 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 \section{CHRONUS}
 
 
-We can have multiple non interacting secuire file systems.
+We can have multiple non interacting secure file systems.
 
 
 \subsection{Implementation}

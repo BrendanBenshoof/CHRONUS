@@ -52,11 +52,11 @@ class NETWORK_SERVICE(object):
             self.tosend.put(h)
 
     def client_send(self, dest, msg):
-        print msg.service, msg.type, str(dest)
+        #print msg.service, msg.type, str(dest)
         HOST = dest.IPAddr
         PORT = dest.ctrlPort
         DATA = msg.serialize()
-        #print len(DATA)
+        ##print len(DATA)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.2)
         length = len(DATA)
@@ -65,11 +65,11 @@ class NETWORK_SERVICE(object):
         length = len(DATA)/CHUNKSIZE
         byte1 = length >> 8
         byte2 = length % (2**8)
-        ##print byte1, byte2
+        ###print byte1, byte2
         b1 = chr(byte1)
         b2 = chr(byte2)
-        ##print b1, b2, ord(b1), ord(b2)
-        print "<",
+        ###print b1, b2, ord(b1), ord(b2)
+        #print "<",
         try:
             # Connect to server and send data
             sock.connect((HOST, PORT))
@@ -86,15 +86,15 @@ class NETWORK_SERVICE(object):
             while len(ack) < 1:
                 ack = sock.recv(1)
         except socket.error:
-            #print e
+            ##print e
             #sock.close()
             print "SOCKET ERROR"
             node.message_failed(msg,dest)
             #self.update_messages_in_queue(dest)
         finally:
-            print ">",
+            #print ">",
             sock.close()
-            #print DATA[-20:],len(DATA)%8
+            ##print DATA[-20:],len(DATA)%8
             return True
 
 
@@ -117,12 +117,12 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         # self.request is the TCP socket connected to the client
         b1 = ""
         b2 = ""
-        print "[",
+        #print "[",
         while len(b1) == 0:
             b1 = self.request.recv(1)
         while len(b2) == 0:
             b2 = self.request.recv(1)
-        print b1, b2
+        #print b1, b2
         b1 = ord(b1)
         b2 = ord(b2)
         length = ((b1 << 8) + b2)*CHUNKSIZE
@@ -131,7 +131,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         data = ""
         data0=""
         while length > 0:
-            ##print length
+            ###print length
             buff = CHUNKSIZE
             if length < CHUNKSIZE:
                 buff =length
@@ -141,7 +141,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         self.request.send("0")
         old_length = len(data)
         data = data.rstrip(" ")
-        #print "incoming length: " +str(len(data))
+        ##print "incoming length: " +str(len(data))
         msg = message.Message.deserialize(data)
-        print "]",
+        #print "]",
         node.handle_message(msg)

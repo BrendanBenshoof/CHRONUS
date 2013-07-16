@@ -138,9 +138,9 @@ class Map_Reduce_Service(Service):
                 self.temp_data[jobid] = atom
 
     def domap(self,msg):
-        stuff_to_map = msg.dataset
         #forward stuff I do not care about first
-        forward_dests = disribute_fairly(stuff_to_map)
+        forward_dests = disribute_fairly(msg.dataset)
+        stuff_to_map = None
         print "I got a map request, am forwarding to:",map( lambda x: str(x.key), forward_dests.keys())
         for k in forward_dests.keys():
             if k != self.owner:
@@ -150,17 +150,17 @@ class Map_Reduce_Service(Service):
                 self.send_message(newmsg, k)
             else:
                 stuff_to_map = forward_dests[k]
-
-        map_func = msg.map_function
-        reduce_func = msg.reduce_function
-        results = map(map_func, stuff_to_map)
-        if len(results) > 1:
-            final_result = reduce(reduce_func, results)
-        else:
-            final_result = results[0]
-        newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
-        newmsg.destination_key = msg.reply_to.key
-        self.send_message(newmsg, msg.reply_to)
+        if stuff_to_map:
+            map_func = msg.map_function
+            reduce_func = msg.reduce_function
+            results = map(map_func, stuff_to_map)
+            if len(results) > 1:
+                final_result = reduce(reduce_func, results)
+            else:
+                final_result = results[0]
+            newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
+            newmsg.destination_key = msg.reply_to.key
+            self.send_message(newmsg, msg.reply_to)
 
 
 class Map_Message(Message):

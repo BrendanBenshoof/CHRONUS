@@ -262,7 +262,7 @@ def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    print "finger changed to", newNode, finger
+    #print "finger changed to", newNode, finger
     fingerTable_lock.acquire(True)
     if TEST_MODE:
         print "Update finger: " + str(finger)

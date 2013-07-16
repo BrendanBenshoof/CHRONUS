@@ -64,6 +64,14 @@ MapReduce does not automatically distribute work among slave nodes without confi
 
 \section{Introduction}
 
+Peer-to-peer (P2P) networks are of enormous interest to network research, as they provide an efficient way to distribute large files to millions of users without many of the limitations of the traditional client-server model. In the client-server model, the server addresses each client's request individually, creating a single point of failure due to traffic or the loss of the server.  In peer-to-peer networks, each node takes on both the role of client and server.  If someone wishes to introduce data into the a peer-to-peer network, peers can both request the file and distribute it to others.  This takes much of the burden of file distribution off of what would have normally been an extremely busy server \cite{Overview}.  NOW CONNECT IT TO PROCESSES AND SYSTEMS
+
+
+
+
+Peer-to-peer networks have become a dominant paradigm in distributing large amounts of data. CURRENT DATA USAGE P2P NETWORKS?  WHO USES IT.  SMALL NUMBERS BECOMING BIG IMPORESSIVE NUMBERS?
+
+\subsubsection{Current models of distributing work}
 
 \section{Background}
 Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
@@ -128,23 +136,23 @@ Parapgraph here about the bidding nature of the amazon market.
 age of the inherent ring structure.
 
 
-\subsection{Code Details}
+\subsubsection{Code Details}
 We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls..
 
 
-\subsection{chunking and mechanics }
+\subsubsection{chunking and mechanics }
 
 Dabek CFS \cite{CFS}
 
 Desiugn choice of CFS and replication 
 
-\subsection{backup implementation and mechanics}
+\subsubsection{backup implementation and mechanics}
 Paragraph about backup
 
 
-\subsection{Disjoint rings}
+\subsubsection{Disjoint rings}
 
-\subsection{The security we didn't do}
+\subsubsection{The security we didn't do}
 
 
 \subsection{Distributed MapReduce}

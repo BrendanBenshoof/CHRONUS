@@ -122,9 +122,27 @@ To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  ,b
 
 The stabilize routine helps the network adjust to churn. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the ( possibly) new successor,  essentially telling the successor "based on the information I have, I'm your predecessor.  Check to see if you need to update your predecessor information ", to which the successor obliges.  A more concrete example:
 
+
+REWRITE
 Suppose Alice and Bob are members of the ring and Alice is quite sure that Bob is her successor.  Alice asks Bob who his predecessor is and Bob says Carol is.  If Carol's hash puts her between Alice and Bob, Alice changes her successor to Carol and notifies Carol.  Carol gets the nofitication from Alice.  If Carol sees Alice's hash is between Carol's own predecessor and herself, she makes Alice her predecessor. 
 
 During the next stabilization cycle, Alice will check to see who Carol's predecessor is and adjust her successor and predecessor based on that.
+REWRITE
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{abcd1}
+    \caption{Alice has incorrectly determined that Carol is her appropriate successor.  When Alice stabilizes, Carol will let her know about Bob.}
+    \label{abcd1}
+\end{figure}
+
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{abcd2}
+    \caption{After completing stabilize, Alice now has Bob as her successor. Bob has set Alice as his predecessor after getting notified by Alice}
+    \label{abcd2}
+\end{figure}
+
+
 
 \subsection{Redundency}
 The node $successor(\kappa)$ is responsible for all the values between it's  
@@ -143,9 +161,21 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 
 \section{CHRONUS}
 
+
+We can have multiple non interacting secuire file systems.
+
+
 \subsection{Implementation}
 Parapgraph here about the bidding nature of the amazon market.
 age of the inherent ring structure.
+
+
+\subsection{In which we address possible criticism}
+
+\subsubsection{The issue with chunking and IRM}
+Mutually incompatable
+
+\subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
 
 
 \subsubsection{Code Details}
@@ -156,7 +186,10 @@ We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Ch
 
 Dabek CFS \cite{CFS}
 
-Desiugn choice of CFS and replication 
+Design choice of CFS and replication 
+
+
+Rather than storing the whole file in the appropriate node, we instead split the file into abitrary-sized chunks of data.  Each of the chunks are then hashed and sent to their corresponding node.
 
 \subsubsection{backup implementation and mechanics}
 Paragraph about backup
@@ -172,8 +205,6 @@ To do a fully distriuted map reduce, each node takes on responsiblitilies of bot
 
 One of the key issues in
 
-
-Rather than the traditional tree structure, Chord takes advant
 
 \section{Experiments}
 A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite{amazon-micro}.

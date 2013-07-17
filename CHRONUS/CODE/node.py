@@ -335,12 +335,12 @@ todo = Queue.Queue()
 
 def message_handler_worker():
     while(True):
-        msg = todo.get(True)
+        priority, msg = todo.get(True)
         worker_handle_message(msg)
         todo.task_done()
 
 def handle_message(msg):
-    todo.put(msg)
+    todo.put((msg.priority, msg))
 
 def worker_handle_message(msg):
     if I_own_hash(msg.destination_key):  # if I'm responsible for this key

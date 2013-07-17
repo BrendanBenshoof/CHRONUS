@@ -162,7 +162,7 @@ class Map_Reduce_Service(Service):
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []
         forward_dests = disribute_fairly(jobs)
-        print forward_dests.keys()
+        #print forward_dests.keys()
         if self.owner in forward_dests.keys():
             stuff_to_map = forward_dests[self.owner][:]
             try:
@@ -175,7 +175,7 @@ class Map_Reduce_Service(Service):
             for k in forward_dests.keys():
                 if len(forward_dests[k]) > 0:
                     dataom = forward_dests[k].pop()
-                    msg = Map_Message(dataom.jobid,dataom.jobid, map_func, reduce_func)
+                    msg = Map_Message(dataom.jobid,[dataom], map_func, reduce_func)
                     msg.reply_to = self.owner
                     self.send_message(msg,k)
                     jobs_sent+=1

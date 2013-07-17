@@ -62,12 +62,12 @@ class ThreadedServer(ThreadPoolMixIn, TCPServer):
 class NETWORK_SERVICE(object):
     def sender_loop(self):
             while True:
-                dest, msg = self.tosend.get(True)
+                priority, dest, msg = self.tosend.get(True)
                 self.client_send(dest,msg)
                 self.tosend.task_done()
 
     def send_message(self,msg,dest):
-        msg_pack = (dest,msg)
+        msg_pack = (msg.priority,dest,msg)
         self.tosend.put(msg_pack,True)
         
 

@@ -13,6 +13,7 @@ class Service(object):
         self.service_id = None
         self.callback = None
         self.owner = None
+        self.priority = 10 #lowest
 
 
     def attach(self, owner, callback):
@@ -40,6 +41,7 @@ class Service(object):
         return None
 
     def send_message(self, msg, dest=None):
+        msg.priority=self.priority
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
@@ -51,6 +53,7 @@ class ECHO_service(Service):
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_ECHO
+        self.priority = 1 #almost highest
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:
@@ -66,7 +69,7 @@ class Internal_Service(Service):
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_INTERNAL
-
+        self.priority = 0 #highest priority
     def handle_message(self, msg):
         if not msg.service == self.service_id:
             raise Exception("Mismatched service recipient for message.")

@@ -27,6 +27,7 @@ class Message(object):
         self.success_callback_msg = success_callback_msg
         self.failed_callback_msg = failed_callback_msg
         self.finger = None          # int -1 to 160
+        self.priority = 10 #default to lowest
 
 
     @staticmethod

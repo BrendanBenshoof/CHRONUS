@@ -35,7 +35,7 @@ def reduce_func(atom1, atom2):
 
 
 def stage():
-    data  = open("accelerando.txt") 
+    data  = open("ulysses.txt") 
     atoms = []
     for line in data:
         atoms.append(Data_Atom("job",None,line))

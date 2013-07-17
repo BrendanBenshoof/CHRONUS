@@ -5,6 +5,7 @@ from map_reduce import Data_Atom
 ## assume contents is a line of text
 import random
 def map_func(atom):
+    print "map pi"
     jobid = atom.jobid
     resultin = 0L
     total = 0L
@@ -40,8 +41,8 @@ def reduce_func(atom1, atom2):
 
 
 def stage():
-    samples = 1000000
-    jobs = 100
+    samples = 10000000
+    jobs = 10
     atoms = []
     last = 0
     for i in range(0,jobs):

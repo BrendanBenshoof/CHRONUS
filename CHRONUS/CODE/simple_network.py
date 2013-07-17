@@ -80,7 +80,7 @@ class NETWORK_SERVICE(object):
         t = threading.Thread(target=self.server.serve_forever)
         t.daemon = True
         t.start()
-        for i in range(0,1):
+        for i in range(0,4):
             t2 = t = threading.Thread(target=self.sender_loop)
             t2.daemon = True
             t2.start()
@@ -93,12 +93,12 @@ class NETWORK_SERVICE(object):
         while not self.tosend.empty():
             temp = self.tosend.get()
             self.tosend.task_done()
-            if temp[0] == failed_node:
-                node.message_failed(temp[1],temp[0])
+            if temp[1] == failed_node:
+                node.message_failed(temp[2],temp[1])
             else:
                 hold.append(temp)
         for h in hold:
-            self.tosend.put(h)
+            self.tosend.put()
 
     def client_send(self, dest, msg):
         #print msg.service, msg.type, str(dest)
@@ -107,7 +107,7 @@ class NETWORK_SERVICE(object):
         DATA = msg.serialize()
         ##print len(DATA)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(0.2)
+        sock.settimeout(1.0)
         length = len(DATA)
         padding = CHUNKSIZE-length%CHUNKSIZE
         DATA+=" "*padding

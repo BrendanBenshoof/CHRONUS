@@ -10,6 +10,7 @@ from hash_util import *
 from socket import *
 import time
 from threading import *
+import signal
 import sys
 import uuid
 import copy
@@ -18,7 +19,6 @@ import random
 from message import *
 #import dummy_network as
 import globals
-from woodsman import *
 
 # Debug variables
 TEST_MODE = False   #duh
@@ -38,7 +38,7 @@ class Node_Info():
             self.key = key
         self.IPAddr = IPAddr
         self.ctrlPort = ctrlPort
-        ##logPrint( self.IPAddr, self.ctrlPort, str(self.key)
+        ##print self.IPAddr, self.ctrlPort, str(self.key)
 
     def __str__(self):
         return self.IPAddr+":"+str(self.ctrlPort)+">"+str(self.key)
@@ -103,8 +103,9 @@ servRelay = None
 
 #  This is find successor and find closest predecessor rolled into one.
 def find_ideal_forward(key):
-    ##logPrint( key
+    ##print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
+        print "successor", successor
         return successor
     return closest_preceding_node(key)
 
@@ -114,8 +115,9 @@ def closest_preceding_node(key):
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if finger != None: 
             if hash_between(finger.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
+                print "finger"
                 return finger   #this could be the source of our problem;  how do we distinguish between him being repsonsible and him preceding
-    logPrint( "me" ) 
+    print "me"
     return thisNode
 
 
@@ -129,7 +131,7 @@ def closest_preceding_node(key):
 def create():
     global successor, predecessor, fingerTable, key, thisNode
     if TEST_MODE:
-        logPrint( "Create" )
+        print "Create"
     key = thisNode.key
     predecessor = thisNode
     successor = thisNode
@@ -146,7 +148,7 @@ def join(node):
     global fingerTable
     global successor
     if TEST_MODE:
-        logPrint( "Join" )
+        print "Join"
     predecessor = thisNode
     successor = thisNode
     fingerTable = [thisNode, thisNode]  
@@ -157,15 +159,15 @@ def join(node):
 #########We shoudl clean this up    
 def startup():
     if TEST_MODE:
-        logPrint( "Startup" )
+        print "Startup"
     t = Thread(target=kickstart)
     t.setDaemon(True)
     t.start()
-    logPrint( "New thread started!" )
+    print "New thread started!"
 
 def kickstart():
     if TEST_MODE:
-        logPrint( "Kickstart" )
+        print "Kickstart"
     begin_stabilize()
     while True:
         time.sleep(MAINTENANCE_PERIOD)
@@ -189,7 +191,7 @@ def kickstart():
 
 def begin_stabilize():
     if TEST_MODE:
-        logPrint( "Begin Stabilize" )
+        print "Begin Stabilize"
     successor_lock.acquire(True) 
     message = Stablize_Message(thisNode,successor)
     successor_lock.release()
@@ -198,7 +200,7 @@ def begin_stabilize():
 # need to account for successor being unreachable
 def stabilize(message):
     if TEST_MODE:
-        logPrint( "Stabilize" )
+        print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         update_finger(x,1)
@@ -213,7 +215,7 @@ def stabilize(message):
 # TODO: if pred is thisNode. 
 def stabilize_failed():
     if TEST_MODE:
-        logPrint( "Stabilize Failed" )
+        print "Stabilize Failed"
     for entry in fingerTable[2:]:
         if entry != None:
             update_finger(entry,1)
@@ -230,7 +232,7 @@ def get_notified(message):
     global predecessor
     global fingerTable
     if TEST_MODE:
-        logPrint( "Get Notified" )
+        print "Get Notified"
     other =  message.origin_node
     if(predecessor == thisNode or hash_between(other.key, predecessor.key, thisNode.key)):
         fingerTable_lock.acquire(True)
@@ -251,7 +253,7 @@ def fix_fingers(n=1):
             if next_finger > KEY_SIZE:
                 next_finger = 1
             if TEST_MODE:
-                logPrint( "Fix Fingers + " + str(next_finger) )
+                print "Fix Fingers + " + str(next_finger)
             target_key = add_keys(thisNode.key, generate_key_with_index(next_finger-1))
             message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
             send_message(message)
@@ -260,10 +262,10 @@ def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    #logPrint( "finger changed to", newNode, finger )
+    #print "finger changed to", newNode, finger
     fingerTable_lock.acquire(True)
     if TEST_MODE:
-        logPrint( "Update finger: " + str(finger) )
+        print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
     fingerTable_lock.release()
     if finger == 1:
@@ -299,7 +301,7 @@ def add_service(service):
     global thisNode
     services[service.attach(thisNode, send_message)] = service
     if VERBOSE: 
-        logPrint( "Service " + service.service_id + "attached" )
+        print "Service " + service.service_id + "attached" 
 
 
 def send_message(msg, destination=None):
@@ -329,9 +331,9 @@ def handle_message(msg):
         try:
             myservice = services[msg.service]
         except KeyError:
-            logPrint( "msg dropped!\n service was:", msg, msg.service )
-            logPrint( "attached services are:" )
-            logPrint( services.keys() )
+            print "msg dropped!\n service was:", msg, msg.service
+            print "attached services are:"
+            print services.keys()
             return
         myservice.handle_message(msg)
     else:
@@ -341,15 +343,15 @@ def forward_message(message):
     if hash_between_right_inclusive(message.destination_key, thisNode.key, successor.key):
         message.origin_node = thisNode
         if TEST_MODE:
-            logPrint( "not mine; forwarding to " + str(successor) )
+            print "not mine; forwarding to " + str(successor)
         send_message(message, successor)
     else:
         closest =  closest_preceding_node(message.destination_key)
         if TEST_MODE:
-            logPrint( "not mine; forwarding to " + str(closest))
+            print "not mine; forwarding to " + str(closest)
         if closest==thisNode:
             if TEST_MODE:
-                logPrint( "I'm the closest, how did that happen")
+                print "I'm the closest, how did that happen"
         else:
             message.origin_node = thisNode
             send_message(message, closest)
@@ -372,8 +374,8 @@ def estimate_ring_density():
     
 
 def message_failed(msg, intended_dest):
-    logPrint( msg, intended_dest)
-    logPrint( successor, predecessor)
+    print msg, intended_dest
+    print successor, predecessor
     for i in reversed(range(0,161)):
         if not fingerTable[i] is None:
             if fingerTable[i] == intended_dest:
@@ -381,7 +383,7 @@ def message_failed(msg, intended_dest):
     send_message(msg,None)
 
 def peer_polite_exit(leaveing_node):
-    logPrint( "peer leaving")
+    print "peer leaving"
     global predecessor
     global successor
     global fingerTable
@@ -396,7 +398,7 @@ def peer_polite_exit(leaveing_node):
                 successor_lock.release()
             if i == 0: #we lost our predecessor
                 fingerTable[0] = thisNode
-                logPrint( "My sucessor dropped out")
+                print "My sucessor dropped out"
                 predecessor = thisNode
 
             else: #we just lost a finger

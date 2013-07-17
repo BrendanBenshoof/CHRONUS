@@ -113,10 +113,14 @@ class Map_Reduce_Service(Service):
         jobs_withdest = disribute_fairly(jobs)
         map_func = X.map_func
         reduce_func = X.reduce_func
-        for k in jobs_withdest.keys():
-            msg = Map_Message(jobid, jobs_withdest[k], map_func, reduce_func)
-            msg.reply_to = self.owner
-            self.send_message(msg,k)
+        jobs_sent = 0
+        jobs_total = len(jobs)
+        while jobs_sent < jobs_total:
+            for k in jobs_withdest.keys():
+                if len(jobs_withdest[k]) > 0:
+                    msg = Map_Message(jobid,[jobs_withdest[k].pop()], map_func, reduce_func)
+                    msg.reply_to = self.owner
+                    self.send_message(msg,k)
 
     def Mapreduce_worker(self):
         while True:
@@ -141,18 +145,9 @@ class Map_Reduce_Service(Service):
 
     def domap(self,msg):
         #forward stuff I do not care about first
-        forward_dests = disribute_fairly(msg.dataset)
-        stuff_to_map = None
-        print "I got a map request, am forwarding to:",map( lambda x: str(x.key), forward_dests.keys())
-        for k in forward_dests.keys():
-            if k != self.owner:
-                print "I am forwarding: ",len(forward_dests[k])
-                newmsg = Map_Message(msg.jobid, forward_dests[k], msg.map_function, msg.reduce_function)
-                newmsg.reply_to = msg.reply_to
-                self.send_message(newmsg, k)
-            else:
-                stuff_to_map = forward_dests[k]
-        if stuff_to_map:
+        jobs = msg.dataset
+        stuff_to_map = self.polite_distribute(jobs, msg.map_function, msg.reduce_function, msg.reply_to)
+        if len(stuff_to_map)>0:
             map_func = msg.map_function
             reduce_func = msg.reduce_function
             results = map(map_func, stuff_to_map)
@@ -164,6 +159,26 @@ class Map_Reduce_Service(Service):
             newmsg.destination_key = msg.reply_to.key
             self.send_message(newmsg, msg.reply_to)
 
+    def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
+        stuff_to_map = []
+        forward_dests = disribute_fairly(jobs)
+        print forward_dests.keys()
+        if self.owner in forward_dests.keys():
+            stuff_to_map = forward_dests[self.owner][:]
+            try:
+                del forward_dests[self.owner]
+            except KeyError:
+                pass
+        jobs_sent = 0
+        jobs_total = len(jobs)-len(stuff_to_map)
+        while jobs_sent < jobs_total:
+            for k in jobs_withdest.keys():
+                if len(jobs_withdest[k]) > 0:
+                    msg = Map_Message(jobid,jobs_withdest[k].pop(), map_func, reduce_func)
+                    msg.reply_to = self.owner
+                    self.send_message(msg,k)
+                    jobs_sent+=1
+        return stuff_to_map
 
 class Map_Message(Message):
     def __init__(self, jobid, dataset, map_function, reduce_function):

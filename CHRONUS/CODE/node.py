@@ -19,6 +19,8 @@ import random
 from message import *
 #import dummy_network as
 import globals
+import Queue
+
 
 # Debug variables
 TEST_MODE = False   #duh
@@ -105,7 +107,6 @@ servRelay = None
 def find_ideal_forward(key):
     ##print key
     if successor != None and hash_between_right_inclusive(key, thisNode.key, successor.key):
-        print "successor", successor
         return successor
     return closest_preceding_node(key)
 
@@ -115,9 +116,7 @@ def closest_preceding_node(key):
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if finger != None: 
             if hash_between(finger.key, thisNode.key, key): #Stoica's paper indexes at 1, not 0
-                print "finger"
                 return finger   #this could be the source of our problem;  how do we distinguish between him being repsonsible and him preceding
-    print "me"
     return thisNode
 
 
@@ -163,7 +162,10 @@ def startup():
     t = Thread(target=kickstart)
     t.setDaemon(True)
     t.start()
-    print "New thread started!"
+    for i in range(0,2):
+        t = Thread(target=message_handler_worker)
+        t.setDaemon(True)
+        t.start()
 
 def kickstart():
     if TEST_MODE:
@@ -310,7 +312,10 @@ def send_message(msg, destination=None):
         destination = find_ideal_forward(msg.destination_key)
 
     #remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
-    net_server.send_message(msg, destination)
+    if destination == thisNode:
+        handle_message(msg)
+    else:
+        net_server.send_message(msg, destination)
 
 # called when node is passed a message
 
@@ -326,7 +331,18 @@ Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 def I_own_hash(hkey):
 	return hash_between_right_inclusive(hkey, predecessor.key, thisNode.key)
 
+todo = Queue.Queue()
+
+def message_handler_worker():
+    while(True):
+        msg = todo.get(True)
+        worker_handle_message(msg)
+        todo.task_done()
+
 def handle_message(msg):
+    todo.put(msg)
+
+def worker_handle_message(msg):
     if I_own_hash(msg.destination_key):  # if I'm responsible for this key
         try:
             myservice = services[msg.service]

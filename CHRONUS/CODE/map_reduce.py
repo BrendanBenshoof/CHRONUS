@@ -5,6 +5,7 @@ import Queue
 import node
 from threading import Thread
 import time
+import importlib
 
 MAP_REDUCE = "MAP_REDUCE"
 MAP = "MAP"
@@ -73,13 +74,13 @@ class Map_Reduce_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["test","results"]
+        return ["do","results"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
 
-        if comand_st == "test":
-            self.test()
+        if comand_st == "do":
+            self.test(arg_str)
         if comand_st == "results":
             args = arg_str.split(" ")
             jobid = hash_str(args[0])
@@ -104,13 +105,14 @@ class Map_Reduce_Service(Service):
         pass #this is called when a new, closer predicessor is found and we need to re-allocate
             #responsibilties
     
-    def test(self):
-        import pi
-        jobid = hash_str("pi")
-        jobs = pi.stage()
+    def test(self, to_test):
+        X = importlib.import_module("."+to_test,"tests")
+        print X
+        jobid = hash_str(to_test)
+        jobs = X.stage()
         jobs_withdest = disribute_fairly(jobs)
-        map_func = pi.map_func
-        reduce_func = pi.reduce_func
+        map_func = X.map_func
+        reduce_func = X.reduce_func
         for k in jobs_withdest.keys():
             msg = Map_Message(jobid, jobs_withdest[k], map_func, reduce_func)
             msg.reply_to = self.owner

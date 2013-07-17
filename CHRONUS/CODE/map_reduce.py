@@ -172,9 +172,9 @@ class Map_Reduce_Service(Service):
         jobs_sent = 0
         jobs_total = len(jobs)-len(stuff_to_map)
         while jobs_sent < jobs_total:
-            for k in jobs_withdest.keys():
+            for k in forward_dests.keys():
                 if len(jobs_withdest[k]) > 0:
-                    msg = Map_Message(jobid,jobs_withdest[k].pop(), map_func, reduce_func)
+                    msg = Map_Message(jobid,forward_dests[k].pop(), map_func, reduce_func)
                     msg.reply_to = self.owner
                     self.send_message(msg,k)
                     jobs_sent+=1

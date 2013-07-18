@@ -4,25 +4,31 @@ import logging
 import collections
 import sys
 import multiprocessing
-from globals import *
+from constants import *
 
 
 class Peer_Local():  # inbound connections
+    def __str__(self):
+        return str(self.host_ip)+":"+str(self.host_port)
 
-    def __init__(self, network_service, host_ip="", host_port=9999):
+    def __init__(self, network_service,  # this architecture really should use message-based callbacks not interfaces
+                 host_ip="", host_port=9999):
         self.exit = False
         self.network_service = network_service
+
+        self.host_ip = host_ip
+        self.host_port = host_port
 
         if host_ip == "localhost" or host_ip == "127.0.0.1":
             host_ip = ""
 
         # start the server
-        pass  #logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)  # if you don't want to see these messages change to logging.FATAL or something
         self.server_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind(("", host_port))
         self.server_socket.listen(128)  # set backlog to max
-        pass  #logger.info('SERVER: listening at %s', str(self.server_socket.getsockname()))
+        logger.info('SERVER: listening at %s', str(self.server_socket.getsockname()))
 
         self.queue = collections.deque()
         self.signal_item_queued = Event()
@@ -40,7 +46,7 @@ class Peer_Local():  # inbound connections
         #for performance reasons we may need to put this in a thread pool (multiple outstanding accepts)
         while not self.exit:
             try:
-                pass  #logger.debug("SERVER: outstanding accept( )")
+                logger.debug("SERVER: outstanding accept( )")
                 client_socket, client_addr = yield self.server_socket.accept()
                 Coro(self.client_coro, client_socket, client_addr)
             except:
@@ -68,23 +74,23 @@ class Peer_Local():  # inbound connections
             cmd, item = self.queue.popleft()
             if cmd == NETWORK_PEER_CONNECTED:
                 client_socket, client_addr = item
-                logger.debug('SERVER: client %s connected', str(client_addr))
+                logger.debug('SERVER ' + str(self) + ': client %s connected', str(client_addr))
                 self.network_service.on_peer_connected(item)
                 clients.add((client_socket, client_addr))
             elif cmd == NETWORK_PEER_DISCONNECTED:
                 client_socket, client_addr = item
-                logger.debug('SERVER: client %s disconnected', str(client_addr))
+                logger.debug('SERVER ' + str(self) + ': client %s disconnected', str(client_addr))
                 self.network_service.on_peer_disconnected(item)
                 clients.discard((client_socket, client_addr))
                 client_socket.close()
-            elif cmp == NETWORK_PEER_DATA_RECEIVED:
+            elif cmd == NETWORK_PEER_DATA_RECEIVED:
                 client_socket, client_addr, data = item
-                logger.debug('SERVER: Data received from %s (Data: %s)', str(client_addr), data)
-                self.network_service.on_peer_data_received(item)
-            elif cmp == NETWORK_PEER_DATA_SENT:
+                logger.debug('SERVER ' + str(self) + ': Data received from %s (Data: %s)', str(client_addr), data)
+                self.network_service.on_peer_data_received((self,client_addr,data))
+            elif cmd == NETWORK_PEER_DATA_SENT:
                 client_socket, client_addr, data = item
-                logger.debug('SERVER: Data sent to %s (Data: %s)', str(client_addr), data)
-                self.network_service.on_peer_data_sent(item)
+                logger.debug('SERVER ' + str(self) + ': Data sent to %s (Data: %s)', str(client_addr), data)
+                self.network_service.on_peer_data_sent(data)
             elif cmd == NETWORK_TERMINATE:
                 self.network_service.on_server_stop(item)
                 break

@@ -4,7 +4,7 @@ import threading
 import socket
 import node
 import message
-from Queue import Queue
+from Queue import *
 import time
 
 CHUNKSIZE = 64
@@ -74,7 +74,7 @@ class NETWORK_SERVICE(object):
     def __init__(self,HOST="localhost",PORT=9000):
         # Create the server, binding to localhost on port 9999
         self.server = ThreadedServer((HOST, PORT), MyTCPHandler)
-        self.tosend = Queue()
+        self.tosend = PriorityQueue()
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
         t = threading.Thread(target=self.server.serve_forever)
@@ -194,3 +194,7 @@ class MyTCPHandler(BaseRequestHandler):
         msg = message.Message.deserialize(data)
         #print "]",
         node.handle_message(msg)
+
+
+    def handle_error(self, request, client_address):
+        print client_address,"tried to talk to me and failed"

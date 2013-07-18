@@ -109,12 +109,28 @@ class Internal_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["fingers"]
+        return ["fingers","connect"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
-        count = 0
-        for f in node.fingerTable:
-            if not f is None:
-                count+=1
-        print "there are: "+str(count)+" finger entries"
+        if comand_st == "fingers":
+            count = 0
+            fingers = {}
+            for f in node.fingerTable:
+                if not f is None:
+                    count+=1
+                    try:
+                        fingers[f]+=1
+                    except KeyError:
+                        fingers[f]=1
+            print "there are: "+str(count)+" finger entries"
+            for f in fingers.keys():
+                print f,":",fingers[f]
+        elif comand_st == "connect":
+            args = arg_str.split(":")
+            print args
+            nodeip = args[0]
+            nodePort = int(args[1])
+            newnode = node.Node_Info(nodeip, nodePort)
+            find = Find_Successor_Message(self.owner, self.owner.key, self.owner)
+            self.send_message(find, newnode)

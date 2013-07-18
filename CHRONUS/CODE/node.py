@@ -19,6 +19,8 @@ import random
 from message import *
 #import dummy_network as
 import globals
+import Queue
+
 
 # Debug variables
 TEST_MODE = False   #duh
@@ -132,7 +134,7 @@ def create():
     key = thisNode.key
     predecessor = thisNode
     successor = thisNode
-    fingerTable = [thisNode, successor]  
+    fingerTable = [thisNode, thisNode]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
 
@@ -148,7 +150,7 @@ def join(node):
         print "Join"
     predecessor = thisNode
     successor = thisNode
-    fingerTable = [thisNode, successor]  
+    fingerTable = [thisNode, thisNode]  
     for i in range(2,KEY_SIZE+1):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
@@ -160,7 +162,10 @@ def startup():
     t = Thread(target=kickstart)
     t.setDaemon(True)
     t.start()
-    print "New thread started!"
+    for i in range(0,2):
+        t = Thread(target=message_handler_worker)
+        t.setDaemon(True)
+        t.start()
 
 def kickstart():
     if TEST_MODE:
@@ -189,20 +194,20 @@ def kickstart():
 def begin_stabilize():
     if TEST_MODE:
         print "Begin Stabilize"
+    successor_lock.acquire(True) 
     message = Stablize_Message(thisNode,successor)
+    successor_lock.release()
     send_message(message, successor)
     
 # need to account for successor being unreachable
 def stabilize(message):
-    global successor
-    successor_lock.acquire(True)            
     if TEST_MODE:
         print "Stabilize"
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
-        successor = x
+        update_finger(x,1)
     send_message(Notify_Message(thisNode, successor.key))
-    successor_lock.release()
+    
             
 
 # TODO: Call this function
@@ -211,22 +216,14 @@ def stabilize(message):
 # goto next item in the finger table
 # TODO: if pred is thisNode. 
 def stabilize_failed():
-    global fingerTable
-    global successor
-    fingerTable_lock.acquire(True)
-    successor_lock.acquire(True)
     if TEST_MODE:
         print "Stabilize Failed"
     for entry in fingerTable[2:]:
         if entry != None:
-            successor = entry
-            fingerTable[1] = entry
+            update_finger(entry,1)
             begin_stabilize()
-            fingerTable_lock.release()
-            successor_lock.release()
             return
-    fingerTable_lock.release()
-    successor_lock.release()
+
             
     #what to do here???
 
@@ -267,19 +264,24 @@ def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    predecessor_lock.acquire(True)
-    successor_lock.acquire(True)
+    #print "finger changed to", newNode, finger
     fingerTable_lock.acquire(True)
     if TEST_MODE:
         print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
     fingerTable_lock.release()
     if finger == 1:
+        if newNode is None:
+            newNode = thisNode
+        successor_lock.acquire(True)
         successor = newNode
+        successor_lock.release()
     elif finger == 0:
+        if newNode is None:
+            newNode = thisNode
+        predecessor_lock.acquire(True)
         predecessor = newNode
-    successor_lock.release()
-    predecessor_lock.release()
+        predecessor_lock.release()
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
@@ -310,7 +312,10 @@ def send_message(msg, destination=None):
         destination = find_ideal_forward(msg.destination_key)
 
     #remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
-    net_server.send_message(msg, destination)
+    if destination == thisNode:
+        handle_message(msg)
+    else:
+        net_server.send_message(msg, destination)
 
 # called when node is passed a message
 
@@ -322,8 +327,23 @@ Our problem is that there are three scenarios for handling the message, not 2
 
 Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
+
+def I_own_hash(hkey):
+	return hash_between_right_inclusive(hkey, predecessor.key, thisNode.key)
+
+todo = Queue.PriorityQueue()
+
+def message_handler_worker():
+    while(True):
+        priority, msg = todo.get(True)
+        worker_handle_message(msg)
+        todo.task_done()
+
 def handle_message(msg):
-    if hash_between_right_inclusive(msg.destination_key, predecessor.key, thisNode.key):   # if I'm responsible for this key
+    todo.put((msg.priority, msg))
+
+def worker_handle_message(msg):
+    if I_own_hash(msg.destination_key):  # if I'm responsible for this key
         try:
             myservice = services[msg.service]
         except KeyError:
@@ -370,60 +390,26 @@ def estimate_ring_density():
     
 
 def message_failed(msg, intended_dest):
-    global predecessor, successor, fingerTable
-    print "message failed"
     print msg, intended_dest
-    salvage_sucessor = False
-    for i in range(0,160)[::-1]:
+    print successor, predecessor
+    for i in reversed(range(0,161)):
         if not fingerTable[i] is None:
-            if fingerTable[i].IPAddr == intended_dest.IPAddr and fingerTable[i].ctrlPort == intended_dest.ctrlPort:
-                if i == 1: #we lost our successor
-                    fingerTable[1] = thisNode
-                    #fingerTable[1] = find_ideal_forward(thisNode.key)
-                    successor_lock.acquire(True)
-                    successor = thisNode
-                    print "new sucessor", successor
-                    salvage_sucessor = True
-                    successor_lock.release()
-                elif i == 0: #we lost our predecessor
-                    fingerTable[0] = thisNode
-                    predecessor_lock.acquire(True)
-                    predecessor = thisNode
-                    predecessor_lock.release()
-
-                else: #we just lost a finger
-                    print "lost finger",i
-                    fingerTable[i] = None #cut it off properly
-    if salvage_sucessor:
-        for i in range(1,160):
-            if not fingerTable[i] is None:
-                    successor_lock.acquire(True)
-                    successor = fingerTable[i]
-                    successor_lock.release()
-    send_message(msg)
+            if fingerTable[i] == intended_dest:
+                update_finger(None,i)
+    send_message(msg,None)
 
 def peer_polite_exit(leaveing_node):
     print "peer leaving"
-    global predecessor
-    global successor
-    global fingerTable
-    fingerTable_lock.acquire(True)
     for i in range(0,160)[::-1]:
         if fingerTable[i] == leaveing_node:
             if i == 1: #we lost our successor
-                fingerTable[1] = thisNode
-                fingerTable[1] = find_ideal_forward(thisNode.key)
-                successor_lock.acquire(True)
-                successor = fingerTable[1] 
-                successor_lock.release()
+               update_finger(find_ideal_forward(thisNode.key),1)
+
             if i == 0: #we lost our predecessor
-                fingerTable[0] = thisNode
-                print "My sucessor dropped out"
-                predecessor = thisNode
+                update_finger(None,0)
 
             else: #we just lost a finger
-                fingerTable[i] = None #cut it off properly
-    fingerTable_lock.release()                
+                update_finger(None,i)
 
 def my_polite_exit():
     done = []

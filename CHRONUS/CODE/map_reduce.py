@@ -1,7 +1,11 @@
 from service import *
 from message import *
 from hash_util import *
+import Queue
 import node
+from threading import Thread
+import time
+import importlib
 
 MAP_REDUCE = "MAP_REDUCE"
 MAP = "MAP"
@@ -11,7 +15,10 @@ REDUCE = "REDUCE"
 def disribute_fairly(atoms):
     distribution = {}
     for a in atoms:
-        dest = node.find_ideal_forward(a.hashkeyID)
+        if node.I_own_hash(a.hashkeyID):
+            dest = node.thisNode
+        else:
+            dest = node.find_ideal_forward(a.hashkeyID)
         try:
             distribution[dest].append(a)
         except KeyError:
@@ -31,6 +38,7 @@ class Data_Atom(object):
 ##test for distribute 
 
 
+job_todo = Queue.Queue()
 
 
 class Map_Reduce_Service(Service):
@@ -45,6 +53,10 @@ class Map_Reduce_Service(Service):
         """Should return the ID that the node will see on messages to pass it"""
         self.callback = callback
         self.owner = owner
+        for i in range(0,1):
+            t = Thread(target=self.Mapreduce_worker)
+            t.daemon = True
+            t.start()
         return self.service_id
 
     def handle_message(self, msg):
@@ -54,57 +66,25 @@ class Map_Reduce_Service(Service):
         """
         #if not msg.service == self.service_id:
         #    raise "Mismatched service recipient for message."
-        if msg.type == MAP:
-            stuff_to_map = msg.dataset
-            #forward stuff I do not car about first
-            forward_dests = disribute_fairly(stuff_to_map)
-            for k in forward_dests.keys():
-                if k != self.owner:
-                    msg.dataset = forward_dests[k]
-                    self.send_message(msg, k)
-                else:
-                    stuff_to_map = forward_dests[k]
-
-            map_func = msg.map_function
-            reduce_func = msg.reduce_function
-            results = []
-            for a in stuff_to_map:
-                results.append(map_func(a))
-            if len(results) > 1:
-                final_result = reduce(reduce_func, results)
-            else:
-                final_result = results[0]
-            newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
-            newmsg.destination_key = msg.reply_to.key
-            self.send_message(newmsg, msg.reply_to)
-        
-        elif msg.type == REDUCE:
-            jobid = msg.jobid
-            print "in reduce",jobid
-            atom = msg.dataAtom
-            myreduce = msg.reduce_function
-            if jobid in self.temp_data.keys():
-                self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
-            else:
-                self.temp_data[jobid] = atom
-
-        return msg.service == self.service_id
+        if msg.service == self.service_id:
+            job_todo.put(msg)
+            return True
+        else:
+            return False
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["test","results"]
+        return ["do","results"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
 
-        if comand_st == "test":
-            self.test()
+        if comand_st == "do":
+            self.test(arg_str)
         if comand_st == "results":
             args = arg_str.split(" ")
             jobid = hash_str(args[0])
-            print jobid
-            print self.temp_data.keys()
-            
+            print jobid            
             if jobid in self.temp_data.keys():
                 if len(args) >1:
                     f = file(args[1],"w+")
@@ -112,9 +92,9 @@ class Map_Reduce_Service(Service):
                     print "wrote to: ",f
                     f.close()
                 else:
-                    print self.temp_data[jobid].contents
+                    print "results:",self.temp_data[jobid].contents
             else:
-                "no value on this job"
+                print "no value on this job"
 
         return None
 
@@ -125,19 +105,81 @@ class Map_Reduce_Service(Service):
         pass #this is called when a new, closer predicessor is found and we need to re-allocate
             #responsibilties
     
-    def test(self):
-        import test
-        jobid = hash_str("job")
-        jobs = test.stage()
+    def test(self, to_test):
+        X = importlib.import_module("."+to_test,"tests")
+        print X
+        jobid = hash_str(to_test)
+        jobs = X.stage()
         jobs_withdest = disribute_fairly(jobs)
-        map_func = test.map_func
-        reduce_func = test.reduce_func
-        for k in jobs_withdest.keys():
-            msg = Map_Message(jobid, jobs_withdest[k], map_func, reduce_func)
-            msg.reply_to = self.owner
-            self.send_message(msg,k)
+        map_func = X.map_func
+        reduce_func = X.reduce_func
+        jobs_sent = 0
+        jobs_total = len(jobs)
+        while jobs_sent < jobs_total:
+            for k in jobs_withdest.keys():
+                if len(jobs_withdest[k]) > 0:
+                    msg = Map_Message(jobid,[jobs_withdest[k].pop()], map_func, reduce_func)
+                    msg.reply_to = self.owner
+                    self.send_message(msg,k)
 
+    def Mapreduce_worker(self):
+        while True:
+            time.sleep(0.1)
+            newjob = job_todo.get(True)
+            if newjob.type == MAP:
+                self.domap(newjob)
+                job_todo.task_done()
+            if newjob.type == REDUCE:
+                self.doreduce(newjob)
+                job_todo.task_done()
 
+    def doreduce(self,msg):
+            jobid = msg.jobid
+            print "in reduce",jobid
+            atom = msg.dataAtom
+            myreduce = msg.reduce_function
+            if jobid in self.temp_data.keys():
+                self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
+            else:
+                self.temp_data[jobid] = atom
+
+    def domap(self,msg):
+        #forward stuff I do not care about first
+        jobs = msg.dataset
+        stuff_to_map = self.polite_distribute(jobs, msg.map_function, msg.reduce_function, msg.reply_to)
+        if len(stuff_to_map)>0:
+            map_func = msg.map_function
+            reduce_func = msg.reduce_function
+            results = map(map_func, stuff_to_map)
+            if len(results) > 1:
+                final_result = reduce(reduce_func, results)
+            else:
+                final_result = results[0]
+            newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
+            newmsg.destination_key = msg.reply_to.key
+            self.send_message(newmsg, msg.reply_to)
+
+    def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
+        stuff_to_map = []
+        forward_dests = disribute_fairly(jobs)
+        #print forward_dests.keys()
+        if self.owner in forward_dests.keys():
+            stuff_to_map = forward_dests[self.owner][:]
+            try:
+                del forward_dests[self.owner]
+            except KeyError:
+                pass
+        jobs_sent = 0
+        jobs_total = len(jobs)-len(stuff_to_map)
+        while jobs_sent < jobs_total:
+            for k in forward_dests.keys():
+                if len(forward_dests[k]) > 0:
+                    dataom = forward_dests[k].pop()
+                    msg = Map_Message(dataom.jobid,[dataom], map_func, reduce_func)
+                    msg.reply_to = self.owner
+                    self.send_message(msg,k)
+                    jobs_sent+=1
+        return stuff_to_map
 
 class Map_Message(Message):
     def __init__(self, jobid, dataset, map_function, reduce_function):
@@ -146,14 +188,16 @@ class Map_Message(Message):
         self.map_function = map_function  #store you function here
         self.dataset = dataset  #list of atoms
         self.reduce_function = reduce_function
+        self.type = MAP
 
 
 class Reduce_Message(Message):
     def __init__(self, jobid, dataAtom, reduce_function):
         super(Reduce_Message, self).__init__( MAP_REDUCE, REDUCE)
         self.jobid = jobid
-        self.dataAtom = dataAtom  #list of atoms
+        self.dataAtom = dataAtom  #single atom
         self.reduce_function = reduce_function
+        self.type = REDUCE
 
 
 def cry():

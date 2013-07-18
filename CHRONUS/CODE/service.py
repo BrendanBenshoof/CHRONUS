@@ -2,6 +2,8 @@ from message import *
 from hash_util import *
 from Queue import Queue
 import node
+import os
+import time
 from globals import *
 
 
@@ -11,6 +13,7 @@ class Service(object):
         self.service_id = None
         self.callback = None
         self.owner = None
+        self.priority = 10 #lowest
 
 
     def attach(self, owner, callback):
@@ -38,6 +41,7 @@ class Service(object):
         return None
 
     def send_message(self, msg, dest=None):
+        msg.priority=self.priority
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
@@ -49,6 +53,7 @@ class ECHO_service(Service):
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_ECHO
+        self.priority = 1 #almost highest
 
     def handle_message(self, msg):
         if not msg.service == self.service_id:
@@ -58,12 +63,13 @@ class ECHO_service(Service):
             print msg.get_content(k)
 
 
+
 class Internal_Service(Service):
     """Handler of Chord behavoir and internal messages"""
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_INTERNAL
-
+        self.priority = 0 #highest priority
     def handle_message(self, msg):
         if not msg.service == self.service_id:
             raise Exception("Mismatched service recipient for message.")
@@ -103,12 +109,30 @@ class Internal_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["fingers"]
+        return ["fingers","connect","quit"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
-        count = 0
-        for f in node.fingerTable:
-            if not f is None:
-                count+=1
-        print "there are: "+str(count)+" finger entries"
+        if comand_st == "fingers":
+            count = 0
+            fingers = {}
+            for f in node.fingerTable:
+                if not f is None:
+                    count+=1
+                    try:
+                        fingers[f]+=1
+                    except KeyError:
+                        fingers[f]=1
+            print "there are: "+str(count)+" finger entries"
+            for f in fingers.keys():
+                print f,":",fingers[f]
+        elif comand_st == "quit":
+            node.my_polite_exit()
+        elif comand_st == "connect":
+            args = arg_str.split(":")
+            print args
+            nodeip = args[0]
+            nodePort = int(args[1])
+            newnode = node.Node_Info(nodeip, nodePort)
+            find = Find_Successor_Message(self.owner, self.owner.key, self.owner)
+            self.send_message(find, newnode)

@@ -400,26 +400,16 @@ def message_failed(msg, intended_dest):
 
 def peer_polite_exit(leaveing_node):
     print "peer leaving"
-    global predecessor
-    global successor
-    global fingerTable
-    fingerTable_lock.acquire(True)
     for i in range(0,160)[::-1]:
         if fingerTable[i] == leaveing_node:
             if i == 1: #we lost our successor
-                fingerTable[1] = thisNode
-                fingerTable[1] = find_ideal_forward(thisNode.key)
-                successor_lock.acquire(True)
-                successor = fingerTable[1] 
-                successor_lock.release()
+               update_finger(find_ideal_forward(thisNode.key),1)
+
             if i == 0: #we lost our predecessor
-                fingerTable[0] = thisNode
-                print "My sucessor dropped out"
-                predecessor = thisNode
+                update_finger(None,0)
 
             else: #we just lost a finger
-                fingerTable[i] = None #cut it off properly
-    fingerTable_lock.release()                
+                update_finger(None,i)
 
 def my_polite_exit():
     done = []

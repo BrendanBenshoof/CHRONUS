@@ -109,7 +109,7 @@ class Internal_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["fingers","connect"]
+        return ["fingers","connect","quit"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
@@ -126,6 +126,8 @@ class Internal_Service(Service):
             print "there are: "+str(count)+" finger entries"
             for f in fingers.keys():
                 print f,":",fingers[f]
+        elif comand_st == "quit":
+            node.my_polite_exit()
         elif comand_st == "connect":
             args = arg_str.split(":")
             print args

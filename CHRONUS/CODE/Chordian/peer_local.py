@@ -23,7 +23,7 @@ class Peer_Local():  # inbound connections
             host_ip = ""
 
         # start the server
-        logger.setLevel(logging.DEBUG)  # if you don't want to see these messages change to logging.FATAL or something
+        logger.setLevel(logging.FATAL)  # if you don't want to see these messages change to logging.FATAL or something
         self.server_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind(("", host_port))

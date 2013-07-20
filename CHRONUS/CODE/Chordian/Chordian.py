@@ -49,7 +49,7 @@ class Chordian():
         nodes = []
 
         public_ip = "127.0.0.1"
-        port_start = 19000
+        port_start = 9000
         for i in range(0,node_count):
             # emulate do/while -- seed with someone random that isn't me
             seed_port = i
@@ -81,7 +81,7 @@ def main():
         seeded_peers.append( Node_Info(other_IP, other_port) )
 
     peer_coordinator = Chordian()
-    peer_coordinator.test_local(2)  # 2 nodes
+    peer_coordinator.test_local(50)  # 2 nodes
     #peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
     peer_coordinator.attach_console() # allow us to send k/b commands
 if __name__ == "__main__":

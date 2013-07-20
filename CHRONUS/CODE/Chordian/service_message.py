@@ -177,14 +177,6 @@ class Message_Start_Server_Callback(Message_Internal):
         self.result = result
         self.node = node
 
-class Message_Start_Server_Failed(Message_Internal):
-    @classmethod
-    def Type(cls): return "MESSAGE_START_SERVER_FAILED"
-
-    def __init__(self, dest_service, node, success_callback_msg=None, failed_callback_msg=None):
-        super(Message_Start_Server_Failed, self).__init__(dest_service, Message_Start_Server_Failed.Type(), success_callback_msg, failed_callback_msg)
-        self.node = node
-
 class Message_Stop_Server(Message_Internal):
     @classmethod
     def Type(cls): return "MESSAGE_STOP_SERVER"
@@ -192,6 +184,14 @@ class Message_Stop_Server(Message_Internal):
     def __init__(self, success_callback_msg=None, failed_callback_msg=None):
         super(Message_Stop_Server, self).__init__(SERVICE_NETWORK, Message_Stop_Server.Type(), success_callback_msg, failed_callback_msg)
 
+class Message_Stop_Server_Callback(Message_Internal):
+    @classmethod
+    def Type(cls): return "MESSAGE_STOP_SERVER_CALLBACK"
+
+    def __init__(self, dest_service, node, result, success_callback_msg=None, failed_callback_msg=None):
+        super(Message_Stop_Server_Callback, self).__init__(dest_service, Message_Stop_Server_Callback.Type(), success_callback_msg, failed_callback_msg)
+        self.result = result
+        self.node = node
 
 class Message_Send_Peer_Data(Message_Internal):
     @classmethod

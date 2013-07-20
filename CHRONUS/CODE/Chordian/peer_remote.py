@@ -1,6 +1,7 @@
 from asyncoro import AsynCoroSocket, Coro, AsynCoro, Event, logger
 import socket
 import collections
+import logging
 from constants import *
 import sys
 
@@ -10,7 +11,7 @@ class Peer_Remote():  # outbound connections
         self.network_service = network_service
         self.remote_ip = remote_ip
         self.remote_port = remote_port
-
+        logger.setLevel(logging.FATAL)
         self.queue = collections.deque()
         self.signal_item_queued = Event()
 

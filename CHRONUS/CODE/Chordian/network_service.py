@@ -3,6 +3,7 @@ from service_message import *
 from peer_local import Peer_Local
 from peer_remote import Peer_Remote
 
+
 class Network_Service(Service):
     """Interface to the outside world"""
     def __init__(self, message_router):
@@ -69,6 +70,7 @@ class Network_Service(Service):
         server, client, data = context
         msg = Message.deserialize(data)
         if msg:
+            print server.host_ip + ":" + str(server.host_port) + " received: " + msg.type
             self.message_router.route(Message_Recv_Peer_Data(server.host_ip, server.host_port, data))
 
     def on_client_disconnected(self, context):

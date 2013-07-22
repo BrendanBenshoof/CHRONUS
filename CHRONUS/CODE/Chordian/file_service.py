@@ -112,9 +112,9 @@ class Upload_File_Task(object):
         self._confirmed += 1
 
         if self._confirmed == len(self.segment_ids) + 1: # +1 for key-file response
-            self.sw_confirming.elapsed("msg confirming " + self.filename)
-            self.sw_reading.elapsed("disk read " + self.filename)
-            self.sw_queuing.elapsed("msg queuing " + self.filename)
+            #self.sw_confirming.elapsed("msg confirming " + self.filename)
+            #self.sw_reading.elapsed("disk read " + self.filename)
+            #self.sw_queuing.elapsed("msg queuing " + self.filename)
             self.sw_total.elapsed("Wrote " + self.filename)
             return True
         return False

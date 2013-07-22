@@ -56,7 +56,7 @@ class Message_Router():
                     print "Unregistered service '" + message.service + "'"
             except:
                 show_error()
-                raise
+                #raise
 
         print "Coro(_message_dispatcher) exiting"
 

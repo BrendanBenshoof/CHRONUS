@@ -21,7 +21,7 @@ import logging
 import sys
 
 # Debug variables
-TEST_MODE = True   #duh
+TEST_MODE = False   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
 MAINTENANCE_PERIOD = 2
 
@@ -187,6 +187,9 @@ class Node_Service(Service):
             if self.nodes.has_key(str(ni)):
                 lnode = self.nodes[str(ni)] # get the Node class this message is addressed to (ip:port)
                 forward_node = lnode.find_ideal_forward(msg.forward_hash)
+
+                if msg.forward_msg.type == Database_Get_Message.Type() or msg.forward_msg.type == Database_Put_Message.Type():
+                    msg.forward_msg.storage_node = forward_node
 
                 if forward_node != ni:
                     self.send_message(msg.forward_msg, forward_node)

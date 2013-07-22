@@ -2,6 +2,7 @@
 import pickle
 from constants import *
 from hash_util import *
+import cPickle
 
 #this is an abstract parent class
 #you could use it, but it would be boring
@@ -32,7 +33,7 @@ class Message(object):
     @staticmethod
     def deserialize(in_string):
         try:
-            return pickle.loads(in_string)
+            return cPickle.loads(in_string) # pickle.loads(in_string)
         except EOFError:
             fail_message = Message()
             fail_message.service = FAILURE
@@ -42,7 +43,8 @@ class Message(object):
     def serialize(self):
         #it would be great if this was encrypted
         #would could also fix this with using a public-key algorithim for p2p communication
-        return pickle.dumps(self)
+        # return pickle.dumps(self)
+        return cPickle.dumps(self)
 
     def add_content(self, key, data):
         self.contents[key] = data
@@ -197,11 +199,11 @@ class Message_Send_Peer_Data(Message_Internal):
     @classmethod
     def Type(cls): return "MESSAGE_SEND_PEER_DATA"
 
-    def __init__(self, node, raw_data, success_callback_msg=None, failed_callback_msg=None):
+    def __init__(self, node, network_msg, success_callback_msg=None, failed_callback_msg=None):
         super(Message_Send_Peer_Data, self).__init__(SERVICE_NETWORK, Message_Send_Peer_Data.Type(), success_callback_msg, failed_callback_msg)
         self.remote_ip = node.IPAddr
         self.remote_port = node.ctrlPort
-        self.raw_data = raw_data
+        self.network_msg = network_msg
 
 class Message_Forward(Message_Internal):
     @classmethod
@@ -235,3 +237,64 @@ class Message_Recv_Peer_Data(Message_Internal):
         self.local_ip = local_ip
         self.local_port = local_port
         self.network_msg = Message.deserialize(raw_data)
+
+GET = "GET"
+PUT = "PUT"
+DATABASE = "DATABASE"
+RESPONSE = "RESP"
+
+class Database_Put_Message(Message):
+    @classmethod
+    def Type(cls): return PUT
+
+    def __init__(self, origin_node, destination_key, file_contents, success_callback_msg=None, failed_callback_msg=None):
+        super(Database_Put_Message,self).__init__(SERVICE_SHELVER, Database_Put_Message.Type( ),
+                                                  success_callback_msg, failed_callback_msg)
+        self.origin_node = origin_node
+        self.storage_node = self.origin_node # default to local (will be overwritten by final dest if better ideal forward)
+        self.destination_key = destination_key
+        self.file_contents = file_contents
+
+class Database_Put_Message_Response(Message):
+    @classmethod
+    def Type(cls): return "Database_Put_Message_Response"
+
+    def __init__(self, origin_node, storage_node, destination_key, success_callback_msg=None, failed_callback_msg=None):
+        super(Database_Put_Message_Response,self).__init__(SERVICE_SHELVER, Database_Put_Message_Response.Type( ),
+                                                  success_callback_msg, failed_callback_msg)
+        self.origin_node = origin_node
+        self.storage_node = storage_node
+        self.destination_key = destination_key
+
+class Database_Get_Message(Message):
+    @classmethod
+    def Type(cls): return GET
+
+    def __init__(self, origin_node, destination_key, success_callback_msg=None, failed_callback_msg=None):
+        super(Database_Get_Message,self).__init__(SERVICE_SHELVER, Database_Get_Message.Type( ),
+                                                  success_callback_msg, failed_callback_msg)
+        self.origin_node = origin_node
+        self.storage_node = None  # set by receiving Node_Service if no more forwarding
+        self.destination_key = destination_key
+
+class Database_Get_Message_Response(Message):
+    @classmethod
+    def Type(cls): return RESPONSE
+
+    def __init__(self, origin_node, storage_node,destination_key, file_contents, success_callback_msg=None, failed_callback_msg=None):
+        super(Database_Get_Message_Response,self).__init__(SERVICE_FILE, Database_Get_Message_Response.Type( ),
+                                                  success_callback_msg, failed_callback_msg)
+        self.origin_node = origin_node
+        self.storage_node = storage_node
+        self.destination_key = destination_key
+        self.file_contents = file_contents
+
+class Database_Backup_Message(Message):
+    @classmethod
+    def Type(cls): return "BACKUP"
+
+    def __init__(self, origin_node, backup_pile):
+        Message.__init__(self, SERVICE_SHELVER, "BACKUP")
+        self.origin_node = origin_node
+        self.add_content("backup",backup_pile)
+        self.reply_to = origin_node

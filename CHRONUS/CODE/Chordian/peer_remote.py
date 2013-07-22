@@ -6,70 +6,74 @@ from constants import *
 import sys
 
 class Peer_Remote():  # outbound connections
-    def __init__(self, network_service, remote_ip, remote_port):
+    def __init__(self, network_service, remote_ip, remote_port, context=None):
         self.exit = False
         self.network_service = network_service
         self.remote_ip = remote_ip
         self.remote_port = remote_port
-        logger.setLevel(logging.FATAL)
-        self.queue = collections.deque()
-        self.signal_item_queued = Event()
+        self.context = context
 
         Coro(self._server_connect)
 
     def _server_connect(self, coro=None):
-        logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
-        self.outbound_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
-        yield self.outbound_socket.connect((self.remote_ip, self.remote_port))
-        logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
-        Coro(self._client_send)
-        Coro(self._client_recv)
+        try:
+            logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
+            self.outbound_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+            yield self.outbound_socket.connect((self.remote_ip, self.remote_port))
+            logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
+            self._send_coro = Coro(self._client_send)
+            Coro(self._client_recv)
+
+            self.network_service.on_server_connect(self, self.context)
+        except:
+            show_error()
+            raise
 
     def _client_recv(self, coro=None):
-        while True:
+        while not self.exit:
             try:
                 data = yield self.outbound_socket.recv_msg()
-                if not data:
+                if data == None or len(data) == 0:
                     break
-                logger.debug('CLIENT: received data to peer at %s:%s (Data: %s)', self.remote_ip, str(self.remote_port), data)
-                self.network_service.on_peer_data_received(data)
+                #logger.debug('CLIENT: received data to peer at %s:%s (Data: %s)', self.remote_ip, str(self.remote_port), data)
+                try:
+                    self.network_service.on_peer_data_received(data)
+                except:
+                    show_error()  # don't exit
             except:
-                print "Unexpected error:", sys.exc_info()[0]
-                #raise
+                #show_error()
+                break
+        #print "Coro(_client_recv) exiting"
 
     def _client_send(self, coro=None):
         coro.set_daemon()
-        try:
-            while not self.exit:
-                if not self.queue:
-                    self.signal_item_queued.clear()
-                    yield self.signal_item_queued.wait()
-                cmd, state = self.queue.popleft()
+        while True:
+            try:
+                cmd, state = yield self._send_coro.receive()
                 data, context = state
                 if cmd == NETWORK_PEER_DISCONNECT:
                     self.network_service.on_client_disconnected(context)
                     break
 
-
-                logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,data)
+                #logger.debug('CLIENT: sending data to %s:%s (Data is: %s)', self.remote_ip, self.remote_port,data)
                 yield self.outbound_socket.send_msg(data)
                 self.network_service.on_client_data_sent(context)
-            self.outbound_socket.shutdown(socket.SHUT_WR)
+            except:
+                show_error()
+                #break
 
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
+        self.outbound_socket.shutdown(socket.SHUT_RDWR)
+        self.outbound_socket.close()
+        #print "Coro(_client_send) exiting"
 
 
     def send(self, data, context):
-        self.queue.append((None, (data, context)))
-        self.signal_item_queued.set()
+        self._send_coro.send((None, (data, context)))
 
-    def stop(self, context):
+    def stop(self, context=None):
         self.exit = True
         logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
-        self.queue.append((NETWORK_PEER_DISCONNECT, context))
-        self.signal_item_queued.set()
+        self._send_coro.send((NETWORK_PEER_DISCONNECT, (None,context)))
 
 
 

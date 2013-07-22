@@ -34,6 +34,8 @@ MESSAGE_START_SERVER_SUCCEEDED = "START_SERVER_SUCCEEDED"
 MESSAGE_START_SERVER_FAILED = "START_SERVER_FAILED"
 
 import time
+import os
+import sys
 
 class Stopwatch():
     def __init__(self):
@@ -56,3 +58,14 @@ class Stopwatch():
         print string
         print '-'*len(string)
         print
+
+    def ms(self):
+        return (self.t2-self.t1)*1000.0
+
+def show_error():
+    try:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, exc_obj.message if len(exc_obj.message) else exc_obj.strerror, fname, exc_tb.tb_lineno)
+    except:
+        raise

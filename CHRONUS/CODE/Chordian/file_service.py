@@ -106,14 +106,18 @@ class File_Service(Service):
         if not msg.dest_service == self.service_id:
             raise Exception("Mismatched service recipient for message.")
         elif msg.type == Database_Get_Message_Response.Type():
+            # placeholder but will allow us to get exact storage times across the network if we determine when all requested hashes have a response
+            print "Read block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
+
             contents = msg.file_contents
             fileid = msg.destination_key
             if contents[:7] == "KEYFILE":
                 partial = self.partial_files[str(fileid)]
                 partial.add_key(contents)
                 for k in partial.chunklist:
-                    get_datafile_message = Database_Get_Message(msg.origin_node, hash_util.Key(k))
-                    self.send_message(get_datafile_message,None)
+                    # determine where the next part o this file is stored
+                    get_datafile_message = Message_Forward(msg.origin_node,hash_util.Key(k),Database_Get_Message(msg.origin_node, hash_util.Key(k)))
+                    self.send_message(get_datafile_message)
             elif contents == "404 Error":
                 print contents
             else:
@@ -133,9 +137,6 @@ class File_Service(Service):
 
     def handle_command(self, msg):
         if msg.command == "store" and len(msg.args) == 1:
-            self.store(msg.console_node, msg.args[0])
+            self.store(msg.console_node.thisNode, msg.args[0])
         elif msg.command == "read" and len(msg.args) == 1:
-            self.read(msg.console_node, msg.args[0])
-
-    def send_message(self, msg, destination=None):
-        self.message_router.route(msg)
+            self.read(msg.console_node.thisNode, msg.args[0])

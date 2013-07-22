@@ -3,41 +3,52 @@ from service_message import *
 from peer_local import Peer_Local
 from peer_remote import Peer_Remote
 
+TEST_MODE = False # set to true if you want to see the Message Types sent by port
 
 class Network_Service(Service):
+    exit = False
     """Interface to the outside world"""
     def __init__(self, message_router):
-        super(Network_Service, self).__init__(SERVICE_NETWORK, message_router, cl_name="ns")
-
+        super(Network_Service, self).__init__(SERVICE_NETWORK, message_router, cl_name="net")
         self.clients = {}
         self.servers = {}
 
+    def stop(self):
+
+        exit = True
+
+        # stop any clients
+        for client in self.clients.values():
+            client.stop()
+
+        # stop any servers
+        for server in self.servers.values():
+            server.stop()
+
     def handle_message(self, msg):
+        if self.exit:
+            print "Discarding message " + msg.Type() + " - exit in progress."
+            return
+
         if not msg.dest_service == self.service_id:
             raise Exception("Mismatched service recipient for message.")
 
         if msg.type == Message_Start_Server.Type():
-            try:
-                server = Peer_Local(self, msg.host_ip, msg.host_port)
-                self.servers[msg.host_ip + ":" + str(msg.host_port)] = server
-                self.on_server_start((msg, server, True))
-            except:
-                self.on_server_start((msg, server, False))
-                raise
+            server = Peer_Local(self, msg.host_ip, msg.host_port, msg)
         elif msg.type == Message_Stop_Server.Type():
             server = self.servers[msg.local_ip + ":" + str(msg.local_port)]
             server.stop((msg, server))
         elif msg.type == Message_Send_Peer_Data.Type():
-            client = Peer_Remote(self, msg.remote_ip, msg.remote_port)
-            self.clients[msg.remote_ip + ":" + str(msg.remote_port)] = client
-            client.send(msg.raw_data, (msg,client))
+            client = Peer_Remote(self, msg.remote_ip, msg.remote_port, msg)
+
 #        elif msg.type == MESSAGE_DISCONNECT_PEER:
 #            client = self.clients[msg.remote_ip + ":" + str(msg.remote_port)]
 #            if client:
 #                client.stop((msg, client))
 
-    def on_server_start(self, context):
-        msg, server, result = context
+    def on_server_start(self, server, context, result):
+        msg = context
+        self.servers[msg.host_ip + ":" + str(msg.host_port)] = server
         if msg.success_callback_msg and result:
             self.message_router.route(msg.success_callback_msg)
         elif msg.failed_callback_msg and result:
@@ -50,8 +61,8 @@ class Network_Service(Service):
         try:
             if self.servers.has_key(msg.host_ip + ":" + str(msg.host_port)):
                 del self.servers[msg.host_ip + ":" + str(msg.host_port)]
-        except KeyError:
-            pass
+        except:
+            show_error()
         return None
 
     def on_peer_connected(self, context):
@@ -70,8 +81,14 @@ class Network_Service(Service):
         server, client, data = context
         msg = Message.deserialize(data)
         if msg:
-            print server.host_ip + ":" + str(server.host_port) + " received: " + msg.type
+            if TEST_MODE:
+                print server.host_ip + ":" + str(server.host_port) + " received: " + msg.type
             self.message_router.route(Message_Recv_Peer_Data(server.host_ip, server.host_port, data))
+
+    def on_server_connect(self, client, context):
+        msg = context
+        self.clients[msg.remote_ip + ":" + str(msg.remote_port)] = client
+        client.send(msg.network_msg.serialize(), (msg,client))
 
     def on_client_disconnected(self, context):
         # TODO: possibly route messages to anyone who cares and wants to clean up when

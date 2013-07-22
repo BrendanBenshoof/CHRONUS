@@ -32,6 +32,9 @@ class Service(object):
         #    raise "Mismatched service recipient for message."
         return msg.service == self.service_id
 
+    def stop(self):
+        pass
+
     def attach_to_console(self):
         ### return a list of command-strings
         return []
@@ -41,11 +44,11 @@ class Service(object):
     #    ### one of your commands got typed in
     #    return None
 
-    def send_message(self, msg, dest=None):
-        if not dest:
+    def send_message(self, msg, destination=None):
+        if not destination:
             self.message_router.route(msg)
         else:
-            self.message_router.route(Message_Send_Peer_Data(dest, msg.serialize()))
+            self.message_router.route(Message_Send_Peer_Data(destination, msg))
 
 
     # this should be a message sent to services that need to change or sent as a broadcast message

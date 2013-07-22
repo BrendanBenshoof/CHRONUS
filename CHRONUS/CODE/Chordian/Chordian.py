@@ -20,7 +20,6 @@ from message_router import Message_Router
 import json
 from urllib2 import urlopen
 
-
 class Chordian():
     """
     Chordian orchestrates the SOA as the central container and sets up message-passing and system-wide settings.
@@ -44,6 +43,10 @@ class Chordian():
 
     def setup_node(self, public_ip, local_ip, local_port, seeded_peers ):
         self.message_router.route(Message_Setup_Node(public_ip, local_ip, local_port, seeded_peers))
+
+    def stop(self):
+        self.message_router.stop( ) # should propogate to a Service.stop( ) method
+
 
     def test_local(self, node_count):
         nodes = []
@@ -81,9 +84,13 @@ def main():
         seeded_peers.append( Node_Info(other_IP, other_port) )
 
     peer_coordinator = Chordian()
-    peer_coordinator.test_local(50)  # 2 nodes
-    #peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
-    peer_coordinator.attach_console() # allow us to send k/b commands
+    try:
+        peer_coordinator.test_local(2)  # 2 nodes
+        #peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
+        peer_coordinator.attach_console() # allow us to send k/b commands
+        pass
+    finally:
+        peer_coordinator.stop()
 if __name__ == "__main__":
     main()
 

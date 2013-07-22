@@ -39,7 +39,13 @@ class Network_Service(Service):
             server = self.servers[msg.local_ip + ":" + str(msg.local_port)]
             server.stop((msg, server))
         elif msg.type == Message_Send_Peer_Data.Type():
-            client = Peer_Remote(self, msg.remote_ip, msg.remote_port, msg)
+            #key = msg.remote_ip + ":" + str(msg.remote_port)
+            #if self.clients.has_key(key):
+            #    client = self.clients[msg.remote_ip + ":" + str(msg.remote_port)]
+            #    client.send(msg.network_msg.serialize(), (msg,client))
+            #else:
+            #    self.clients[key] =
+                    Peer_Remote(self, msg.remote_ip, msg.remote_port, msg)
 
 #        elif msg.type == MESSAGE_DISCONNECT_PEER:
 #            client = self.clients[msg.remote_ip + ":" + str(msg.remote_port)]
@@ -87,12 +93,9 @@ class Network_Service(Service):
 
     def on_server_connect(self, client, context):
         msg = context
-        self.clients[msg.remote_ip + ":" + str(msg.remote_port)] = client
         client.send(msg.network_msg.serialize(), (msg,client))
 
     def on_client_disconnected(self, context):
-        # TODO: possibly route messages to anyone who cares and wants to clean up when
-        # a node is no longer connected
         msg, client = context
         if self.clients.has_key(client.remote_ip + ":" + str(client.remote_port)):
             del self.clients[client.remote_ip + ":" + str(client.remote_port)]
@@ -100,16 +103,16 @@ class Network_Service(Service):
     def on_client_data_sent(self, context):
         msg, client = context
         result = True
-
-        # TODO: Send a message to the person who requested data sent to let them know send was successful
-        # e.g. if router.route( msg.callback ) where notify_completion_message is
-        #      formed by the caller in the original message as an "event" notification
-        if msg.success_callback_msg and result:
-            # could provide some info like msg.callback.property = value but prob unnecessary
-            self.message_router.route(msg.success_callback_msg)
-        elif msg.failed_callback_msg and not result:
-            self.message_router.route(msg.failed_callback_msg)
-
-        client.stop(context)
+        try:
+            # TODO: Send a message to the person who requested data sent to let them know send was successful
+            # e.g. if router.route( msg.callback ) where notify_completion_message is
+            #      formed by the caller in the original message as an "event" notification
+            if msg.success_callback_msg and result:
+                # could provide some info like msg.callback.property = value but prob unnecessary
+                self.message_router.route(msg.success_callback_msg)
+            elif msg.failed_callback_msg and not result:
+                self.message_router.route(msg.failed_callback_msg)
+        finally:
+            client.stop(context)
 
 

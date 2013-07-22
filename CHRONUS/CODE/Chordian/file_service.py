@@ -5,10 +5,13 @@ from shelver_service import *
 from super_service import Service
 import hash_util
 from constants import *
-
+from asyncoro import AsynCoro, Coro, AsynCoroThreadPool, logger
+import multiprocessing
+import collections
 
 class Partial_file(object):
     def __init__(self,filename):
+        self.sw = Stopwatch()
         self.filename = filename
         self.filehash_name = hash_util.hash_str(filename)
         self.done = False
@@ -48,55 +51,100 @@ class Partial_file(object):
                 output+=self.chunks[c]
             return output
         elif blocking:
-            while not self.done:
-                time.sleep(0.1)
+            # if you need to block then set this up with an event rather than a context-swapping
+            # spin wait
+            #while not self.done:
+            #    time.sleep(0.1)
             output = ""
             for c in self.chunklist:
                 output+=self.chunks[c]
             return output
         else:
             return None
-                
+
+class Upload_File_Task(object):
+    def __init__(self,node_info,filename, segment_size=128):
+        self.sw = Stopwatch()
+        self.segment_ids = []
+        self._confirmed = 0
+        self.messages = collections.deque()
+        self.node_info = node_info
+        self.segment_size = segment_size
+        self.filename = filename
+
+    def process_file(self):
+        try:
+            segments = []
+            with open(self.filename, "rb") as f:
+                bytes = f.read(self.segment_size)
+                while bytes:
+                    newid = hash_util.generate_random_key().key
+                    self.segment_ids.append(newid)
+                    segments.append(bytes)
+                    bytes = f.read(self.segment_size)
+
+            keyfile = "KEYFILE\n"+self.filename+"\n"+reduce(lambda x,y: x+"\n"+y,self.segment_ids)
+            keyfile_hash = hash_util.hash_str(self.filename)
+            self.messages.append( Message_Forward(self.node_info,keyfile_hash,Database_Put_Message(self.node_info, keyfile_hash, keyfile_hash, keyfile)))
+
+            for i in range(0,len(segments)):
+                actual_contents = str(keyfile_hash)+"\n"+segments[i]
+                seg_hash = hash_util.Key(self.segment_ids[i])
+                self.messages.append( Message_Forward(self.node_info,seg_hash,Database_Put_Message(self.node_info,seg_hash, keyfile_hash,  actual_contents)))
+        except:
+            show_error()
+
+    def send(self,service):
+        s = Stopwatch()
+        while self.messages:
+            msg = self.messages.pop()
+            service.send_message(msg)
+
+    def confirm(self,msg):
+        self._confirmed += 1
+
+        if self._confirmed == len(self.segment_ids):
+            self.sw.elapsed("Wrote " + self.filename)
+
 
 class File_Service(Service):
     """This object is intented to act as a parent/promise for Service Objects"""
+    upload_files = {}
+    exit = False
     def __init__(self, message_router):
         super(File_Service, self).__init__(SERVICE_FILE, message_router)
         self.partial_files = {}
+        self._coro_file_writer = Coro(self._file_writer_coro)
+
+    def _file_writer_coro(self, coro=None):
+        coro.set_daemon()
+        thread_pool = AsynCoroThreadPool(2 * multiprocessing.cpu_count())
+        while not self.exit:
+            try:
+                node_info, filename, segment_size = yield coro.receive()
+                if not filename:
+                    break
+
+                task = Upload_File_Task(node_info,filename,segment_size)
+                yield thread_pool.async_task(coro, task.process_file)
+                self.upload_files[hash_util.hash_str(filename)] = task
+                task.send(self)
+            except:
+                show_error()
+
+    def stop(self):
+        self.exit = True
+        self._coro_file_writer.send((None,None,None))
 
     def read(self,node_info, filename):
-        sw = Stopwatch()
+        # initiate a file download
         filehash = hash_util.hash_str(filename)
-        new_partial = Partial_file(filename)
-        self.partial_files[str(filehash)]=new_partial
-        get_keyfile_message = Message_Forward(node_info, filehash, Database_Get_Message(node_info,filehash))
-        self.send_message(get_keyfile_message,None)
-        sw.elapsed("read")
+        self.partial_files[str(filehash)] = Partial_file(filename)
+        self.send_message(Message_Forward(node_info, filehash, Database_Get_Message(node_info, filehash)))
 
     def store(self, node_info, filename, segment_size=128):
-        sw = Stopwatch()
-        segment_ids = []
-        segments = []
-        with open(filename, "rb") as f:
-            byte = f.read(segment_size)
-            while byte:
-                newid = hash_util.generate_random_key().key
-                segment_ids.append(newid)
-                segments.append(byte)
-                byte = f.read(segment_size)
-        keyfile = "KEYFILE\n"+filename+"\n"+reduce(lambda x,y: x+"\n"+y,segment_ids)
-        keyfile_hash = hash_util.hash_str(filename)
-        keyfile_message = Message_Forward(node_info,keyfile_hash,Database_Put_Message(node_info, keyfile_hash, keyfile))
-        self.send_message(keyfile_message,None)
-        number_of_chunks = len(segments)
-        for i in range(0,number_of_chunks):
-            actual_contents = str(keyfile_hash)+"\n"+segments[i]
-            seg_hash = hash_util.Key(segment_ids[i])
-            chunkfile_message = Message_Forward(node_info,seg_hash,Database_Put_Message(node_info,seg_hash, actual_contents))
-            self.send_message(chunkfile_message,None)
-
-        print filename + " has been persisted to (" + str(node_info) + ")"
-        sw.elapsed("store")
+        # queue for async execution since it requires blocking I/O
+        self._coro_file_writer.send((node_info, filename, segment_size))
 
     def handle_message(self, msg):
         """This function is called whenever the node recives a message bound for this service"""
@@ -105,29 +153,37 @@ class File_Service(Service):
         """
         if not msg.dest_service == self.service_id:
             raise Exception("Mismatched service recipient for message.")
+        elif msg.type == Database_Put_Message_Response.Type():
+            # placeholder but will allow us to get exact storage times across the network if we determine when all sent hashes have a response
+            #print "Write block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
+            if self.upload_files.has_key(msg.keyfile_hash):
+                self.upload_files[msg.keyfile_hash].confirm(msg)
+            else:
+                raise "Unexpected keyfile hash"
         elif msg.type == Database_Get_Message_Response.Type():
             # placeholder but will allow us to get exact storage times across the network if we determine when all requested hashes have a response
-            print "Read block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
+            #print "Read block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
 
-            contents = msg.file_contents
             fileid = msg.destination_key
-            if contents[:7] == "KEYFILE":
+            contents = msg.file_contents
+            if len(contents) > 7 and contents[:7] == "KEYFILE":
                 partial = self.partial_files[str(fileid)]
                 partial.add_key(contents)
                 for k in partial.chunklist:
-                    # determine where the next part o this file is stored
-                    get_datafile_message = Message_Forward(msg.origin_node,hash_util.Key(k),Database_Get_Message(msg.origin_node, hash_util.Key(k)))
-                    self.send_message(get_datafile_message)
+                    # determine where the next part of this file is stored
+                    self.send_message(Message_Forward(msg.origin_node,hash_util.Key(k),Database_Get_Message(msg.origin_node, hash_util.Key(k))))
             elif contents == "404 Error":
                 print contents
             else:
                 #print contents
                 addr, cont = contents.split("\n",1)
                 if addr in self.partial_files.keys():
-                    self.partial_files[addr].input_stream.put(msg)
-                    if self.partial_files[addr].process_queue():
-                        print "FINISHED FILE"
-                        print self.partial_files[addr].get_file(True)
+                    partial = self.partial_files[addr]
+                    partial.input_stream.put(msg)
+                    if partial.process_queue():
+                        print partial.get_file(True)
+                        partial.sw.elapsed("read " + partial.filename)
+
         elif msg.type == Message_Console_Command.Type():
             self.handle_command(msg)
 

@@ -28,6 +28,7 @@ class Peer_Local():  # inbound connections
             # start the server
             self.server_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
             self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.server_socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1) # for now since we act like UDP
             self.server_socket.bind(("", host_port))
             self.server_socket.listen(128)  # set backlog to max
 
@@ -68,9 +69,10 @@ class Peer_Local():  # inbound connections
         # fastest clean exit from yield accept() is to connect to ourselves
         # loop if multiple outstanding accepts
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.host_ip if len(self.host_ip) > 0 else "127.0.0.1", self.host_port))
-            s.close()
+            #for i in range(2 * multiprocessing.cpu_count()) :
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((self.host_ip if len(self.host_ip) > 0 else "127.0.0.1", self.host_port))
+                s.close()
         except:
             show_error()
 
@@ -91,11 +93,13 @@ class Peer_Local():  # inbound connections
                     self.network_service.on_peer_connected(item)
                     clients.add((client_socket, client_addr))
                 elif cmd == NETWORK_PEER_DISCONNECTED:
-                    client_socket, client_addr = item
-                    logger.debug(self.log_name + str(self) + ': client %s disconnected', str(client_addr))
-                    self.network_service.on_peer_disconnected(item)
-                    clients.discard((client_socket, client_addr))
-                    client_socket.close()
+                    try:
+                        client_socket, client_addr = item
+                        logger.debug(self.log_name + str(self) + ': client %s disconnected', str(client_addr))
+                        self.network_service.on_peer_disconnected(item)
+                    finally:
+                        clients.discard((client_socket, client_addr))
+                        client_socket.close()
                 elif cmd == NETWORK_PEER_DATA_RECEIVED:
                     try:
                         client_socket, client_addr, data = item
@@ -130,6 +134,7 @@ class Peer_Local():  # inbound connections
                     break
                 else:
                     self._server_coro.send((NETWORK_PEER_DATA_RECEIVED, (client_socket, client_addr, data)))
+                    #break # for now we expect to act more like UDP
             except:
                 show_error()
         #print "Coro(client_coro) exiting"

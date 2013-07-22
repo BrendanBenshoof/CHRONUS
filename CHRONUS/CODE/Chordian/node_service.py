@@ -93,7 +93,8 @@ class Node_Service(Service):
         try:
             while not self.exit:
                 requeue = deque()
-                while self.delay_queue and not self.exit:
+
+                while len(self.delay_queue) > 0 and not self.exit:
                     queued_at, delay_ms, message = self.delay_queue.popleft()
                     if (queued_at + delay_ms / 1000) < time.time():
                         #self.enqueue(message)
@@ -101,9 +102,10 @@ class Node_Service(Service):
                     else:
                         requeue.append((queued_at, delay_ms, message))
 
-                    while requeue and not self.exit:
-                        self.delay_queue.append(requeue.popleft())
-                time.sleep(.01)  # 10 ms
+                while len(requeue) > 0 and not self.exit:
+                    self.delay_queue.append(requeue.popleft())
+
+                time.sleep(5)  # 10 ms
         except:
             show_error()
         print "Scheduler thread exiting"
@@ -112,8 +114,8 @@ class Node_Service(Service):
         coro.set_daemon()
 
         thread_pool = AsynCoroThreadPool(2 * multiprocessing.cpu_count())
-        try:
-            while not self.exit:
+        while not self.exit:
+            try:
                 command, context = yield self._stabilize_coro.receive()
 
                 if self.exit:  # fast exit for now (non-graceful)
@@ -138,8 +140,8 @@ class Node_Service(Service):
                     yield thread_pool.async_task(coro, context.check_predecessor)
                 elif command == "NODE_FIX_FINGERS":
                     yield thread_pool.async_task(coro, context.fix_fingers, 10)
-        except:
-            show_error()
+            except:
+                show_error()
 
         print "Coro(stabilize) exiting"
 

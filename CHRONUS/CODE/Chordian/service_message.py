@@ -247,23 +247,25 @@ class Database_Put_Message(Message):
     @classmethod
     def Type(cls): return PUT
 
-    def __init__(self, origin_node, destination_key, file_contents, success_callback_msg=None, failed_callback_msg=None):
+    def __init__(self, origin_node, destination_key, keyfile_hash, file_contents, success_callback_msg=None, failed_callback_msg=None):
         super(Database_Put_Message,self).__init__(SERVICE_SHELVER, Database_Put_Message.Type( ),
                                                   success_callback_msg, failed_callback_msg)
         self.origin_node = origin_node
         self.storage_node = self.origin_node # default to local (will be overwritten by final dest if better ideal forward)
         self.destination_key = destination_key
+        self.keyfile_hash = keyfile_hash
         self.file_contents = file_contents
 
 class Database_Put_Message_Response(Message):
     @classmethod
     def Type(cls): return "Database_Put_Message_Response"
 
-    def __init__(self, origin_node, storage_node, destination_key, success_callback_msg=None, failed_callback_msg=None):
-        super(Database_Put_Message_Response,self).__init__(SERVICE_SHELVER, Database_Put_Message_Response.Type( ),
+    def __init__(self, origin_node, storage_node, destination_key, keyfile_hash, success_callback_msg=None, failed_callback_msg=None):
+        super(Database_Put_Message_Response,self).__init__(SERVICE_FILE, Database_Put_Message_Response.Type( ),
                                                   success_callback_msg, failed_callback_msg)
         self.origin_node = origin_node
         self.storage_node = storage_node
+        self.keyfile_hash = keyfile_hash
         self.destination_key = destination_key
 
 class Database_Get_Message(Message):

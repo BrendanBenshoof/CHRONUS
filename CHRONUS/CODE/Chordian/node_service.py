@@ -324,8 +324,8 @@ class Node():
                 print "Begin Stabilize (" + str(self) + ")"
             if self.thisNode.successor != self.thisNode:
                 self.send_message(Stablize_Message(self.thisNode,self.thisNode.successor), self.thisNode.successor)
-            else:  # short-circuit message loop/network if it's self-addressed
-                self.stabilize(Stabilize_Reply_Message(self.thisNode, self.thisNode.key, self.thisNode))
+            #else:  # short-circuit message loop/network if it's self-addressed
+            #    self.stabilize(Stabilize_Reply_Message(self.thisNode, self.thisNode.key, self.thisNode))
         finally:  # moved enqueue here to ensure we don't attempt to scheduling until we've completed a cycle
             self.node_service.delay_enqueue( ("NODE_CHECK_PREDECESSOR", self), MAINTENANCE_PERIOD)
 
@@ -340,8 +340,8 @@ class Node():
 
         if self.thisNode != self.thisNode.successor:
             self.send_message(Notify_Message(self.thisNode, self.thisNode.successor.key))
-        else:  # short-circuit message loop/network if it's self-addressed
-            self.get_notified(Notify_Message(self.thisNode, self.thisNode.successor.key))
+        #else:  # short-circuit message loop/network if it's self-addressed
+        #    self.get_notified(Notify_Message(self.thisNode, self.thisNode.successor.key))
 
         self.successor_lock.release()
     
@@ -436,8 +436,8 @@ class Node():
                 dest_node = self.find_ideal_forward(self.thisNode.predecessor.key)
                 if dest_node != self.thisNode:
                     self.send_message(Check_Predecessor_Message(self.thisNode, self.thisNode.predecessor.key),dest_node)
-                else:  # short-circuit message loop/network if it's self-addressed
-                    self.update_finger(self.thisNode, 0)
+                #else:  # short-circuit message loop/network if it's self-addressed
+                #    self.update_finger(self.thisNode, 0)
         finally:  # moved enqueue here to ensure we don't attempt to scheduling until we've completed a cycle
             self.node_service.delay_enqueue( ("NODE_FIX_FINGERS", self), MAINTENANCE_PERIOD )
 

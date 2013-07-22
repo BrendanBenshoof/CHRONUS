@@ -64,7 +64,7 @@ class Partial_file(object):
 
 class Upload_File_Task(object):
     def __init__(self,node_info,filename, segment_size=128):
-        self.sw = Stopwatch()
+        self.sw_total = Stopwatch()
         self.segment_ids = []
         self._confirmed = 0
         self.messages = collections.deque()
@@ -74,37 +74,50 @@ class Upload_File_Task(object):
 
     def process_file(self):
         try:
-            segments = []
-            with open(self.filename, "rb") as f:
-                bytes = f.read(self.segment_size)
-                while bytes:
-                    newid = hash_util.generate_random_key().key
-                    self.segment_ids.append(newid)
-                    segments.append(bytes)
-                    bytes = f.read(self.segment_size)
-
-            keyfile = "KEYFILE\n"+self.filename+"\n"+reduce(lambda x,y: x+"\n"+y,self.segment_ids)
+            self.sw_reading = Stopwatch()
             keyfile_hash = hash_util.hash_str(self.filename)
-            self.messages.append( Message_Forward(self.node_info,keyfile_hash,Database_Put_Message(self.node_info, keyfile_hash, keyfile_hash, keyfile)))
+            with open(self.filename, "rb") as f:
+                try:
+                    bytes = f.read(self.segment_size)
+                    while bytes:
+                        newid = hash_util.generate_random_key().key
+                        self.segment_ids.append(newid)
 
-            for i in range(0,len(segments)):
-                actual_contents = str(keyfile_hash)+"\n"+segments[i]
-                seg_hash = hash_util.Key(self.segment_ids[i])
-                self.messages.append( Message_Forward(self.node_info,seg_hash,Database_Put_Message(self.node_info,seg_hash, keyfile_hash,  actual_contents)))
+                        seg_hash = hash_util.Key(newid)
+                        self.messages.append(
+                            Message_Forward(self.node_info,seg_hash,
+                                Database_Put_Message(self.node_info,seg_hash, keyfile_hash,  str(keyfile_hash)+"\n"+bytes)))
+
+                        bytes = f.read(self.segment_size)
+                finally:
+                    f.close()
+
+            self.sw_reading.stop()
+            self.sw_queuing = Stopwatch()
+            keyfile = "KEYFILE\n"+self.filename+"\n"+reduce(lambda x,y: x+"\n"+y,self.segment_ids)
+            self.messages.appendleft( Message_Forward(self.node_info,keyfile_hash,Database_Put_Message(self.node_info, keyfile_hash, keyfile_hash, keyfile)))
+            self.sw_queuing.stop()
         except:
             show_error()
 
     def send(self,service):
-        s = Stopwatch()
         while self.messages:
             msg = self.messages.pop()
             service.send_message(msg)
 
     def confirm(self,msg):
+        if self._confirmed == 0:
+            self.sw_confirming = Stopwatch()
+
         self._confirmed += 1
 
-        if self._confirmed == len(self.segment_ids):
-            self.sw.elapsed("Wrote " + self.filename)
+        if self._confirmed == len(self.segment_ids) + 1: # +1 for key-file response
+            self.sw_confirming.elapsed("msg confirming " + self.filename)
+            self.sw_reading.elapsed("disk read " + self.filename)
+            self.sw_queuing.elapsed("msg queuing " + self.filename)
+            self.sw_total.elapsed("Wrote " + self.filename)
+            return True
+        return False
 
 
 class File_Service(Service):
@@ -157,9 +170,10 @@ class File_Service(Service):
             # placeholder but will allow us to get exact storage times across the network if we determine when all sent hashes have a response
             #print "Write block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
             if self.upload_files.has_key(msg.keyfile_hash):
-                self.upload_files[msg.keyfile_hash].confirm(msg)
+                if self.upload_files[msg.keyfile_hash].confirm(msg):
+                    del self.upload_files[msg.keyfile_hash]
             else:
-                raise "Unexpected keyfile hash"
+                raise Exception("Unexpected keyfile hash")
         elif msg.type == Database_Get_Message_Response.Type():
             # placeholder but will allow us to get exact storage times across the network if we determine when all requested hashes have a response
             #print "Read block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
@@ -193,6 +207,9 @@ class File_Service(Service):
 
     def handle_command(self, msg):
         if msg.command == "store" and len(msg.args) == 1:
-            self.store(msg.console_node.thisNode, msg.args[0])
+            if not hash_util.hash_str(msg.args[0]) in self.upload_files.keys():
+                self.store(msg.console_node.thisNode, msg.args[0])
+            else:
+                print "Store is already in progress for this file."
         elif msg.command == "read" and len(msg.args) == 1:
             self.read(msg.console_node.thisNode, msg.args[0])

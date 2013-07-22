@@ -56,6 +56,7 @@ class Message_Router():
                     print "Unregistered service '" + message.service + "'"
             except:
                 show_error()
+                raise
 
         print "Coro(_message_dispatcher) exiting"
 
@@ -64,10 +65,6 @@ class Message_Router():
             self._services[service_id] = service
 
     def route(self, message):
-        #if message.dest_service in self._services.keys():
-        #    self._services[message.dest_service].handle_message(message)
-        #pass
-
         self._dispatcher_coro.send(message)
 
     def stop(self):

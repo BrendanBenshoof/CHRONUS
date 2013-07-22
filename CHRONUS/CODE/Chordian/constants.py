@@ -51,7 +51,8 @@ class Stopwatch():
         self.t2 = time.time()
 
     def elapsed(self, label):
-        self.t2 = time.time()
+        if self.t2 <= self.t1:
+            self.t2 = time.time()
         string = '| %s in %0.3f ms |' % (label, (self.t2-self.t1)*1000.0)
         print '-'*len(string)
         print string

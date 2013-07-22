@@ -63,6 +63,7 @@ class Peer_Remote():  # outbound connections
 
         self.outbound_socket.shutdown(socket.SHUT_RDWR)
         self.outbound_socket.close()
+        logger.debug('CLIENT: disconnected from %s:%s', self.remote_ip, str(self.remote_port))
         #print "Coro(_client_send) exiting"
 
 

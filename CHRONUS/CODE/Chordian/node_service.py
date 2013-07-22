@@ -21,9 +21,9 @@ import logging
 import sys
 
 # Debug variables
-TEST_MODE = False   #duh -- TO DO: NEED TO CHECK why maintenance stops sending network messages after Find_Successor!!!
+TEST_MODE = True   #duh
 VERBOSE = True      # True for various debug messages, False for a more silent execution.
-MAINTENANCE_PERIOD = 10000
+MAINTENANCE_PERIOD = 2
 
 class Node_Info(object):
     """This is struct containing the info of other nodes.
@@ -104,8 +104,8 @@ class Node_Service(Service):
 
                 while len(requeue) > 0 and not self.exit:
                     self.delay_queue.append(requeue.popleft())
-
-                time.sleep(5)  # 10 ms
+                del requeue
+                time.sleep(.1)  # 10 ms
         except:
             show_error()
         print "Scheduler thread exiting"
@@ -137,6 +137,7 @@ class Node_Service(Service):
                 if command == "NODE_STABILIZE":
                     yield thread_pool.async_task(coro, context.begin_stabilize)
                 elif command == "NODE_CHECK_PREDECESSOR":
+                    yield thread_pool.async_task(coro, context.begin_stabilize)
                     yield thread_pool.async_task(coro, context.check_predecessor)
                 elif command == "NODE_FIX_FINGERS":
                     yield thread_pool.async_task(coro, context.fix_fingers, 10)
@@ -210,7 +211,7 @@ class Node_Service(Service):
                 elif msg.type == Stablize_Message.Type( ):
                     self.send_message(Stabilize_Reply_Message(lnode.thisNode, msg.reply_to.key, msg.reply_to))
                 elif msg.type == Stabilize_Reply_Message.Type():
-                    lnode._coro_stabilize(msg)
+                    lnode.stabilize(msg)
                 elif msg.type == Notify_Message.Type():
                     lnode.get_notified(msg)
                 elif msg.type == Exit_Message.Type():
@@ -322,28 +323,33 @@ class Node():
         try:
             if TEST_MODE:
                 print "Begin Stabilize (" + str(self) + ")"
-            if self.thisNode.successor != self.thisNode:
-                self.send_message(Stablize_Message(self.thisNode,self.thisNode.successor), self.thisNode.successor)
-            #else:  # short-circuit message loop/network if it's self-addressed
-            #    self.stabilize(Stabilize_Reply_Message(self.thisNode, self.thisNode.key, self.thisNode))
+
+            successor = self.thisNode
+            self.successor_lock.acquire(True)
+            try:
+                successor = self.thisNode.successor
+            finally:
+                self.successor_lock.release()
+            self.send_message(Stablize_Message(self.thisNode,successor), successor)
         finally:  # moved enqueue here to ensure we don't attempt to scheduling until we've completed a cycle
             self.node_service.delay_enqueue( ("NODE_CHECK_PREDECESSOR", self), MAINTENANCE_PERIOD)
 
     # need to account for self.thisNode.successor being unreachable
     def stabilize(self,message):
+
+        successor = self.thisNode
         self.successor_lock.acquire(True)
+        try:
+            successor = self.thisNode.successor
+        finally:
+            self.successor_lock.release()
         if TEST_MODE:
             print "Stabilize (" + str(self.thisNode) + ")"
         x = message.predecessor
-        if x!=None and hash_between(x.key, self.thisNode.key, self.thisNode.successor.key):
-            self.thisNode.successor = x
+        if x!=None and hash_between(x.key, self.thisNode.key, successor.key):
+            self.update_finger(x,1)
 
-        if self.thisNode != self.thisNode.successor:
-            self.send_message(Notify_Message(self.thisNode, self.thisNode.successor.key))
-        #else:  # short-circuit message loop/network if it's self-addressed
-        #    self.get_notified(Notify_Message(self.thisNode, self.thisNode.successor.key))
-
-        self.successor_lock.release()
+        self.send_message(Notify_Message(self.thisNode, successor.key))
     
     
     # TODO: Call this function
@@ -378,11 +384,15 @@ class Node():
         other =  message.origin_node
         if(self.thisNode.predecessor == self.thisNode or hash_between(other.key, self.thisNode.predecessor.key, self.thisNode.key)):
             self.fingerTable_lock.acquire(True)
-            self.predecessor_lock.acquire(True)
-            self.thisNode.predecessor = other
-            self.fingerTable[0] = self.thisNode.predecessor
-            self.fingerTable_lock.release()
-            self.predecessor_lock.release()
+            try:
+                self.predecessor_lock.acquire(True)
+                try:
+                    self.thisNode.predecessor = other
+                    self.fingerTable[0] = self.thisNode.predecessor
+                finally:
+                    self.predecessor_lock.release()
+            finally:
+                self.fingerTable_lock.release()
 
             # Actually does nothing (except for perhaps file manager so why call for all services...send File_Service a message)
             #for s in services.values():
@@ -390,9 +400,9 @@ class Node():
     
     
     def fix_fingers(self,n=1):
+        if TEST_MODE:
+            print "Fix Fingers (" + str(self.thisNode) + ")"
         try:
-            if TEST_MODE:
-                print "Fix Fingers (" + str(self.thisNode) + ")"
             for i in range(0,n):
                 if self.thisNode.successor!= self.thisNode and self.thisNode.predecessor != self.thisNode:
                     self.next_finger = self.next_finger + 1
@@ -412,32 +422,35 @@ class Node():
             self.node_service.delay_enqueue( ("NODE_STABILIZE", self), MAINTENANCE_PERIOD)
 
     def update_finger(self,newNode,finger):
-        self.predecessor_lock.acquire(True)
-        self.successor_lock.acquire(True)
-        self.fingerTable_lock.acquire(True)
         if TEST_MODE:
-            print "Update finger " + str(finger) + ":  (" + str(self.thisNode) + ")"
-        self.fingerTable[finger] = newNode
-        self.fingerTable_lock.release()
+            print "Update finger: " + str(finger) + " Node(" + str(self.thisNode) + ")"
+
+        self.fingerTable_lock.acquire(True)
+        try:
+            self.fingerTable[finger] = newNode
+        finally:
+            self.fingerTable_lock.release()
+
         if finger == 1:
-            self.thisNode.successor= newNode
+            self.successor_lock.acquire(True)
+            try:
+                self.thisNode.successor = newNode
+            finally:
+                self.successor_lock.release()
         elif finger == 0:
-            self.thisNode.predecessor = newNode
-        self.successor_lock.release()
-        self.predecessor_lock.release()
-    
+            self.predecessor_lock.acquire(True)
+            try:
+                self.thisNode.predecessor = newNode
+            finally:
+                self.predecessor_lock.release()
+
     # ping our self.thisNode.predecessor.  pred = nil if no response
     def check_predecessor(self):
         try:
-
             if TEST_MODE:
                 print "Check Predecessor (" + str(self.thisNode) + ")"
             if(self.thisNode.predecessor != None):  # do this here or before it's called
-                dest_node = self.find_ideal_forward(self.thisNode.predecessor.key)
-                if dest_node != self.thisNode:
-                    self.send_message(Check_Predecessor_Message(self.thisNode, self.thisNode.predecessor.key),dest_node)
-                #else:  # short-circuit message loop/network if it's self-addressed
-                #    self.update_finger(self.thisNode, 0)
+                self.send_message(Check_Predecessor_Message(self.thisNode, self.thisNode.predecessor.key))
         finally:  # moved enqueue here to ensure we don't attempt to scheduling until we've completed a cycle
             self.node_service.delay_enqueue( ("NODE_FIX_FINGERS", self), MAINTENANCE_PERIOD )
 
@@ -456,8 +469,21 @@ class Node():
             destination = self.find_ideal_forward(msg.destination_key)
 
         if destination == self.thisNode and msg.dest_service == SERVICE_NODE:
-            #  self.node_service.send_message(msg)
-            raise "This is silly -- caller should just invoke method directly to bypass messaging/network"
+            #bypass the overhead of sockets for self-destined messages
+            if msg.type == Update_Message.Type( ):
+                self.update_finger(msg.reply_to, msg.finger)
+            elif msg.type == Stabilize_Reply_Message.Type():
+                self.stabilize(msg)
+            elif msg.type == Notify_Message.Type():
+                self.get_notified(msg)
+            elif msg.type == Stablize_Message.Type(): #self-addressed
+                self.stabilize(Stabilize_Reply_Message(msg.origin_node, msg.destination_key, self.thisNode.predecessor))
+            elif msg.type == Exit_Message.Type():
+                self.peer_polite_exit(msg.reply_to)
+            elif msg.type == Check_Predecessor_Message.Type():
+                self.update_finger(self.thisNode, 0)
+            else:
+                raise Exception("This is silly -- caller should just invoke method directly to bypass messaging/network")
         else:  #network-bound message
             self.node_service.send_message(msg, destination)
     

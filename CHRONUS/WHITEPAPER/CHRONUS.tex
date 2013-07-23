@@ -153,14 +153,20 @@ When Bob sees that notification, he can see Alice is closer than whoever his pre
 One of the major design choices for Chord implementation is not figuring which node is responsible for a given key, but figuring out who decides which node is responsible for a given key.
 
 
-In our implemetation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  
+In our implemetation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  A node that does not have a predecessor assigns itself as its own predecessor and considers itself responsible for all messages it receives.  COUNTER WHY THIS IS A BAD IDEA.  THIS IS A VERY DEFINATE CRITICISM 
 
-\subsubsection{Redundency and the general idea of backup}
-Due to the potentially volatile nature 
+\subsubsection{reassigning responsibility}
+Due to the potentially volatile nature of a peer-to-peer network, Chord has to be able to handle (or at the very least, tolerate) an arbitrary amount of churn.  We've already detailed how Chord gradually guides nodes into their correct locations after they join the network.  The same is true for when a node leaves the network; the stabilize procedure will guide nodes to their correct successors and predecessors.  However, we can exert more control over how to handle nodes levea
+
+A node can leave the ring in one of two ways.  A node can either suddenly
+
+\subsubsection{the general idea of backup}
+Unfortunately, it is impossible that every time a node leave the network it will do so politely.  If a node suddenly quits, the data it had stored goes with it
+
+This process does not cascade, as nodes will only backup things it is responsible for.
 
 
-
-
+\subsubsection{}
 \section{MapReduce}
 At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then preduces a result for each map operation.  This intermediate data is then reduced by orther slave nodes then returned to the user. 
 
@@ -177,7 +183,6 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 \section{CHRONUS}
 
 
-We can have multiple non interacting secure file systems.
 
 
 \subsection{Implementation}
@@ -250,6 +255,7 @@ As a whole yes, but merging two sorted lists is $O(n)$ time.  A distributed merg
 \subsubsection{Disjoint rings}
 
 \subsubsection{The security we didn't do}
+We can have multiple non interacting secure file systems.
 
 
 \section{Experiments}

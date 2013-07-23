@@ -27,7 +27,7 @@ class Peer_Local():  # inbound connections
         try:
             # start the server
             self.server_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
-            self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            #self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.server_socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1) # for now since we act like UDP
             self.server_socket.bind(("", host_port))
             self.server_socket.listen(128)  # set backlog to max
@@ -81,7 +81,7 @@ class Peer_Local():  # inbound connections
     def server_coro(self, coro=None):
         coro.set_daemon()
         clients = set()
-        while not self.exit:
+        while True:
             try:
                 cmd, item = yield coro.receive()
                 if self.exit:
@@ -130,10 +130,12 @@ class Peer_Local():  # inbound connections
             try:
                 data = yield client_socket.recv_msg()
                 if not data:
-                    self._server_coro.send((NETWORK_PEER_DISCONNECTED, (client_socket, client_addr)))
+                    if not self.exit:
+                        self._server_coro.send((NETWORK_PEER_DISCONNECTED, (client_socket, client_addr)))
                     break
                 else:
-                    self._server_coro.send((NETWORK_PEER_DATA_RECEIVED, (client_socket, client_addr, data)))
+                    if not self.exit:
+                        self._server_coro.send((NETWORK_PEER_DATA_RECEIVED, (client_socket, client_addr, data)))
                     #break # for now we expect to act more like UDP
             except:
                 show_error()

@@ -168,7 +168,7 @@ class File_Service(Service):
             raise Exception("Mismatched service recipient for message.")
         elif msg.type == Database_Put_Message_Response.Type():
             # placeholder but will allow us to get exact storage times across the network if we determine when all sent hashes have a response
-            #print "Write block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
+            print "Write block requested by " + str(msg.origin_node) + " was fulfilled by " + str(msg.storage_node)
             if self.upload_files.has_key(msg.keyfile_hash):
                 if self.upload_files[msg.keyfile_hash].confirm(msg):
                     del self.upload_files[msg.keyfile_hash]

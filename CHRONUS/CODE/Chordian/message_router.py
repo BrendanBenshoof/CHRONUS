@@ -30,42 +30,50 @@ class Message_Router():
 
     def _message_dispatcher(self, coro=None):
         coro.set_daemon()
-        while not self.exit:
+        thread_pool = AsynCoroThreadPool(2 * multiprocessing.cpu_count())
+        while True:
             try:
                 message = yield coro.receive()
 
                 if self.exit:  #abandon any work & just cleanly exit
                     break
 
-                if message.dest_service in self._services.keys():
-                    sw = Stopwatch()
-                    self._services[message.dest_service].handle_message(message)
-
-                    if message.type == Message_Recv_Peer_Data.Type():
-                        logger.debug( "ROUTER: net receiving " + message.network_msg.Type())
-                    elif message.type == Message_Send_Peer_Data.Type():
-                        logger.debug( "ROUTER: net dispatching " + message.network_msg.Type())
-                    else:
-                        logger.debug( "ROUTER: dispatching " + message.Type())
-
-                    # for long running tasks (CPU-bound) you should pass off to a dedicated thread or tune
-                    # for I/O bound tasks you should queue the work until an I/O thread-pool thread can handle it
-                    if sw.ms() > 1000:
-                        print "BUG!!! %s(%s) took %0.3f ms -- FIX IT!!'" % (message.dest_service, message.Type(), sw.ms())
-                else:
-                    print "Unregistered service '" + message.service + "'"
+                yield thread_pool.async_task(coro, self._dispatch_message, message)
             except:
                 show_error()
                 #raise
 
         print "Coro(_message_dispatcher) exiting"
 
+    def _dispatch_message(self,message):
+        if message.dest_service in self._services.keys():
+            sw = Stopwatch()
+            self._services[message.dest_service].handle_message(message)
+
+            #if message.type == Message_Recv_Peer_Data.Type():
+            #    logger.debug( "ROUTER: net receiving " + message.network_msg.Type())
+            #elif message.type == Message_Send_Peer_Data.Type():
+            #    logger.debug( "ROUTER: net dispatching " + message.network_msg.Type())
+            #else:
+            #    logger.debug( "ROUTER: dispatching " + message.Type())
+
+            # for long running tasks (CPU-bound) you should pass off to a dedicated thread or tune
+            # for I/O bound tasks you should queue the work until an I/O thread-pool thread can handle it
+            if sw.ms() > 50:
+                print "INVESTIGATE!!! %s(%s) took %0.3f ms!! Tuning may be required.'" % (message.dest_service, message.Type(), sw.ms())
+        else:
+            print "Unregistered service '" + message.service + "'"
+
     def register_service(self, service_id, service):
         if not service_id in self._services.keys():
             self._services[service_id] = service
 
     def route(self, message):
-        self._dispatcher_coro.send(message)
+        self._dispatch_message(message)
+        #if len(self._dispatcher_coro._msgs) > 100:
+        #    print "Backlog is " + str(len(self._dispatcher_coro._msgs)) + " on message dispatch!!! Find blocking service."
+        #if not self.exit:
+        #    self._dispatcher_coro.send(message)
 
     def stop(self):
         self.exit = True

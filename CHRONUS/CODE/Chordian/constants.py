@@ -60,12 +60,21 @@ class Stopwatch():
 
 
     def ms(self):
-        return (self.t2-self.t1)*1000.0
+        t2 = self.t2
+        if t2 == self.t1:
+            t2 = time.time()
+        return (t2-self.t1)*1000.0
 
 def show_error():
     try:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, exc_obj.message if len(exc_obj.message) else exc_obj.strerror, fname, exc_tb.tb_lineno)
+        msg = ""
+        try:
+            msg = exc_obj.message if len(exc_obj.message) else exc_obj.strerror
+        except:
+            pass
+
+        print(exc_type, msg, fname, exc_tb.tb_lineno)
     except:
         raise

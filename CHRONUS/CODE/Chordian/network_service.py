@@ -57,7 +57,7 @@ class Network_Service(Service):
         self.servers[msg.host_ip + ":" + str(msg.host_port)] = server
         if msg.success_callback_msg and result:
             self.message_router.route(msg.success_callback_msg)
-        elif msg.failed_callback_msg and result:
+        elif msg.failed_callback_msg and not result:
             self.message_router.route(msg.failed_callback_msg)
 
     def on_server_stop(self, context):

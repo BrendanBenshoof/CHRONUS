@@ -17,25 +17,25 @@ class Peer_Remote():  # outbound connections
 
     def _server_connect(self, coro=None):
         try:
-            logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
+            #logger.debug('CLIENT: connecting to peer at %s:%s', self.remote_ip, str(self.remote_port))
             self.outbound_socket = AsynCoroSocket(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
             self.outbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1) # if you're gonna act like UDP
 
             yield self.outbound_socket.connect((self.remote_ip, self.remote_port))
-            logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
+            #logger.debug('CLIENT: connected to peer at %s:%s', self.remote_ip, str(self.remote_port))
             self._send_coro = Coro(self._client_send)
             #Coro(self._client_recv) # unneeded if we don't utilize bi-directional communication in UDP style messaging
 
             self.network_service.on_server_connect(self, self.context)
         except:
             show_error()
-            raise
+            #raise
 
     def _client_recv(self, coro=None):
-        while not self.exit:
+        while True:
             try:
                 data = yield self.outbound_socket.recv_msg()
-                if data == None or len(data) == 0:
+                if data == None or len(data) == 0 or self.exit:
                     break
                 #logger.debug('CLIENT: received data to peer at %s:%s (Data: %s)', self.remote_ip, str(self.remote_port), data)
                 self.network_service.on_peer_data_received(data)
@@ -63,16 +63,17 @@ class Peer_Remote():  # outbound connections
 
         self.outbound_socket.shutdown(socket.SHUT_RDWR)
         self.outbound_socket.close()
-        logger.debug('CLIENT: disconnected from %s:%s', self.remote_ip, str(self.remote_port))
+        #logger.debug('CLIENT: disconnected from %s:%s', self.remote_ip, str(self.remote_port))
         #print "Coro(_client_send) exiting"
 
 
     def send(self, data, context):
-        self._send_coro.send((None, (data, context)))
+        if not self.exit:
+            self._send_coro.send((None, (data, context)))
 
     def stop(self, context=None):
         self.exit = True
-        logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
+        #logger.debug('CLIENT: disconnecting from %s:%s', self.remote_ip, str(self.remote_port))
         self._send_coro.send((NETWORK_PEER_DISCONNECT, (None,context)))
 
 

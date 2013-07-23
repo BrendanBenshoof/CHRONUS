@@ -29,7 +29,7 @@ class Node_Db_Context(object):
             records = shelve.open(self.db)
             records[hash_name] = content
             records.close()
-            #print str(self.node_info) + " write block: " + hash_name
+            print str(self.node_info) + " write block: " + hash_name
         finally:
             self.sync.writer_release()
 
@@ -43,7 +43,7 @@ class Node_Db_Context(object):
                 print str(self.node_info) + " read block: " + hash_name + " FAILED!!"
                 content = "404 Error"
             else:
-                #print str(self.node_info) + " read block: " + hash_name
+                print str(self.node_info) + " read block: " + hash_name
                 content = records[hash_name]    #this retrieved COPY OF CONTENT
             records.close()
         finally:
@@ -71,12 +71,16 @@ class Shelver_Service(Service):
             filename = str(msg.destination_key)
             db_context = self.__get_database_context(msg.storage_node)
             content = db_context.read(str(filename))
-            self.send_message(Database_Get_Message_Response(msg.origin_node,msg.storage_node, msg.destination_key, content),msg.origin_node)
+            self.send_message(Database_Get_Message_Response(msg.origin_node,msg.storage_node, msg.destination_key, content),
+                              msg.origin_node if msg.origin_node != msg.storage_node else None)
         elif msg.type == Database_Put_Message.Type():
             filename = str(msg.destination_key)
             db_context = self.__get_database_context(msg.storage_node)
             db_context.write(filename, msg.file_contents)
-            self.send_message(Database_Put_Message_Response(msg.origin_node, msg.storage_node, msg.destination_key, msg.keyfile_hash),msg.origin_node)
+            self.send_message(Database_Put_Message_Response(msg.origin_node, msg.storage_node, msg.destination_key, msg.keyfile_hash),
+                              msg.origin_node if msg.origin_node != msg.storage_node else None)
+
+        # TO DO: Properly implement these messages and their accompanying functionality in the new model
         elif msg.type == "BACKUP":
             self.integrate(msg.get_content("backup"))
         elif msg.type == "CHANGE_IN_RESPONSIBILITY":

@@ -70,7 +70,7 @@ def main():
     local_port = int(args[1]) if len(args) > 1 else random.randint(9000, 9999)
     other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
-    local_mode=False
+    local_mode=True
     local_ip = ""  # bind to all interfaces
 
     public_ip = "127.0.0.1"
@@ -85,8 +85,8 @@ def main():
 
     peer_coordinator = Chordian()
     try:
-        #peer_coordinator.test_local(1)  # 2 nodes
-        peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
+        peer_coordinator.test_local(2)  # 2 nodes
+        #peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
         peer_coordinator.attach_console() # allow us to send k/b commands
         pass
     finally:

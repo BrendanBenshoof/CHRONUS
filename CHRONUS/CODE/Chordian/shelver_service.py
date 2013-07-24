@@ -79,13 +79,15 @@ class Shelver_Service(Service):
             db_context.write(filename, msg.file_contents)
             self.send_message(Database_Put_Message_Response(msg.origin_node, msg.storage_node, msg.destination_key, msg.keyfile_hash),
                               msg.origin_node if msg.origin_node != msg.storage_node else None)
-
         # TO DO: Properly implement these messages and their accompanying functionality in the new model
         elif msg.type == "BACKUP":
             self.integrate(msg.get_content("backup"))
         elif msg.type == "CHANGE_IN_RESPONSIBILITY":
             self.change_in_responsibility(msg.new_pred_key, msg.my_key)
+        elif msg.type == Message_Console_Command.Type():
+            self.handle_command(msg)
         return True
+
 
     def __get_database_context(self, node_info):
         self.sync.acquire()
@@ -114,7 +116,10 @@ class Shelver_Service(Service):
         ### return a dict of command-strings
         return ["put","get","test_store","test_get"]
 
-    def handle_command(self, command_st, args):
+    def handle_command(self, msg):
+        command_st = msg.command
+        args = msg.args
+
         ### one of your commands got typed in
         if command_st == "put" and len(args) == 2:
             key = args[0]
@@ -139,6 +144,8 @@ class Shelver_Service(Service):
         for k in new_data.keys():
             self.__write_record(k,new_data[k])
 
+
+    #this doesnt work in new architecture...would have to be updated
     def change_in_responsibility(self,new_pred_key, my_key):
         self.own_start = new_pred_key
         self.own_end = my_key
@@ -156,6 +163,7 @@ class Shelver_Service(Service):
         records.close()
         self.write_lock.release()
 
+    #this doesnt work in new architecture...would have to be updated
     def periodic_backup(self, node):
         time.sleep(60)
         if not self.own_start is None:

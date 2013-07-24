@@ -151,15 +151,13 @@ When Bob sees that notification, he can see Alice is closer than whoever his pre
 
 \subsubsection{Responsibility}
 One of the major design choices for Chord implementation is not figuring which node is responsible for a given key, but figuring out who decides which node is responsible for a given key.
-
-
 In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  A node that does not have a predecessor assigns itself as its own predecessor and considers itself responsible for all messages it receives.  COUNTER WHY THIS IS A BAD IDEA.  THIS IS A VERY DEFINITE CRITICISM 
 
 
 \subsubsection{reassigning responsibility}
-When a node $n$ changes his successor, he asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is better suited to hold into, packages it up, and sends it along to $n$.  The successor does not have to delete this data. If fact, keeping this data as a backup is benefitial to the network as a whole. 
+When a node $n$ changes his successor, he asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is better suited to hold into, packages it up, and sends it along to $n$.  The successor does not have to delete this data. If fact, keeping this data as a backup is beneficial to the network as a whole. 
 
-\subsubsection{hanlding churn and politely quitting}
+\subsubsection{handling churn and politely quitting}
 Due to the potentially volatile nature of a peer-to-peer network, Chord has to be able to handle (or at the very least, tolerate) an arbitrary amount of churn.  We've already detailed how Chord gradually guides nodes into their correct locations after they join the network.  The same is true for when a node leaves the network; the stabilize procedure will guide nodes to their correct successors and predecessors.  However, we can exert more control over how to handle nodes leaving the network
 
 A node can leave the ring in one of two ways.  A node can either suddenly drop out of existence, or a node can tell the network he is about to leave, letting his successor and predecessor immediately perform the needed changes.
@@ -176,7 +174,7 @@ At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A ta
 
 Summary of MapReduce \cite{mapreduce} 
 
-Hadoop is this an open source thingy for MapReduce \cite{hadoop}
+Hadoop is this an open source thing for MapReduce \cite{hadoop}
 
 \subsection{Map}
 \subsection{Reduce}
@@ -188,7 +186,7 @@ Hadoop is this an open source thingy for MapReduce \cite{hadoop}
 
 
 \subsection{Implementation}
-Parapgraph here about the bidding nature of the amazon market.
+Paragraph here about the bidding nature of the amazon market.
 age of the inherent ring structure.
 
 
@@ -202,10 +200,11 @@ We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Ch
 \subsubsection{Chunking}
 We implemented two ways of storing a file.  The first is the NORMAL WAY.  The second approach, forwarded by Dabek ETAL \cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and gets stored in the corresponding location.  To find these disparate  chunks, nodes retreive a \emph{key block}, which is stored at the location corresponding to the hash of the whole file.  This key value contains 
 
-The advantage of chunking allows for different options such as FUNKY FOUNTAIN OPERATIONS.  However, using an automated file replication technique such as IRM \cite{IRM} IS INCOMPATIBLE.
+The chunking allows for numerous advantages.  Each piece of the overall file would (ideally) be stored in a different node, each with a different backup.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. 
 
-\subsubsection{backup implementation and mechanics}
-Paragraph about backup
+Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}, where redundant chunks are created, but any combination of a particular number of chunks is sufficient to recreate the file..  
+
+However, using an automated file replication technique such as IRM \cite{IRM} HAS LIMITTED EFFECTIVENESS?.
 
 \subsubsection{Issues of normal MapReduce } 
 
@@ -241,6 +240,7 @@ We don't have a master node, we have a stager.  If he goes down, everything ends
 
 
 \subsubsection{Redundancy of the Slave nodes}
+Each worker node backs up each job it gets.  Once a job is completed, the worker immediately contacts its successsor and informs him of removing the backup
 We backup our jobs and remove the backups as we're going
 
 \subsubsection{How do we know when we're done}

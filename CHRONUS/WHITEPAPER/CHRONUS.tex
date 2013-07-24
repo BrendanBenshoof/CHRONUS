@@ -157,7 +157,7 @@ In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$,
 
 
 \subsubsection{reassigning responsibility}
-When a node discovers that he is no longer responsible for certain things, this is what happens
+When a node discovers that he is no longer responsible for some data,
 
 \subsubsection{hanlding churn and politely quitting}
 Due to the potentially volatile nature of a peer-to-peer network, Chord has to be able to handle (or at the very least, tolerate) an arbitrary amount of churn.  We've already detailed how Chord gradually guides nodes into their correct locations after they join the network.  The same is true for when a node leaves the network; the stabilize procedure will guide nodes to their correct successors and predecessors.  However, we can exert more control over how to handle nodes leaving the network

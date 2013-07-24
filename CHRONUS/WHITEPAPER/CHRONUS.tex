@@ -104,7 +104,7 @@ In addition, the network topology is distributed among various peers.  Each peer
 
 \subsection{Related Work}
 
-The Cooperative File System (CFS) is a file sharing system built on top of Chord \cite{CFS} which extended the idea of storing files to storing chunks of files. 
+The Cooperative File System (CFS) is a file sharing system built on top of Chord \cite{CFS} which extended the idea of storing files to storing chunks of files.  HOW BIG THE CHUNKS ARE PERFORMANCE ETC ETC
 
 P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations
 
@@ -157,7 +157,7 @@ In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$,
 
 
 \subsubsection{reassigning responsibility}
-When a node discovers that he is no longer responsible for some data,
+When a node $n$ changes his successor, he asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is better suited to hold into, packages it up, and sends it along to $n$.  The successor does not have to delete this data. If fact, keeping this data as a backup is benefitial to the network as a whole. 
 
 \subsubsection{hanlding churn and politely quitting}
 Due to the potentially volatile nature of a peer-to-peer network, Chord has to be able to handle (or at the very least, tolerate) an arbitrary amount of churn.  We've already detailed how Chord gradually guides nodes into their correct locations after they join the network.  The same is true for when a node leaves the network; the stabilize procedure will guide nodes to their correct successors and predecessors.  However, we can exert more control over how to handle nodes leaving the network
@@ -199,14 +199,10 @@ age of the inherent ring structure.
 We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls.
 
 
-\subsubsection{chunking and mechanics }
+\subsubsection{Chunking}
+We implemented two ways of storing a file.  The first is the NORMAL WAY.  The second approach, forwarded by Dabek ETAL \cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and gets stored in the corresponding location.  To find these disparate  chunks, nodes retreive a \emph{key block}, which is stored at the location corresponding to the hash of the whole file.  This key value contains 
 
-Dabek CFS \cite{CFS}
-
-Design choice of CFS and replication 
-
-
-Rather than storing the whole file in the appropriate node, we instead split the file into arbitrary-sized chunks of data.  Each of the chunks are then hashed and sent to their corresponding node.
+The advantage of chunking allows for different options such as FUNKY FOUNTAIN OPERATIONS.  However, using an automated file replication technique such as IRM \cite{IRM} IS INCOMPATIBLE.
 
 \subsubsection{backup implementation and mechanics}
 Paragraph about backup
@@ -221,15 +217,20 @@ To do a fully distributed map reduce, each node takes on responsibilities of bot
 \subsubsection{Recap the issues  of normal MapReduce  and why ours is bettter} 
 
 
+\subsubsection{Handle nodes quitting while a job is running, politely or otherwise}
+
+
 \subsubsection{Writing your own MapReduce}
 The big advantage of our system is the ease of development.  All a developer needs to do to write three functions: the staging function, map, and reduce.  The staging function splits the work into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might a line of text in a document, OR OTHER EXAMPLES
 
 The map function works as a user would expect, running a function over a series of values and outputing a list of intermediate \emph{data atoms}.  Reduce takes in two \emph{data atoms} and combines them into one.
 
-The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.
+The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work without any  
 
 
 Sample code can be found in FIGURE SOME NUMBER
+
+
 
 
 

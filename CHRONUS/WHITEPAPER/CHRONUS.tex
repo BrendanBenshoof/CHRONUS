@@ -57,8 +57,7 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 \maketitle
 
 \begin{abstract}
-DRAFT ABSTRACT:  We developed a Peer-to-peer architecture for software as a service. We show viability by implementing MapReduce.
-MapReduce does not automatically distribute work among slave nodes without configuration.  In Chord, nodes are evenly distributed and  are responsible for files based on their position in the network. We exploit this property to automatically distribute MapReduce tasks evenly among nodes in the same manner. 
+Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network. We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant
 \end{abstract}
 
 
@@ -169,19 +168,22 @@ When a node politely quits, he informs both his successor and predecessor and gi
 Unfortunately, it is impossible that every time a node leave the network it will do so politely.  If a node suddenly quits, the data it had stored goes with it. To prevent data from becoming irretrievable, a node can periodically send backups to its successor.  So as not to overwhelm the ring with a cascade of backups of backups, the node only passes along what it considers itself responsible for, which changes as nodes enter and leave the network.
 
 \section{MapReduce}
-At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then reduces a result for each map operation.  This intermediate data is then reduced by other slave nodes then returned to the user. 
+\subsubsection{History}
+
+At its core, MapReduce \cite{mapreduce} is a system for division of labor.  One very popular implementation of MapReduce is  Apache's Hadoop. \cite{hadoop}.
+
+\subsubsection{Example}
+
+A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then reduces a result for each map operation.  This intermediate data is then reduced by other slave nodes then returned to the user. 
+
+The classic example given for MapReduce is counting the word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers  \footnote{Workers can further split up the chunks among other workers.}.  Each worker then goes thru each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
 
-Hadoop is this an open source thing for MapReduce \cite{hadoop}
 
-\subsubsection{Map}
-
-\subsubsection{Reduce}
-
+\subsubsection{Map Reduce advantages and disadvantages}
+this is a good survey \cite{mrsurvey}.
 
 \section{CHRONUS}
-
-
 
 
 \subsection{Implementation}
@@ -197,29 +199,22 @@ We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Ch
 
 
 \subsubsection{Chunking}
-We implemented two ways of storing a file.  The first is to store the whole file the node 
-corresponding the hash of the file.  The second approach, presented  by Dabek ETAL 
-\cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and 
-gets stored in the corresponding location.  To find these disparate  chunks, nodes 
-retreive a \emph{key block}, which is stored at the location corresponding to the hash of 
-the whole file.  This key block, when retrieved, tells the node the has value 
-corresponding to the rest of the chunks.
+We implemented two ways of storing a file.  The first is to store the whole file the node corresponding the hash of the file.  The second approach, presented  by Dabek ETAL \cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and gets stored in the corresponding location.  To find these disparate  chunks, nodes retreive a \emph{key block}, which is stored at the location corresponding to the hash of the whole file.  This key block, when retrieved, tells the node the has value corresponding to the rest of the chunks.
 
 The chunking allows for numerous advantages.  Each piece of the overall file would (ideally) be stored in a different node, each with a different backup.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. Finally, When Chord uses some sort of caching scheme like that described in CFS \cite{CFS}, caching chunks as opposed to the entire file resulted in about 1000 times less storage overhead.  The results are likely similar with autonomous replication processes like IRM \cite{IRM}.
 
 Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}. With erasure codes, redundant chunks are created but any combination of a particular number of chunks is sufficient to recreate the file.  The additional redundency comes at the cost of using up more storage space and making chuning process slightly longer
 
 
-\subsubsection{Issues of normal MapReduce } 
-
-
-
 
 \subsection{Distributed MapReduce}
 To do a fully distributed map reduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.   
+
+
+One of the major feature of our implementation of MapReduce is the amount of information the masters know about the network.  The stager does not know who the worker nodes are, he only knows that hash values for the tasks and trusts the Chord routing that they end up in the proper location (WHAT HAPPENS IF A MESSAGE CHUNK FAILS.)
+
+We present our implementation of MapReduce not as a direct competitior to MapReduce, but as proof of a more versatile system able to support many complex operations.
 \subsubsection{Recap the issues  of normal MapReduce  and why ours is bettter} 
-
-
 
 
 \subsubsection{Writing your own MapReduce}
@@ -227,16 +222,13 @@ The big advantage of our system is the ease of development.  All a developer nee
 
 The map function works as a user would expect, running a function over a series of values and outputing a list of intermediate \emph{data atoms}.  Reduce takes in two \emph{data atoms} and combines them into one.
 
-The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work without any  
+The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work automatically.  The master node does not need to keep track of the status of the network. 
 
 
 Sample code can be found in FIGURE SOME NUMBER
 
 
 
-
-
-\subsubsection{Running Map Reduce}
 
 \subsubsection{Redundancy of the "Master" Node}
 We don't have a master node, we have a stager.  If he goes down, everything ends up in his successor
@@ -259,7 +251,7 @@ As a whole yes, but merging two sorted lists is $O(n)$ time.
 
 
 \subsubsection{Disjoint rings}
-We can assign every node a \emph{ring id}.  When a node creates a ring, he randomly chooses a number for the ring id.  Nodes joining that ring use that ring's id.  If a node finds another node on differing ring, he compares the their ring id's and leaves if 9
+We can assign every node a \emph{ring id}.  When a node creates a ring, he randomly chooses a number for the ring id.  Nodes joining that ring use that ring's id.  If a node finds another node on differing ring, he compares the their ring id's and leaves if  
 
 \subsubsection{The security we didn't do}
 We can have multiple non interacting secure file systems.
@@ -267,6 +259,9 @@ We can have multiple non interacting secure file systems.
 
 \section{Experiments}
 A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite{amazon-micro}.
+
+We ran word count on James Joyce's \emph{Ulysses} \cite{joyce1924ulysses}.
+
 \section{Results}
 
 \section{Conclusion}

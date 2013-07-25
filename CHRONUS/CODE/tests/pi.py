@@ -18,7 +18,7 @@ def map_func(atom):
         if (x**2.0)+(y**2.0) <= 1.0:
             resultin+=1
         total+=1
-    results = (resultin, total, [jobid])
+    results = (resultin, total)
     atom = Data_Atom("", atom.hashkeyID, results)    
     atom.jobid = jobid
     return atom
@@ -34,7 +34,7 @@ def reduce_func(atom1, atom2):
     a2 = atom2.contents[0]
     b1 = atom1.contents[1]
     b2 = atom2.contents[1]
-    results = (a1+a2, b1+b2, atom1.contents[2] + atom2.contents[2])
+    results = (a1+a2, b1+b2)
     atom = Data_Atom("", atom1.hashkeyID, results)
     atom.jobid = atom1.jobid
     return atom

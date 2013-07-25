@@ -20,7 +20,7 @@ import sys
 import json
 from urllib2 import urlopen
 
-local_mode=False
+local_mode=True
 
 def myIP():
     if not local_mode:
@@ -102,6 +102,9 @@ def console():
             for l in file2open:
                 loaded_script.put(l)
             file2open.close()
+        elif command == "stat":
+			input_size = node.todo.qsize();
+			print "backlog: "+str(input_size)
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

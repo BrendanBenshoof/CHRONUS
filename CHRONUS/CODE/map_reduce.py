@@ -28,6 +28,7 @@ def disribute_fairly(atoms):
 class Data_Atom(object):
     def __init__(self, jobid, hashkeyID, contents):
         self.jobid = hash_str(jobid)
+        self.mapped = False
         if hashkeyID is None:
             self.hashkeyID = generate_random_key()
         else:
@@ -120,23 +121,28 @@ class Map_Reduce_Service(Service):
                 if len(jobs_withdest[k]) > 0:
                     msg = Map_Message(jobid,[jobs_withdest[k].pop()], map_func, reduce_func)
                     msg.reply_to = self.owner
+                    msg.origin = self.owner
                     self.send_message(msg,k)
 
     def Mapreduce_worker(self):
         while True:
-            time.sleep(0.1)
             newjob = job_todo.get(True)
             if newjob.type == MAP:
                 self.domap(newjob)
                 job_todo.task_done()
-            if newjob.type == REDUCE:
-                self.doreduce(newjob)
-                job_todo.task_done()
+            elif newjob.type == REDUCE:
+                if node.I_own_hash(newjob.destination_key):
+                    self.doreduce(newjob)
+                    job_todo.task_done()
+                else:
+                    self.send_message(newjob,newjob.origin)
 
     def doreduce(self,msg):
             jobid = msg.jobid
             print "in reduce",jobid
             atom = msg.dataAtom
+            if not atom.mapped:
+                print "I am trying to reduce an unmapped atom!"
             myreduce = msg.reduce_function
             if jobid in self.temp_data.keys():
                 self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
@@ -155,14 +161,16 @@ class Map_Reduce_Service(Service):
                 final_result = reduce(reduce_func, results)
             else:
                 final_result = results[0]
+            final_result.mapped = True
             newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
             newmsg.destination_key = msg.reply_to.key
+            newmsg.origin = msg.origin
             self.send_message(newmsg, msg.reply_to)
 
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []
         forward_dests = disribute_fairly(jobs)
-        #print forward_dests.keys()
+        print forward_dests.keys()
         if self.owner in forward_dests.keys():
             stuff_to_map = forward_dests[self.owner][:]
             try:
@@ -174,9 +182,10 @@ class Map_Reduce_Service(Service):
         while jobs_sent < jobs_total:
             for k in forward_dests.keys():
                 if len(forward_dests[k]) > 0:
-                    dataom = forward_dests[k].pop()
-                    msg = Map_Message(dataom.jobid,[dataom], map_func, reduce_func)
-                    msg.reply_to = self.owner
+                    datatom = forward_dests[k].pop()
+                    msg = Map_Message(datatom.jobid,[datatom], map_func, reduce_func)
+                    msg.origin = reply_to
+                    msg.reply_to = reply_to
                     self.send_message(msg,k)
                     jobs_sent+=1
         return stuff_to_map
@@ -188,6 +197,7 @@ class Map_Message(Message):
         self.map_function = map_function  #store you function here
         self.dataset = dataset  #list of atoms
         self.reduce_function = reduce_function
+        self.origin = None
         self.type = MAP
 
 
@@ -198,6 +208,7 @@ class Reduce_Message(Message):
         self.dataAtom = dataAtom  #single atom
         self.reduce_function = reduce_function
         self.type = REDUCE
+        self.origin = None
 
 
 def cry():

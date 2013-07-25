@@ -76,7 +76,7 @@ class Topology(Service):
                     self.send_message(msg, msg.reply_to)
             else:
                 print "render inquery"
-                render(record, linkset)
+                print record
 
 def render(record, edges):
     import matplotlib.pyplot as plt

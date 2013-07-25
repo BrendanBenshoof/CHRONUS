@@ -5,8 +5,7 @@ import shelver as db
 import Topology_Service
 import hash_util
 import random
-#import simple_network
-import hijack_network
+import simple_network
 import node
 import time
 import filesystem_service
@@ -55,7 +54,7 @@ def setup_Node(addr="localhost", port=None):
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
     #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
-    node.net_server = hijack_network.Hijack_Network("",node.ctrlPort)#simple_network.NETWORK_SERVICE("", node.ctrlPort)
+    node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
     #### setup services here
     database_name = str(node.thisNode.key)+".db"
     add_service(db.Shelver(database_name))

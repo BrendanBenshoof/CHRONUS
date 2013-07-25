@@ -74,9 +74,9 @@ P2P networks have resulted in an unprecedented amount of data being purveyed thr
 \subsubsection{SaaS}
 In recent years, there has been a trend of crowdsourcing large and complicated tasks among willing participants.  
 
-Folding@home \cite{folding}. 
+Folding@home is a distributed program for \cite{folding}. 
 
-seti at home that kind f thing
+seti at home that kind of thing
 
 
 
@@ -151,6 +151,7 @@ When Bob sees that notification, he can see Alice is closer than whoever his pre
 
 \subsubsection{Responsibility}
 One of the major design choices for Chord implementation is not figuring which node is responsible for a given key, but figuring out who decides which node is responsible for a given key.
+
 In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  A node that does not have a predecessor assigns itself as its own predecessor and considers itself responsible for all messages it receives.  COUNTER WHY THIS IS A BAD IDEA.  THIS IS A VERY DEFINITE CRITICISM 
 
 
@@ -170,14 +171,12 @@ Unfortunately, it is impossible that every time a node leave the network it will
 \section{MapReduce}
 At its core, MapReduce \cite{mapreduce} is a system for division of labor.  A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then reduces a result for each map operation.  This intermediate data is then reduced by other slave nodes then returned to the user. 
 
-\subsection{Summary}
-
-Summary of MapReduce \cite{mapreduce} 
 
 Hadoop is this an open source thing for MapReduce \cite{hadoop}
 
-\subsection{Map}
-\subsection{Reduce}
+\subsubsection{Map}
+
+\subsubsection{Reduce}
 
 
 \section{CHRONUS}
@@ -198,13 +197,18 @@ We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Ch
 
 
 \subsubsection{Chunking}
-We implemented two ways of storing a file.  The first is the NORMAL WAY.  The second approach, forwarded by Dabek ETAL \cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and gets stored in the corresponding location.  To find these disparate  chunks, nodes retreive a \emph{key block}, which is stored at the location corresponding to the hash of the whole file.  This key value contains 
+We implemented two ways of storing a file.  The first is to store the whole file the node 
+corresponding the hash of the file.  The second approach, presented  by Dabek ETAL 
+\cite{CFS}, is to break the files into chunks.  Each chunk gets its own hash value and 
+gets stored in the corresponding location.  To find these disparate  chunks, nodes 
+retreive a \emph{key block}, which is stored at the location corresponding to the hash of 
+the whole file.  This key block, when retrieved, tells the node the has value 
+corresponding to the rest of the chunks.
 
-The chunking allows for numerous advantages.  Each piece of the overall file would (ideally) be stored in a different node, each with a different backup.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. 
+The chunking allows for numerous advantages.  Each piece of the overall file would (ideally) be stored in a different node, each with a different backup.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. Finally, When Chord uses some sort of caching scheme like that described in CFS \cite{CFS}, caching chunks as opposed to the entire file resulted in about 1000 times less storage overhead.  The results are likely similar with autonomous replication processes like IRM \cite{IRM}.
 
-Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}, where redundant chunks are created, but any combination of a particular number of chunks is sufficient to recreate the file..  
+Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}. With erasure codes, redundant chunks are created but any combination of a particular number of chunks is sufficient to recreate the file.  The additional redundency comes at the cost of using up more storage space and making chuning process slightly longer
 
-However, using an automated file replication technique such as IRM \cite{IRM} HAS LIMITTED EFFECTIVENESS?.
 
 \subsubsection{Issues of normal MapReduce } 
 
@@ -212,11 +216,10 @@ However, using an automated file replication technique such as IRM \cite{IRM} HA
 
 
 \subsection{Distributed MapReduce}
-To do a fully distributed map reduce, each node takes on responsibilities of both a slave and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.   
+To do a fully distributed map reduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.   
 \subsubsection{Recap the issues  of normal MapReduce  and why ours is bettter} 
 
 
-\subsubsection{Handle nodes quitting while a job is running, politely or otherwise}
 
 
 \subsubsection{Writing your own MapReduce}
@@ -234,6 +237,7 @@ Sample code can be found in FIGURE SOME NUMBER
 
 
 \subsubsection{Running Map Reduce}
+
 \subsubsection{Redundancy of the "Master" Node}
 We don't have a master node, we have a stager.  If he goes down, everything ends up in his successor
 
@@ -247,15 +251,15 @@ We backup our jobs and remove the backups as we're going
 
 
 \subsection{In which we address possible criticism}
-\subsubsection{The issue with chunking and IRM}
-Mutually incomparable
+
 
 \subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
 \subsubsection{Determining when you're done is expensive}
-As a whole yes, but merging two sorted lists is $O(n)$ time.  A distributed merge sort is $O( \frac{n \cdot \log (n)}{m} $ time????? CITATION NEEDED, where $m$ is 
+As a whole yes, but merging two sorted lists is $O(n)$ time. 
 
 
 \subsubsection{Disjoint rings}
+We can assign every node a \emph{ring id}.  When a node creates a ring, he randomly chooses a number for the ring id.  Nodes joining that ring use that ring's id.  If a node finds another node on differing ring, he compares the their ring id's and leaves if 9
 
 \subsubsection{The security we didn't do}
 We can have multiple non interacting secure file systems.

@@ -103,8 +103,8 @@ def console():
                 loaded_script.put(l)
             file2open.close()
         elif command == "stat":
-			input_size = node.todo.qsize();
-			print "backlog: "+str(input_size)
+            input_size = node.todo.qsize();
+            print "backlog: "+str(input_size)
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

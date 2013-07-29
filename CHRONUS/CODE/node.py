@@ -418,28 +418,3 @@ def my_polite_exit():
             quitMSG = Exit_Message(thisNode, p.key)
             send_message(quitMSG,p)
             done.append(p)
-
-
-""" 
-Don't mind this, I lost my train of thought, maybe it will come back.
-
-
-So here is the problem that influnences EVERYTHING, and that is how other services are going to find the responsible node.
-    You see, there are assumptions, and we need to be on the same page.
-
-    First, we need to figure out who decides who is responsible for what.  Right now, the psuedocode assumes other peopple decide you are responsible for something via find_successor
-
-    Assume for the sake of argument, we are now using a file storage service and we are trying to find where to put files.
-
-    Alice (on a different node than thisNode) has file 'X', which is Bob's node.  thisNode might or might not be Bob's.  She wants to find the node where to store it.  Obviously, it would be inefficient to pass the file all around the network until it got to the right place, so she has to find the corresponing node first.  This means she sends a lookup thru the network and gets the node connection info, then connects for the file deposit.
-
-
-
-    Scenario 1:  thisNode gets Alice's lookup request.  ThisNode is Bob's. Execept in a very small network, it is very rare the message.destination_key and thisNode.key match.
-    this is because if you are the successor of X, someone would have sent that information back to Alice.
-
-    Scenario 2: thisNode 
-
-
-    One  way to handle this whole issue is to add a function to messages called create_reply, which will take in thisNode, and create the reply for you
-"""

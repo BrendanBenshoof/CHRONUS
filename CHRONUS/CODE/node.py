@@ -329,7 +329,7 @@ Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
 """
 
 def I_own_hash(hkey):
-	return hash_between_right_inclusive(hkey, predecessor.key, thisNode.key)
+    return hash_between_right_inclusive(hkey, predecessor.key, thisNode.key)
 
 todo = Queue.PriorityQueue()
 

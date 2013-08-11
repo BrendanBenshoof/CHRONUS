@@ -12,7 +12,7 @@ import filesystem_service
 import map_reduce
 import Queue
 
-from threading import *
+import threading 
 import sys
 
 
@@ -94,7 +94,7 @@ def console():
             args = splitted[1]
         if command in commands.keys():
             mytarget = lambda: commands[command].handle_command(command, args)
-            t = Thread(target=mytarget)
+            t = threading.Thread(target=mytarget)
             t.daemon = True
             t.start()
         elif command == "run":
@@ -105,6 +105,13 @@ def console():
         elif command == "stat":
             input_size = node.todo.qsize();
             print "backlog: "+str(input_size)
+            if input_size > 0:
+                print threading.activeCount(), "Active threads. Cheating, spawning new worker."
+                t = Thread(target=node.message_handler_worker)
+                t.setDaemon(True)
+                t.start()
+        elif command == "threads":
+            print threading.activeCount()
         else:
             print "successor  ", node.successor
             print "predecessor", node.predecessor

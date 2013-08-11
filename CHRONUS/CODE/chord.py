@@ -111,6 +111,8 @@ def console():
                 t.setDaemon(True)
                 t.start()
         elif command == "threads":
+            print threading.enumerate()
+        elif commmand == "num_threads":
             print threading.activeCount()
         else:
             print "successor  ", node.successor

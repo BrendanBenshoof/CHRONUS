@@ -57,7 +57,8 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 \maketitle
 
 \begin{abstract}
-Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network. We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant
+Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network. We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant.
+
 \end{abstract}
 
 
@@ -70,10 +71,8 @@ P2P networks have resulted in an unprecedented amount of data being purveyed thr
 
 
 
-\subsubsection{SaaS}
-In recent years, there has been a trend of crowdsourcing large and complicated tasks among willing participants.  
 
-Folding@home is a distributed program for \cite{folding}. 
+In recent years, there has been a trend of crowdsourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for \cite{folding}. 
 
 seti at home that kind of thing
 
@@ -82,6 +81,8 @@ seti at home that kind of thing
 Our thing is totally way better because it we're making it generic, knatch.  Why is generic better?  becuase it makes it easier for developers. 
 
 We create a system for abstracted version of map-reduce 
+
+\subsubsection{SaaS}
 
 \subsubsection{Current models of distributing work}
 
@@ -203,7 +204,7 @@ We implemented two ways of storing a file.  The first is to store the whole file
 
 The chunking allows for numerous advantages.  Each piece of the overall file would (ideally) be stored in a different node, each with a different backup.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. Finally, When Chord uses some sort of caching scheme like that described in CFS \cite{CFS}, caching chunks as opposed to the entire file resulted in about 1000 times less storage overhead.  The results are likely similar with autonomous replication processes like IRM \cite{IRM}.
 
-Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}. With erasure codes, redundant chunks are created but any combination of a particular number of chunks is sufficient to recreate the file.  The additional redundency comes at the cost of using up more storage space and making chuning process slightly longer
+Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}. With erasure codes, redundant chunks are created but any combination of a particular number of chunks is sufficient to recreate the file.  The additional redundency comes at the cost of using up more storage space and  the additional time needed to encode and decode the chunks.
 
 
 
@@ -218,7 +219,7 @@ We present our implementation of MapReduce not as a direct competitior to MapRed
 
 
 \subsubsection{Writing your own MapReduce}
-The big advantage of our system is the ease of development.  All a developer needs to do to write three functions: the staging function, map, and reduce.  The staging function splits the work into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might a line of text in a document, OR OTHER EXAMPLES
+The big advantage of our system is the ease of development.  All a developer needs to do to write three functions: the staging function, map, and reduce.  The staging function splits the work into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.
 
 The map function works as a user would expect, running a function over a series of values and outputing a list of intermediate \emph{data atoms}.  Reduce takes in two \emph{data atoms} and combines them into one.
 
@@ -231,7 +232,7 @@ Sample code can be found in FIGURE SOME NUMBER
 
 
 \subsubsection{Redundancy of the "Master" Node}
-We don't have a master node, we have a stager.  If he goes down, everything ends up in his successor
+One of the main differences in our implementation is that there is no master node in the traditional sense.  At use t
 
 
 

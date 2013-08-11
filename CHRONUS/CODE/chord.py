@@ -107,11 +107,12 @@ def console():
             print "backlog: "+str(input_size)
             if input_size > 0:
                 print threading.activeCount(), "Active threads. Cheating, spawning new worker."
-                t = Thread(target=node.message_handler_worker)
+                t = threading.Thread(target=node.message_handler_worker)
                 t.setDaemon(True)
                 t.start()
         elif command == "threads":
-            print threading.enumerate()
+            for t in threading.enumerate():
+                print t
         elif command == "num_threads":
             print threading.activeCount()
         else:

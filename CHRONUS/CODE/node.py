@@ -206,9 +206,8 @@ def stabilize(message):
     x = message.get_content("predecessor")
     if x!=None and hash_between(x.key, thisNode.key, successor.key):
         update_finger(x,1)
-    send_message(Notify_Message(thisNode, successor.key))
+    send_message(Notify_Message(thisNode, successor.key), successor)  #Andrew added second field on 8-11, checking to see if this resolves our issue. 
     
-            
 
 # TODO: Call this function
 # we couldn't reach our successor;

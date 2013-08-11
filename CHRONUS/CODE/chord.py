@@ -112,7 +112,7 @@ def console():
                 t.start()
         elif command == "threads":
             print threading.enumerate()
-        elif commmand == "num_threads":
+        elif command == "num_threads":
             print threading.activeCount()
         else:
             print "successor  ", node.successor

@@ -284,7 +284,7 @@ def update_finger(newNode,finger):
 
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
-    if(predecessor != None):  # do this here or before it's called
+    if(predecessor != None or not hash_equal(predecessor.key, thisNode.key)):  # do this here or before it's called
         send_message(Check_Predecessor_Message(thisNode, predecessor.key),predecessor)
    
 #politely leave the network 

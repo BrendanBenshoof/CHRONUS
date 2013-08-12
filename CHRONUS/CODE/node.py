@@ -257,7 +257,7 @@ def fix_fingers(n=1):
                 print "Fix Fingers + " + str(next_finger)
             target_key = add_keys(thisNode.key, generate_key_with_index(next_finger-1))
             message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
-            send_message(message)
+            send_message(message, None)
 
 def update_finger(newNode,finger):
     global fingerTable
@@ -305,7 +305,7 @@ def add_service(service):
         print "Service " + service.service_id + "attached" 
 
 
-def send_message(msg, destination=None):
+def send_message(msg, destination):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)

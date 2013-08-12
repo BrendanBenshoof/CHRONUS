@@ -18,3 +18,7 @@ Solution: Key chaining / Treeing
 Problem: We are vulnerable to spoofing attacks
 Solution: switch to a RSA transaction security model
 
+Problem: WHen we shutdown, it does not shutdown
+
+Problem: At scale network schisms are happening
+

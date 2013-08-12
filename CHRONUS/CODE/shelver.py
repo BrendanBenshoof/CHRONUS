@@ -71,12 +71,12 @@ class Shelver(Service):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,DATABASE,PUT)
         newmsg.add_content("file_contents",data)
-        self.send_message(newmsg)
+        self.send_message(newmsg, None)
 
     def get_record(self,name,return_service="DATABASE"):
         hash_loc = hash_util.hash_str(name)
         newmsg = Database_Message(self.owner,hash_loc,SERVICE_ECHO,GET)
-        self.send_message(newmsg)
+        self.send_message(newmsg, None)
 
     def attach_to_console(self):
         ### return a dict of command-strings

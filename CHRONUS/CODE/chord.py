@@ -11,6 +11,7 @@ import time
 import filesystem_service
 import map_reduce
 import Queue
+import os
 
 import threading 
 import sys
@@ -129,6 +130,7 @@ def console():
             time.sleep(1)
             pass
     node.net_server.stop()
+    os.exit()
 
 def main():
     myip = myIP()

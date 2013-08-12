@@ -26,7 +26,7 @@ import Queue
 TEST_MODE = False   #duh
 VERBOSE = False      # True for various debug messages, False for a more silent execution.
 net_server = None
-MAINTENANCE_PERIOD = 2.0
+MAINTENANCE_PERIOD = 0.2
 
 class Node_Info():
     """This is struct containing the info of other nodes.  
@@ -178,7 +178,7 @@ def kickstart():
         begin_stabilize()
         check_predecessor()        
         time.sleep(MAINTENANCE_PERIOD)
-        fix_fingers(10)
+        fix_fingers(1)
 
 ##END CLEANUP
 

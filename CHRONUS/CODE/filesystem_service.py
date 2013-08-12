@@ -141,6 +141,3 @@ class FileSystem(service.Service):
         ### one of your commands got typed in
         return None
 
-    def send_message(self, msg, dest=None):
-        self.callback(msg, dest)
-

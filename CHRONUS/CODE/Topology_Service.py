@@ -37,7 +37,7 @@ class Topology(Service):
         new_query = Toplogy_Poll_Message(self.owner,sucessor_cheat)
         linkset = {str(node.thisNode): self.get_my_links()}
         new_query.add_content("link_list",linkset)
-        self.send_message(new_query)
+        self.send_message(new_query, None)
         print "Send Inquery"
 
     def attach_to_console(self):
@@ -70,7 +70,7 @@ class Topology(Service):
                     linkset[str(node.thisNode)] = self.get_my_links()
                     msg.add_content("server_list", record)
                     msg.add_content("link_list",linkset)
-                    self.send_message(msg)
+                    self.send_message(msg, None)
                 else:
                     msg.destination_key = msg.reply_to.key
                     self.send_message(msg, msg.reply_to)

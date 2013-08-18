@@ -109,14 +109,23 @@ In addition, the network topology is distributed among various peers.  Each peer
 Kademlia}. As our work is implemented using Chord, we provide more detail in the following section. 
 
 
-\subsection{Related Work}
+\section{Related Work}
 
+
+\subsection{CFS and other CHORD stuff we extend}
 
 The Cooperative File System (CFS) is a file sharing system built on top of Chord \cite{CFS} which extended the idea of storing files to storing chunks of files.  HOW BIG THE CHUNKS ARE PERFORMANCE ETC ETC
 
-P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations
+\subsection{P2P-MapReduce Systems}
 
-\subsubsection{Volunteer Computing}
+P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations.
+
+
+
+
+Our work handles issues of fault tolerance and reassigning lost jobs.  We also don't rely on a heirarchical structure.
+
+\subsection{Volunteer Computing}
 In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
 
 This concerted effort has been immensely successful, providing data for 109 peer-reviewed publications as of August 2013 \cite{foldingPapers}\footnote{Check the format of this citation}.
@@ -182,6 +191,9 @@ When a node politely quits, he informs both his successor and predecessor and gi
 
 \subsubsection{the general idea of backup}
 Unfortunately, it is impossible that every time a node leave the network it will do so politely.  If a node suddenly quits, the data it had stored goes with it. To prevent data from becoming irretrievable, a node can periodically send backups to its successor.  So as not to overwhelm the ring with a cascade of backups of backups, the node only passes along what it considers itself responsible for, which changes as nodes enter and leave the network.  If the backup leaves, he send his stuff to his successor, since the backup's successor would be the one responsible for the info now. 
+
+\subsubsection{behavoir when a loses his predecessor or successor}
+
 
 \section{MapReduce}
 \subsubsection{History}

@@ -52,6 +52,8 @@ class ThreadPoolMixIn(ThreadingMixIn):
             request, client_address = self.get_request()
         except socket.error:
             return
+        except:
+            print "BLARG"
         if self.verify_request(request, client_address):
             self.requests.put((request, client_address))
 

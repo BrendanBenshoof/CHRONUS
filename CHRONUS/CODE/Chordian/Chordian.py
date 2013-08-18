@@ -85,7 +85,7 @@ def main():
 
     peer_coordinator = Chordian()
     try:
-        peer_coordinator.test_local(2)  # 2 nodes
+        peer_coordinator.test_local(20)  # 2 nodes
         #peer_coordinator.setup_node(public_ip, local_ip, local_port, seeded_peers)
         peer_coordinator.attach_console() # allow us to send k/b commands
         pass

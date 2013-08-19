@@ -35,10 +35,16 @@ def reduce_func(atom1, atom2):
 
 
 def stage():
-    data  = open("ulysses.txt") 
+    data  = open("ulysses.txt")
+    num_jobs = 100
     atoms = []
-    for line in data:
-        atoms.append(Data_Atom("job",None,line))
+    lines = data.read().split("\n")
+    lines_per_job = len(lines)/num_jobs
+    for i in range(0, num_jobs):
+        jobstr = ""
+        for j in range(0, lines_per_job):
+            jobstr+= lines[i*lines_per_job+j]
+        atoms.append(Data_Atom("job",None,jobstr))
     data.close()
     return atoms
 

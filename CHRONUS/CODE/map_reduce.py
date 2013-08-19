@@ -41,6 +41,8 @@ class Data_Atom(object):
 
 job_todo = Queue.Queue()
 
+reduce_todo = Queue.Queue()
+
 
 class Map_Reduce_Service(Service):
     """This object is intented to act as a parent/promise for Service Objects"""
@@ -56,6 +58,10 @@ class Map_Reduce_Service(Service):
         self.owner = owner
         for i in range(0,1):
             t = Thread(target=self.Mapreduce_worker)
+            t.daemon = True
+            t.start()
+        for i in range(0,1):
+            t = Thread(target=self.Reduce_worker)
             t.daemon = True
             t.start()
         return self.service_id
@@ -135,7 +141,33 @@ class Map_Reduce_Service(Service):
                     self.doreduce(newjob)
                     job_todo.task_done()
                 else:
-                    self.send_message(newjob,newjob.origin)
+                    reduce_todo.put(newjob)
+
+    def Reduce_worker(self):
+        while True:
+            to_reduce = {}
+            while not reduce_todo.empty():
+                try:
+                    x = reduce_todo.get()
+                    try:
+                        to_reduce[x.jobid].append(x)
+                    except:
+                        to_reduce[x.jobid]= [x]
+                except Queue.Empty:
+                    pass
+            for k in to_reduce.keys():
+                root = to_reduce[k][0]
+                if len(to_reduce[k]) > 1:
+                    for j in range(1,len(to_reduce[k])):
+                            msg = to_reduce[k][j]
+                            jobid = msg.jobid
+                            print "in reduce",jobid
+                            atom1 = msg.dataAtom
+                            root_atom = root.dataAtom
+                            myreduce = msg.reduce_function
+                            root.dataAtom = myreduce(atom1, root_atom)
+                    self.send_message(root,root.origin)
+            time.sleep(1.0)
 
     def doreduce(self,msg):
             jobid = msg.jobid

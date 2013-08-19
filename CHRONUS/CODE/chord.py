@@ -21,7 +21,7 @@ import sys
 import json
 from urllib2 import urlopen
 
-local_mode=True
+local_mode=False
 
 def myIP():
     if not local_mode:

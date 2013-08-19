@@ -21,7 +21,7 @@ import sys
 import json
 from urllib2 import urlopen
 
-local_mode=False
+local_mode=True
 
 def myIP():
     if not local_mode:
@@ -126,7 +126,7 @@ def console():
                 cmd = loaded_script.get()
                 loaded_script.task_done()
         except EOFError: #the user does not have a terminal
-            print "I do not see a terminal!"
+            #print "I do not see a terminal!"
             time.sleep(1)
             pass
     node.net_server.stop()

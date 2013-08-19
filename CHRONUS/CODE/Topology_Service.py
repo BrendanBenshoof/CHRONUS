@@ -77,6 +77,7 @@ class Topology(Service):
             else:
                 print "render inquery"
                 print record
+                print len(record)
 
 def render(record, edges):
     import matplotlib.pyplot as plt

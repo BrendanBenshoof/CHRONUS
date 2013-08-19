@@ -342,7 +342,9 @@ def handle_message(msg):
     todo.put((msg.priority, msg))
 
 def worker_handle_message(msg):
-    if I_own_hash(msg.destination_key):  # if I'm responsible for this key
+    if I_own_hash(msg.destination_key) or successor == thisNode:  # if I'm responsible for this key
+        if successor == thisNode and not successor == predecessor:
+            print "!"
         try:
             myservice = services[msg.service]
         except KeyError:

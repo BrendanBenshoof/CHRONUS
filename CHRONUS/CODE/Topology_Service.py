@@ -38,8 +38,8 @@ class Topology(Service):
     def start_inquery(self):
         sucessor_cheat = hash_util.generate_lookup_key_with_index(self.owner.key,0)
         new_query = Toplogy_Poll_Message(self.owner,sucessor_cheat)
-        linkset = {str(node.thisNode): self.get_my_links()}
-        new_query.add_content("link_list",linkset)
+        #linkset = {str(node.thisNode): self.get_my_links()}
+        new_query.add_content("N",1)
         self.send_message(new_query, None)
         print "Send Inquery"
         self.last_start_time = time.time()
@@ -63,17 +63,19 @@ class Topology(Service):
                 return False
             start = msg.get_content("start")
             end = msg.get_content("end")
-            record = msg.get_content("server_list")
-            linkset = msg.get_content("link_list")
+            N = msg.get_content("N")
+            #record = msg.get_content("server_list")
+            #linkset = msg.get_content("link_list")
             if not msg.reply_to == self.owner:
                 if  not hash_util.hash_between(self.owner.key,start,end):
                     sucessor_cheat = hash_util.generate_lookup_key_with_index(self.owner.key,0)
                     msg.origin_node = self.owner
                     msg.destination_key = sucessor_cheat
-                    record.append(str(self.owner))
-                    linkset[str(node.thisNode)] = self.get_my_links()
-                    msg.add_content("server_list", record)
-                    msg.add_content("link_list",linkset)
+                    #record.append(str(self.owner))
+                    #linkset[str(node.thisNode)] = self.get_my_links()
+                    #msg.add_content("server_list", record)
+                    #msg.add_content("link_list",linkset)
+                    msg.add_content("N",N+1)
                     self.send_message(msg, None)
                 else:
                     msg.destination_key = msg.reply_to.key
@@ -81,8 +83,8 @@ class Topology(Service):
             else:
                 now = time.time()
                 print "render inquery:", now - msg.start_time
-                print record
-                print len(record)
+                print N
+                #print len(record)
 
 def render(record, edges):
     import matplotlib.pyplot as plt

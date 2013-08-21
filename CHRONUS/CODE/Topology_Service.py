@@ -3,6 +3,7 @@ from message import *
 import node
 import hash_util
 from math import pi
+import time
 
 
 class Toplogy_Poll_Message(Message):
@@ -17,6 +18,7 @@ class Toplogy_Poll_Message(Message):
         self.add_content("start",origin_node.key)
         self.add_content("end",destination_key)
         self.reply_to = origin_node
+        self.start_time = time.time()
 
 
 class Topology(Service):
@@ -24,6 +26,7 @@ class Topology(Service):
         super(Topology, self).__init__()
         self.service_id = SERVICE_TOPOLOGY
         self.topology_guess = []
+        self.last_start_time = 0.0
 
     def get_my_links(self):
         output = []
@@ -39,6 +42,7 @@ class Topology(Service):
         new_query.add_content("link_list",linkset)
         self.send_message(new_query, None)
         print "Send Inquery"
+        self.last_start_time = time.time()
 
     def attach_to_console(self):
         ### return a dict of command-strings
@@ -75,7 +79,8 @@ class Topology(Service):
                     msg.destination_key = msg.reply_to.key
                     self.send_message(msg, msg.reply_to)
             else:
-                print "render inquery"
+                now = time.time()
+                print "render inquery:", now - msg.start_time
                 print record
                 print len(record)
 

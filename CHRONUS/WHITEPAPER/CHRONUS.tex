@@ -219,22 +219,28 @@ Closest to our work is Lee et al.'s work \emph{Paarallel Processing Framework on
 
 \subsubsection{Underlying protocol: Chord vs Symphony}
 
-\cite{leemap}\footnote{I need to find a better way to reference this; it doesn't have a  catchy name.} is implemented on top of BruNet\cite{BruNet}, which itself is an implentation of the DHT protocol Symphony \cite{symphony}.  Symphony and Chord share a great deal of symetry.  Both protocol create an overlay in the shape of a ring, both  use a hash to assign files to a node that corresponds to that hash, and both use a finger table\footnote{For simplicity, we use the Chord termonology in discussing Symphony concepts. The \emph{long-distance links} are analogous to Chord's fingers and the \emph{short-distance links} correspond to the predeccesor and successors of a node.} to create shortcuts accross the ring.
+\cite{leemap}\footnote{I need to find a better way to reference this; it doesn't have a  catchy name.} is implemented on top of BruNet\cite{BruNet}, which itself is an implantation of the DHT protocol Symphony \cite{symphony}.  Symphony and Chord share a great deal of symetry.  Both protocol create an overlay in the shape of a ring, both  use a hash to assign files to a node that corresponds to that hash, and both use a finger table\footnote{For simplicity, we use the Chord terminology in discussing Symphony concepts. The \emph{long-distance links} are analogous to Chord's fingers and the \emph{short-distance links} correspond to the predecessor and successors of a node.} to create shortcuts across the ring.
 
-The diffence is that Symphony seeks to exploit the small world phemnomena \cite{kleinberg2000navigation}, where the fingers are chosen at random along a probability distribution function.  The further away a node is, the less likely it will be chosen as a finger \footnote{Chenk this with brendan.}.  Like Chord, messages travel along the paths that bring them closest to thier target destination, which is the node responsible the destination's hash value.  In a network with  $N$ nodes, each with $k$ fingers, a message will take on average $O(\frac{1}{k} \log^{2}(N))$ hops to reach its destination.   In comparison, the average lookup time in Chord is $\frac{1}{2}\log(N)$ \cite{Chord}.
+The difference is that Symphony seeks to exploit the small world phenomena \cite{kleinberg2000navigation}, where the fingers are chosen at random along a probability distribution function.  The further away a node is, the less likely it will be chosen as a finger \footnote{Check this with brendan.}.  Like Chord, messages travel along the paths that bring them closest to their target destination, which is the node responsible the destination's hash value.  In a network with  $N$ nodes, each with $k$ fingers, a message will take on average $O(\frac{1}{k} \log^{2}(N))$ hops to reach its destination.   In comparison, the average lookup time in Chord is $\frac{1}{2}\log(N)$ \cite{Chord}.
 
-To speed up routing Symphony, links are bidirectional, rather than unidirectional (does this mean when k is 4 there's effectively 8 fingers?  I think it does according to the # tcp connection).  Symphony also has nodes maintain a 1-lookahead list for each finger \footnote{these speedups could be implemented on chord.}.
+To speed up routing in Symphony, the fingers are bidirectional, rather than unidirectional (does this mean when k is 4 there's effectively 8 fingers?  I think it does according to the \# tcp connection).  Symphony also has nodes maintain a 1-lookahead list for each finger \footnote{these speedups could be implemented on chord.}.
 
-This works great in their example $2^{15}$ size network, doesn't look so great in a size $2^{80}$ network.  Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
+In the simulation of a $2^15$ node network in \cite{Symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
+
+However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
 
 
 \subsubsection{Maintenence}
 
-Symphony is extremely effective in a (relatively) smaller network because of the simplicity of the maintenence.  
+Symphony is extremely effective in a (relatively) smaller network because of the simplicity of the maintenance.  
 
 It's okay to have $<k$ fingers or different $k$ for a finger.
 
 \subsubsection{Fault Tolerence}
+At a glance Symphony and Chord seem to handle churn the same way, backing up nodes for the data.
+
+Nodes entering the a Symphony ring choose their address uniformly at random, do they hash it?  If not, then nodes will basically be unable to resume their place in the network.
+
 
 \subsubsection{Implementation of map reduce}
 
@@ -245,7 +251,7 @@ Doesn't look like it, so we should especially talk about our encrypted chat late
 
 \subsubsection{We're looking at a giant computer, a distributed operating system.}
 
-Our work handles issues of fault tolerance and reassigning lost jobs.  We also don't explicitly form a heirarchical structure.
+Our work handles issues of fault tolerance and reassigning lost jobs.  We also don't explicitly form a hierarchical structure.
 
 
 
@@ -287,22 +293,25 @@ Once the stager has sent all the data atoms, his job is done.  The stager does n
 
 \subsubsection{What happens if the stager goes down while staging} 
 
-\subsubsection{Recap the issues  of normal MapReduce  and why ours is bettter} 
+\subsubsection{Recap the issues  of normal MapReduce  and why ours is better} 
 We present our implementation of MapReduce not as a direct competitor to MapReduce, but as proof of a more versatile system able to support many complex operations.
 
 The big advantage of our system is the ease of development.  
 
-The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work automatically.  The stager does not need to keep track of the status of the network.  In a node goes down while performing an operation, his sucessor takes over for him.
+The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work automatically.  The stager does not need to keep track of the status of the network.  In a node goes down while performing an operation, his successor takes over for him.
 
-All a developer needs to do to write three functions: the staging function, map, and reduce.  These define how to split up the work into managable portions,  the  work to be performed on each portion to get some results, and how to combine these results into a single result. 
+All a developer needs to do to write three functions: the staging function, map, and reduce.  These define how to split up the work into manageable portions,  the  work to be performed on each portion to get some results, and how to combine these results into a single result. 
 
-In the next section, we show two of the implenations we ran on our ring of nodes.
+In the next section, we show two of the implementations we ran on our ring of nodes.
 
 \subsection{Example implementations of mapreduce}
 
 \subsubsection{Calculating Pi}
 
 \subsubsection{Word Count}
+
+\subsubsection{My computer can do way more work}  In which case you boot up more instances of a node, declaring you can do that much more of the network's work.
+
 
 \subsection{In which we address possible criticism}
 

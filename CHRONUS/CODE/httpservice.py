@@ -18,7 +18,7 @@ import cgi
 
 from globals import *
 
-PORT = 8080
+PORT = 9080
 
 class Open_request(object):
     def __init__(self, myservice, filename):
@@ -160,6 +160,6 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
 def start_web():
-    server = ThreadedHTTPServer(('localhost', PORT), HashwebHandler)
+    server = ThreadedHTTPServer(('', PORT), HashwebHandler)
     print 'Starting server, use <Ctrl-C> to stop'
     server.serve_forever()

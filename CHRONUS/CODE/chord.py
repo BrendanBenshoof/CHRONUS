@@ -70,7 +70,7 @@ def setup_Node(addr="localhost", port=None):
     add_service(Topology_Service.Topology())
     add_service(filesystem_service.FileSystem())
     add_service(map_reduce.Map_Reduce_Service())
-    add_service(httpservice.WEBSERVICE(database))
+    #add_service(httpservice.WEBSERVICE(database))
     
     ####
     attach_services()

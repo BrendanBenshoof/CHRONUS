@@ -82,7 +82,7 @@ class Map_Reduce_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["do","results"]
+        return ["do","results", "clear"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
@@ -94,7 +94,7 @@ class Map_Reduce_Service(Service):
             jobid = hash_str(args[0])
             print jobid            
             if jobid in self.temp_data.keys():
-                r = file(jobid+".record","w+")
+                r = file(str(jobid)+".record","w+")
                 r.write(self.job_records[jobid])
                 r.close()
                 if len(args) >1:
@@ -106,6 +106,9 @@ class Map_Reduce_Service(Service):
                     print "results:",self.temp_data[jobid].contents
             else:
                 print "no value on this job"
+        if comand_st =="clear":
+            self.job_records = {}
+            self.temp_data = {}
 
         return None
 

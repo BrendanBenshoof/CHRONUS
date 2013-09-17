@@ -227,7 +227,7 @@ class Map_Reduce_Service(Service):
         while jobs_sent < jobs_total:
             for k in forward_dests.keys():
                 if len(forward_dests[k]) > 0:
-                    datatom = fotimeingRecordrward_dests[k].pop()
+                    datatom = forward_dests[k].pop()
                     msg = Map_Message(datatom.jobid,[datatom], map_func, reduce_func)
                     msg.origin = reply_to
                     msg.reply_to = reply_to

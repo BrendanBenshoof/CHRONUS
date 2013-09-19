@@ -9,14 +9,15 @@ import time
 
 CHUNKSIZE = 64
 
+
+
 ##stolen from http://code.activestate.com/recipes/574454-thread-pool-mixin-class-for-use-with-socketservert/
 class ThreadPoolMixIn(ThreadingMixIn):
     '''
     use a thread pool instead of a new thread on every request
     '''
-    numThreads = 10
     allow_reuse_address = True  # seems to fix socket.error on server restart
-
+    numThreads = 10
     def serve_forever(self):
         '''
         Handle one request at a time until doomsday.
@@ -41,7 +42,10 @@ class ThreadPoolMixIn(ThreadingMixIn):
         obtain request from queue instead of directly from server socket
         '''
         while True:
-            ThreadingMixIn.process_request_thread(self, *self.requests.get())
+            try:
+                ThreadingMixIn.process_request_thread(self, *self.requests.get())
+            except Exception:
+                pass
 
     
     def handle_request(self):
@@ -64,9 +68,12 @@ class ThreadedServer(ThreadPoolMixIn, TCPServer):
 class NETWORK_SERVICE(object):
     def sender_loop(self):
             while True:
-                priority, dest, msg = self.tosend.get(True)
-                self.client_send(dest,msg)
-                self.tosend.task_done()
+                try:
+                    priority, dest, msg = self.tosend.get(True)
+                    self.client_send(dest,msg)
+                    self.tosend.task_done()
+                except Exception:
+                    pass
 
     def send_message(self,msg,dest):
         msg_pack = (msg.priority,dest,msg)

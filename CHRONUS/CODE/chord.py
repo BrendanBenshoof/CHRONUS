@@ -26,7 +26,7 @@ local_mode=False
 selfdestruct = False
 
 print "starting and waiting"
-#time.sleep(random.randint(10,60))
+time.sleep(random.randint(10,60))
 print "done waiting"
 
 

@@ -175,7 +175,7 @@ class Map_Reduce_Service(Service):
                             root.dataAtom = myreduce(atom1, root_atom)
                             root.timeingRecord+=msg.timeingRecord
                     self.send_message(root,root.origin)
-            time.sleep(1.0)
+            time.sleep(0.0)
 
     def doreduce(self,msg):
             jobid = msg.jobid

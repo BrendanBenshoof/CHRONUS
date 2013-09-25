@@ -44,11 +44,7 @@ class ThreadPoolMixIn(ThreadingMixIn):
         while True:
             try:
                 ThreadingMixIn.process_request_thread(self, *self.requests.get())
-<<<<<<< HEAD
             except Exception:
-=======
-            except e:
->>>>>>> 66fda284c8487355712cd3ed1225528850e33266
                 pass
 
     

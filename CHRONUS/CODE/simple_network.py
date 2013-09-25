@@ -89,7 +89,7 @@ class NETWORK_SERVICE(object):
         t = threading.Thread(target=self.server.serve_forever)
         t.daemon = True
         t.start()
-        for i in range(0,4):
+        for i in range(0,10):
             t2 = t = threading.Thread(target=self.sender_loop)
             t2.daemon = True
             t2.start()

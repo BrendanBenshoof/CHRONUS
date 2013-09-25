@@ -133,12 +133,13 @@ def console():
             else:
                 cmd = loaded_script.get()
                 loaded_script.task_done()
-        except EOFError: #the user does not have a terminal
+        except EOFError:  # the user does not have a terminal
             #print "I do not see a terminal!"
             time.sleep(1)
             pass
     node.net_server.stop()
     os.exit()
+
 
 def main():
     myip = myIP()

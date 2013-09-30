@@ -1,5 +1,7 @@
 jobid = "pi"
 
+n=1
+
 ##calculate pi mapreduce job
 from map_reduce import Data_Atom
 ## assume contents is a line of text
@@ -41,8 +43,8 @@ def reduce_func(atom1, atom2):
 
 
 def stage():
-    samples = 100000000
-    jobs = 640
+    samples = 10000000000
+    jobs = 5*n
     atoms = []
     last = 0
     for i in range(0,jobs):

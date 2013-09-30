@@ -47,7 +47,7 @@
 
 %%% The "real" document content comes below...
 
-\title{Using Chord as a Platform for Software as a Service}
+\title{Map Reduce on a Chord Distributed Hash Table}
 \author{
 Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
 %\date{} % Activate to display a given date or no date (if empty),
@@ -60,6 +60,7 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network.  From Chord, we introduce the concept of the Hashnet, where computers use distributed hash table as a means of distributing both data and work.  Because Chord provides the backbone of this network, a Hashnet is robust, scalable, resilient to churn, fault tolerant, and automatically  and evenly distributes work throughout the network.
 
 %We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant.
+HARRISON:  Map reduce is a family of algorithms for distributed computations. The basic idea with these algorithms is to factor a large task into independent tasks that can be mapped to a set of processors and the have the results reduced back to the desired solution. Chord networks are a ring of processors with a log(n) connectivity.  In this paper we show that the chord network has advantages for implementing map/reduce because of its low latency (low overhead?) connectivity. (you probably can state this better than me).
 
 \end{abstract}
 
@@ -68,10 +69,18 @@ WHAT'S GOING ON IN THE PAPER
 \begin{itemize}
     \item The subsubsections are being combined as I write stuff
     \item The Introduction and related work are the sketchiest areas, as the old paper isn't really relevent to this 
+    \item Writing more relevent sections for map-reduce, getting ready to comment out sections for conference length.
 \end{itemize}
 
 
 \section{Introduction}
+
+GOALS:
+\begin{enumerate}
+    \item describe map/reduce
+    \item describe chord networks
+    \item describe Hadoop - because it is a standard implementation.  Hadoop uses HDFS - tree file structure to implement data exchange.  Tightly bound to hardware in the implementation.
+\end{enumerate}
 Peer-to-peer (P2P) networks are of enormous interest to network research, as they provide an efficient way to distribute large files to millions of users without many of the limitations of the traditional client-server model. In the client-server model, the server addresses each client's request individually, creating a single point of failure due to traffic or the loss of the server.  In peer-to-peer networks, each node takes on both the role of client and server.  If someone wishes to introduce data into the a peer-to-peer network, peers can both request the file and distribute it to others.  This takes much of the burden of file distribution off of what would have normally been an extremely busy server \cite{Overview}.  
 
 P2P networks have resulted in an unprecedented amount of data being purveyed through the Internet.  While recent studies show that P2P accounts for 13.2\% of downstream traffic, down from its peak of 40\% of all Internet traffic, the actual volume of P2P traffic is at its highest yet \cite{5713296}. Many companies have embraced legal uses of P2P technology, such as providing ways to stream media or provide large updates  \cite{P2PLegal}.  For example, Blizzard uses a modified BitTorrent protocol to distribute updates and patches to millions of users for games such as World of Warcraft and Starcraft II \cite{chehai2006analysis}.  <----- PROBABLY GOING TO GET RID OF THESE PARAGRAPHS
@@ -80,13 +89,13 @@ P2P networks have resulted in an unprecedented amount of data being purveyed thr
 However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} and Kademlia \cite{Kademlia}, have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and abstracted it.  CHRONUS is capable of evenly distributing both data and work 
 
 
-
-
-
-
 \subsubsection{Current models of distributing work}
 
 Talk about hadoop mention how we basically have a way to distribute reduce.
+Hadoop is popular here's a citation.  Popular enough to justify using it as a means of comparison
+
+\subsubsection{HFDS}
+Hadoop is strongly tied to HFDS architecture.  We are tied to having a computer.
 
 \subsubsection{Our proposed model Hashnet:  A system of computers connected together using a distributed hash table as a means for efficiently distributing both data and work.}
 
@@ -179,6 +188,7 @@ Chunking also opens up the options for implementing additional redundancy such a
 
 
 \subsection{MapReduce}
+
 \subsubsection{History}
 
 At its core, MapReduce \cite{mapreduce} is a system for division of labor.  One very popular implementation of MapReduce is  Apache's Hadoop. \cite{hadoop}.
@@ -194,7 +204,19 @@ The classic example given for MapReduce is counting the word in a collection of 
 \subsubsection{Map Reduce advantages and disadvantages}
 this is a good survey \cite{mrsurvey}.
 
+Should rework to focus on Hadoop.
 
+\subsubsection{Why are we an interesting and viable alternative to Hadoop}
+
+Much easier to program on ours. Citation of complaints.
+
+Hadoop has a specific arcitecture.  Ours is really easy to setup.  Step 1: add node to ring. Step 2: there is no step 2.
+
+Hadoop is bound to it's filesystem. For our system to use a database, make the query during stage().  Or if part of the job requires making queries to the datbase, just write those calls in.
+
+Hadoop has master node bottle neck issue [CITATION].  Ours can have that happen but it's much less of an issue because we can collate on the way back.   This would take extra  $waittime \log(n)$ time for the reduce step. 
+
+Hadoop is more latency tolerant.  There are ways to work around that.  BRENDAN EXPOUND HERE.
 
 
 \section{Related Work}
@@ -217,7 +239,7 @@ Our program would provide an excellent platform for users to write their own pro
 
 P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations.
 
-Closest to our work is Lee et al.'s work \emph{Paarallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
+Closest to our work is Lee et al.'s work \emph{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
 
 \subsubsection{Underlying protocol: Chord vs Symphony}
 
@@ -259,8 +281,6 @@ Our work handles issues of fault tolerance and reassigning lost jobs.  We also d
 
 
 
-\subsubsection{Mirco versus small}
-We had huge issues with micro instances because of their sporadic cpu power.  Less of an issue with Small instances.
 
 
 
@@ -320,9 +340,12 @@ In the next section, we show two of the implementations we ran on our ring of no
 \subsection{In which we address possible criticism}
 
 
+\subsubsection{Mirco versus small}
+We had huge issues with micro instances because of their sporadic cpu power.  Less of an issue with Small instances.
 
 
 \subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
+
 \subsubsection{Determining when you're done is expensive}
 As a whole yes, but merging two sorted lists is $O(n)$ time. 
 

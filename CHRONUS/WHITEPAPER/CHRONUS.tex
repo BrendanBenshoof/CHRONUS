@@ -80,25 +80,31 @@ GOALS:
     \item describe chord networks
     \item describe Hadoop - because it is a standard implementation.  Hadoop uses HDFS - tree file structure to implement data exchange.  Tightly bound to hardware in the implementation.
 \end{enumerate}
-Peer-to-peer (P2P) networks are of enormous interest to network research, as they provide an efficient way to distribute large files to millions of users without many of the limitations of the traditional client-server model. In the client-server model, the server addresses each client's request individually, creating a single point of failure due to traffic or the loss of the server.  In peer-to-peer networks, each node takes on both the role of client and server.  If someone wishes to introduce data into the a peer-to-peer network, peers can both request the file and distribute it to others.  This takes much of the burden of file distribution off of what would have normally been an extremely busy server \cite{Overview}.  
-
-P2P networks have resulted in an unprecedented amount of data being purveyed through the Internet.  While recent studies show that P2P accounts for 13.2\% of downstream traffic, down from its peak of 40\% of all Internet traffic, the actual volume of P2P traffic is at its highest yet \cite{5713296}. Many companies have embraced legal uses of P2P technology, such as providing ways to stream media or provide large updates  \cite{P2PLegal}.  For example, Blizzard uses a modified BitTorrent protocol to distribute updates and patches to millions of users for games such as World of Warcraft and Starcraft II \cite{chehai2006analysis}.  <----- PROBABLY GOING TO GET RID OF THESE PARAGRAPHS
 
 
-However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} and Kademlia \cite{Kademlia}, have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and abstracted it.  CHRONUS is capable of evenly distributing both data and work 
+Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.\footnote{Needs more expansion, perhaps some about increased availability of distributed computing.}
+
+CONNECTING SENTENCE(S) TO BRIDGE THE GAP
+
+Chor
+
+However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applyed to di.  CHRONUS provides a scalable of evenly distributing both data and work among its member nodes
+
+In this arrangement, MapReduce task can be performed 
 
 
-\subsubsection{Current models of distributing work}
+In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is descrubed in Section  $X$, while our experiments are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
 
-Talk about hadoop mention how we basically have a way to distribute reduce.
-Hadoop is popular here's a citation.  Popular enough to justify using it as a means of comparison
+%\subsubsection{Current models of distributing work}
+%Talk about hadoop mention how we basically have a way to distribute reduce.
+%Hadoop is popular here's a citation.  Popular enough to justify using it as a means of comparison
 
-\subsubsection{HFDS}
-Hadoop is strongly tied to HFDS architecture.  We are tied to having a computer.
+%\subsubsection{HFDS}
+%Hadoop is strongly tied to HFDS architecture.  We are tied to having a computer.
 
-\subsubsection{Our proposed model Hashnet:  A system of computers connected together using a distributed hash table as a means for efficiently distributing both data and work.}
+%\subsubsection{Our proposed model Hashnet:  A system of computers connected together using a distributed hash table as a means for efficiently distributing both data and work.}
 
-A hashnet is not a new paradigm for distributing work; it is an extension of the established and highly tested means of distributing files and applying the scheme to do the same for work.
+%A hashnet is not a new paradigm for distributing work; it is an extension of the established and highly tested means of distributing files and applying the scheme to do the same for work.
 
 
 
@@ -188,15 +194,26 @@ Chunking also opens up the options for implementing additional redundancy such a
 
 \subsection{MapReduce}
 
+
+
 \subsubsection{History}
 
 At its core, MapReduce \cite{mapreduce} is a system for division of labor.  One very popular implementation of MapReduce is  Apache's Hadoop. \cite{hadoop}.
+
+
+\subsubsection{Requirements for a viable MapReduce platform}
+scalability and fault-tolerence.
+
+Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign nodes responibilty as the ring adds and loses nodes makes it extremely fault tolerant.  
 
 \subsubsection{Example}
 
 A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then reduces a result for each map operation.  This intermediate data is then reduced by other slave nodes then returned to the user. 
 
 The classic example given for MapReduce is counting the word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers  \footnote{Workers can further split up the chunks among other workers.}.  Each worker then goes thru each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
+
+
+
 
 
 
@@ -302,6 +319,8 @@ age of the inherent ring structure.
 We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls.
 
 
+\subsubsection{Targets for CHRONUS}
+Who are we marketing to.
 \subsection{Distributed MapReduce}
 
 \subsubsection{Operation}

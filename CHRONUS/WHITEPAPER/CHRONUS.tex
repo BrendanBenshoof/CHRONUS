@@ -220,7 +220,7 @@ Hadoop is more latency tolerant.  There are ways to work around that.  BRENDAN E
 
 Usually map reduce can't do 
 
-THere is no single point of failure for our network.  our master node can go down and we don't care. Hadoop's name node is a single point of failure.
+THere is no single point of failure for our network.  our master node can go down and we don't care. Hadoop's name node is a single point of failure \cite{shvachko2010hadoop}.
 
 \section{Related Work}
 
@@ -359,6 +359,9 @@ We can assign every node a \emph{ring id}.  When a node creates a ring, he rando
 \subsubsection{The security we didn't do}
 We can have multiple non interacting secure file systems.
 
+
+\subsubsection{File system via hash prefixing}
+First $k$ bits of hash used to describe files
 
 \section{Experiments}
 A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite{amazon-micro}.

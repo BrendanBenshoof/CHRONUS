@@ -50,6 +50,7 @@ class Map_Reduce_Service(Service):
         super(Map_Reduce_Service,self).__init__()
         self.service_id = "MAP_REDUCE"
         self.temp_data = {}
+        self.job_records = {}
 
     def attach(self, owner, callback):
         """Called when the service is attached to the node"""
@@ -81,7 +82,7 @@ class Map_Reduce_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["do","results"]
+        return ["do","results", "clear"]
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
@@ -93,6 +94,9 @@ class Map_Reduce_Service(Service):
             jobid = hash_str(args[0])
             print jobid            
             if jobid in self.temp_data.keys():
+                r = file(str(jobid)+".record","w+")
+                r.write(self.job_records[jobid])
+                r.close()
                 if len(args) >1:
                     f = file(args[1],"w+")
                     f.write(str(self.temp_data[jobid].contents))
@@ -102,6 +106,9 @@ class Map_Reduce_Service(Service):
                     print "results:",self.temp_data[jobid].contents
             else:
                 print "no value on this job"
+        if comand_st =="clear":
+            self.job_records = {}
+            self.temp_data = {}
 
         return None
 
@@ -166,8 +173,9 @@ class Map_Reduce_Service(Service):
                             root_atom = root.dataAtom
                             myreduce = msg.reduce_function
                             root.dataAtom = myreduce(atom1, root_atom)
+                            root.timeingRecord+=msg.timeingRecord
                     self.send_message(root,root.origin)
-            time.sleep(1.0)
+            time.sleep(0.1)
 
     def doreduce(self,msg):
             jobid = msg.jobid
@@ -178,13 +186,16 @@ class Map_Reduce_Service(Service):
             myreduce = msg.reduce_function
             if jobid in self.temp_data.keys():
                 self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
+                self.job_records[jobid]+="\n-------\n"+msg.timeingRecord
             else:
                 self.temp_data[jobid] = atom
+                self.job_records[jobid]=msg.timeingRecord+"\n Recived "+str(time.time())+"\n"
 
     def domap(self,msg):
         #forward stuff I do not care about first
         jobs = msg.dataset
         stuff_to_map = self.polite_distribute(jobs, msg.map_function, msg.reduce_function, msg.reply_to)
+        starttime = time.time()
         if len(stuff_to_map)>0:
             map_func = msg.map_function
             reduce_func = msg.reduce_function
@@ -197,6 +208,8 @@ class Map_Reduce_Service(Service):
             newmsg = Reduce_Message(msg.jobid, final_result, reduce_func)
             newmsg.destination_key = msg.reply_to.key
             newmsg.origin = msg.origin
+            newmsg.timeingRecord = msg.timeingRecord + "\n--\n" + newmsg.timeingRecord
+            newmsg.timeingRecord += "Map start: "+str(starttime)+"\n"+"Map done: "+str(time.time())+"\n"
             self.send_message(newmsg, msg.reply_to)
 
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
@@ -231,6 +244,7 @@ class Map_Message(Message):
         self.reduce_function = reduce_function
         self.origin = None
         self.type = MAP
+        self.timeingRecord = "'map msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
 
 
 class Reduce_Message(Message):
@@ -240,7 +254,9 @@ class Reduce_Message(Message):
         self.dataAtom = dataAtom  #single atom
         self.reduce_function = reduce_function
         self.type = REDUCE
-        self.origin = None
+        self.timeingRecord = "'reduce msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
+
+
 
 
 def cry():

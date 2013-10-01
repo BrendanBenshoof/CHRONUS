@@ -1,0 +1,34 @@
+glidr solo run
+start: 1380124106.73s
+end  : 1380124111.12s
+delta:          4.39s
+
+chronus solo run
+start: 1380120520.44s
+end  : 1380120523.12s
+delta:          2.68s
+
+chronus+glidr run
+start: 1380124483.79
+end  : 1380124487.31
+delta:          3.52s
+
+2xchronus+2xglidr run
+start: 1380124801.3
+end  : 1380124803.8
+delta:          2.5s
+
+harder chronus+glidr
+start: 1380126478.21
+end  : 1380126660.75
+delta:        182.54
+
+harder 2x(glider+chronus)
+start: 1380127517.58
+end  : 1380127551.4
+delta: 109.52s
+
+3x superhard
+start: 1380134104
+end  : 1380136910
+             2806

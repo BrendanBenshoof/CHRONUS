@@ -3,6 +3,7 @@
 import service
 import shelver as db 
 import Topology_Service
+import httpservice
 import hash_util
 import random
 import simple_network
@@ -22,6 +23,12 @@ import json
 from urllib2 import urlopen
 
 local_mode=False
+selfdestruct = False
+
+print "starting and waiting"
+#time.sleep(random.randint(10,60))
+print "done waiting"
+
 
 def myIP():
     if not local_mode:
@@ -58,12 +65,15 @@ def setup_Node(addr="localhost", port=None):
     node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
     #### setup services here
     database_name = str(node.thisNode.key)+".db"
-    add_service(db.Shelver(database_name))
+    database = db.Shelver(database_name)
+    add_service(database)
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())
     add_service(Topology_Service.Topology())
     add_service(filesystem_service.FileSystem())
     add_service(map_reduce.Map_Reduce_Service())
+    #add_service(httpservice.WEBSERVICE(database))
+    
     ####
     attach_services()
 
@@ -125,12 +135,13 @@ def console():
             else:
                 cmd = loaded_script.get()
                 loaded_script.task_done()
-        except EOFError: #the user does not have a terminal
+        except EOFError:  # the user does not have a terminal
             #print "I do not see a terminal!"
             time.sleep(1)
             pass
     node.net_server.stop()
     os.exit()
+
 
 def main():
     myip = myIP()

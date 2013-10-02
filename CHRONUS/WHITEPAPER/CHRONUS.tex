@@ -64,28 +64,23 @@ HARRISON:  Map reduce is a family of algorithms for distributed computations. Th
 \end{abstract}
 \section{Introduction}
 
-GOALS:
-\begin{enumerate}
-    \item describe map/reduce
-    \item describe chord networks
-    \item describe Hadoop - because it is a standard implementation.  Hadoop uses HDFS - tree file structure to implement data exchange.  Tightly bound to hardware in the implementation.
-\end{enumerate}
-
 
 Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.\footnote{Needs more expansion, perhaps some about increased availability of distributed computing.}
 
-One of the most popular platforms for MapReduce is Hadoop
+One of the most popular platforms is Hadoop, Apache's open-source implementation of MapReduce \cite{Hadoop}.
 
 CONNECTING SENTENCE(S) TO BRIDGE THE GAP
 
-Chord \cite{Chord} is a distributed hash table (DHT) designed for peer-to-peer networks with a number of remarkable qualities.  Chord guaratees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is minimal maintenence required by the network as a whole to handle individual nodes.
+Chord \cite{Chord} is a distributed hash table (DHT) designed for peer-to-peer networks with a number of remarkable qualities.  Chord guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is minimal maintenance required by the network as a whole to handle individual nodes.
  
+However, the architectures that provide the backbone of many a peer-to-peer network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applied to distributing work among member nodes.  We built a framework on CHRONUS for performing Map and Reduce tasks on Chord ring.  CHRONUS leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure.
 
-However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applyed to distributing work among member nodes.  CHRONUS provides a scalable of evenly distributing both data and work among its member nodes.  Our experiments demonstrate that using  .  The larger the problem is, the greater the advantage of distributing the work and the gains of further distributing the work are increased (REWRITE). 
+At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in CHRONUS can be setup in a cluster for high performance or over the Internet, for volunteer computing tasks. 
 
-CHRONUS provides a number of useful benefits over Hadoop.  Chord's routing properties allows us to avoid the single point of failure that Hadoop has.
+Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained incorperating by incorperating more nodes into the problem. 
 
-In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is descrubed in Section  $X$, while our experiments and their results are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
+
+In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is described in Section  $X$, while our experiments and their results are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
 
 %\subsubsection{Current models of distributing work}
 %Talk about hadoop mention how we basically have a way to distribute reduce.
@@ -97,26 +92,6 @@ In section $number$ we discuss the Chord Protocol, as well as the specifics of o
 %\subsubsection{Our proposed model Hashnet:  A system of computers connected together using a distributed hash table as a means for efficiently distributing both data and work.}
 
 %A hashnet is not a new paradigm for distributing work; it is an extension of the established and highly tested means of distributing files and applying the scheme to do the same for work.
-
-
-
-\section{Background}
-
-
-%\subsection{Old Background}
-%Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
-
-%\subsection{Basic Peer-to-Peer Networks}
-%The most basic type of network is a structured, centralized  network.  Peers in this network communicate with a central server to provide their files and to locate other peers that have the files they are searching for.  This is structured in the sense that the layout of the overlay network is tightly controlled, in this case by the server(s). While this avoids the problems of routing, it has the same issues of scalability as a client-server layout and is not much of an improvement. An example of this network is the long defunct Napster  \cite{SurveyCompare} \cite{Overview}.
-
-%On the other side of the spectrum, there are unstructured, decentralized networks.  These networks create overlay links between nodes in a random manner. This leads to a very unstructured overlay, but it is one that is very easily constructed.  No single node is responsible for the whole of the network;  files are located by sending out requests to neighboring peers, which in turn request from their neighbors and so on. Should a file become suddenly popular, the flood of traffic generated by requests can easily bring some peers to their knees \cite{Lv:2002:SRU:514191.514206}, making them a poor choice for implementation \cite{Overview}.
-
-%Modern P2P implementations are hard to classify easily, due to the variety of methods used to create a working network that avoids the weaknesses of the two above network types.  Many networks today use a decentralized structured approach to distribute files, where the topology of the overlay is constructed and controlled by the protocol and the information about the network is distributed among the peers.  This distribution is typically accomplished by a distributed hash table (DHT).  Networks that use a DHT choose specific peers in which to place information about how to find particular files or data.  These peers are chosen so that the peer's ID in the network corresponds to the file or data's ID, typically by hashing both ID's and comparing them  \cite{SurveyCompare}. 
-
-%In addition, the network topology is distributed among various peers.  Each peer has a table consisting of other peers in the network and the means of communicating with them.  The contents of this table are also controlled by the protocol.  The table handles the routing of requests from one node to another; when a peer receives a request it cannot fulfill, such as information about where to find a particular file, it directs the the request to the node that is "closest" to the destination of the request. How this works is determined by each protocol \cite{Chord}.  It should be noted that closeness is relative to the algorithm; depending on what identifiers are assigned, a node in New York City might be "close" to a node in Russia, but "far" from a node physically a few miles away.  Examples of protocols that use these techniques are trackerless BitTorrent \cite{BitTorrent}, Chord \cite{Chord}, and Kademlia \cite{Kademlia}.  As our work is implemented using Chord, our implementation of the protocol is covered in the following section. 
-
-
-
 
 
 
@@ -171,7 +146,6 @@ Unfortunately, it is impossible that every time a node leave the network it will
 
 \subsection{Extensions of Chord}
 
-
 The Cooperative File System (CFS) is an anonymous, distributed file sharing system built on top of Chord \cite{CFS}.  In CFS, rather than storing an entire file at a single node, the file is split up into multiple chunks around 10 kilbytes in size.  These chunks are each assigned a hash and stored in nodes corresponding to their hash in the same way that whole files are.  The node that would normally store the whole file instead stores a \emph{key block}, which holds the hash address of the chunks of the file. 
 
 The chunking allows for numerous advantages.  First, it promotes load balancing. Each piece of the overall file would (ideally) be stored in a different node, each with a different backup or backups.  This would prevent any single node from becoming overwhelmed from fulfilling multiple requests for a large file.  It would also prevent retrieval from being bottlenecked by a node with a relatively low bandwidth. Finally, when Chord uses some sort of caching scheme like that described in CFS \cite{CFS}, caching chunks as opposed to the entire file resulted in about 1000 times less storage overhead.  
@@ -181,16 +155,22 @@ The chunking allows for numerous advantages.  First, it promotes load balancing.
 Chunking also opens up the options for implementing additional redundancy such as erasure codes\cite{rizzo1997effective}. With erasure codes, redundant chunks are created but any combination of a particular number of chunks is sufficient to recreate the file.  For example, a file that would normally be split into 10 chunks might be split into 15 encoded chunks.  The retreival of any 10 of those 15 chunks is enough to recreate the file.  Implementing erasure codes would presumably make the network more fault tolerant, but that is an exercise left for future work.
 
 
+%Generally, related files should be kept together; Chord, however, just hashes the filename to find the responsible node and sends it to that location without any thought to organization.  Our solution to this is to use allow the file owner to select first 80 bits of a file's hash, then generating the remaining least signifcant bits by hashing the filename.  It does not matter if a file owner, in some infintesimally small coincidence, chooses the same 80 bit prefix as another file owner, as the purpose is to keep related files together.   
 
 
 
 \section{MapReduce and Hadoop}
 
+\subsubsection{What is it}
+
+MapReduce became a major topic of interest in 2004 when Google published a paper detailing their implementation, called MapReduce \cite{mapreduce}.
+
+At its core, MapReduce \cite{mapreduce} is a system for division of labor, providing a layer of speration between the programmer and the nastier parts of parallel processing.  The programmer sends a large task to a master node, who then divides that task among slave nodes (which may further divide the task).  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then produces a result for each map operation.  This intermediate data can then be reduced, combining these sets of intermediate data into a set, which is further combined with other sets.  This process continues until one set of data remains.
+
+The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
 
-\subsubsection{History}
-
-At its core, MapReduce \cite{mapreduce} is a system for division of labor.  One very popular implementation of MapReduce is  Apache's Hadoop. \cite{hadoop}.
+One very popular implementation of MapReduce is Apache's Hadoop. \cite{Hadoop}.  
 
 
 \subsubsection{Requirements for a viable MapReduce platform}
@@ -198,57 +178,52 @@ scalability and fault-tolerence.
 
 Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign nodes responibilty as the ring adds and loses nodes makes it extremely fault tolerant.  
 
-\subsubsection{Example}
 
-A task gets sent to a master node, who then divides that task among slave nodes, which may further divide the task.  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then reduces a result for each map operation.  This intermediate data is then reduced by other slave nodes then returned to the user. 
-
-The classic example given for MapReduce is counting the word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers  \footnote{Workers can further split up the chunks among other workers.}.  Each worker then goes thru each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
-
-
-
-
-
-
-\subsubsection{Map Reduce advantages and disadvantages}
-this is a good survey \cite{mrsurvey}.
-
-Should rework to focus on Hadoop.
 
 \subsubsection{Why are we an interesting and viable alternative to Hadoop}
 
-Much easier to program on ours. Citation of complaints.
+Here is a list.
 
-Hadoop has a specific arcitecture.  Ours is really easy to setup.  Step 1: add node to ring. Step 2: there is no step 2.
+\begin{itemize}
+    \item Much easier to program on ours? Citation of complaints.
 
-Hadoop is bound to it's filesystem. For our system to use a database, make the query during stage().  Or if part of the job requires making queries to the datbase, just write those calls in.
+    \item Hadoop has a specific architecture.  Ours is really easy to setup.  Step 1: add node to ring. Step 2: there is no step 2.
 
-Hadoop has master node bottle neck issue [CITATION].  Ours can have that happen but it's much less of an issue because we can collate on the way back.   This would take extra  $waittime \log(n)$ time for the reduce step. 
+    \item Hadoop is bound to it's filesystem. For our system to use a database, make the query during stage().  Or if part of the job requires making queries to the database, just write those calls in.
+    
+    
+    \item If I'm reading this correctly, Hadoop keeps track of where the data is stored and asks the node where the data is stored to do the map tasks.  In CHRONUS we don't make any assumption about the data, including where it's coming from.  This means we can lose time feeding in our data
 
-Hadoop is more latency tolerant.  There are ways to work around that.  BRENDAN EXPOUND HERE.
 
-Usually map reduce can't do 
+    \item Hadoop has master node bottle neck issue [CITATION].  Ours can have that happen but it's much less of an issue because we can collate on the way back.   This would take extra  $waittime \log(n)$ time for the reduce step. 
 
-THere is no single point of failure for our network.  our master node can go down and we don't care. Hadoop's name node is a single point of failure \cite{shvachko2010hadoop}.
+    \item Hadoop is more latency tolerant.  There are ways to work around that.  BRENDAN EXPOUND HERE.
+
+    \item I seem to get the implication from \cite{mrsurvey} that Hadoop must wait for all maps to finish before reducing.  CHRONUS doesn't.
+    \item CHRONUS doesn't rely in a scheduler; we just send messages.  
+
+    \item There is no single point of failure for CHRONUS.  Our master node can go down and we don't care. Hadoop's name node is a single point of failure \cite{shvachko2010hadoop}.
+
+\end{itemize}
 
 \section{Related Work}
 
-\subsection{Volunteer Computing}
-In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
+THIS SECTION NEEDS OOMPH due to narrowing of focus.
 
-This concerted effort has been immensely successful, providing data for 109 peer-reviewed publications as of August 2013 \cite{foldingPapers}\footnote{Check the format of this citation}.
+%\subsection{Volunteer Computing}
+%In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
 
-In a similar vein, SETI@home is a concerted effort by millions of users to analyze collected radio signals for signs of intelligent life \cite{anderson2002seti}\footnote{Check the sizes, I think seti is bigger}.
+%This concerted effort has been immensely successful, providing data for 109 peer-reviewed publications as of August 2013 \cite{foldingPapers}\footnote{Check the format of this citation}.
 
-Great Internet  Mersenne Prime Search, or GIMPS, is a large scale distributed computing software to find Mersenne Primes.  Mersenne primes are prime numbers of format $M_{p} = 2^{p} - 1$, where $p$ is a prime number. The largest known prime number is a Mersenne Prime found using GIMPS.
+%In a similar vein, SETI@home is a concerted effort by millions of users to analyze collected radio signals for signs of intelligent life \cite{anderson2002seti}\footnote{Check the sizes, I think seti is bigger}.
+
+%Great Internet Mersenne Prime Search, or GIMPS, is a large scale distributed computing software to find Mersenne Primes.  Mersenne primes are prime numbers of format $M_{p} = 2^{p} - 1$, where $p$ is a prime number. The largest known prime number is a Mersenne Prime found using GIMPS.
  
  
-Our program would provide an excellent platform for users to write their own program for volunteer work.  
+%Our program would provide an excellent platform for users to write their own program for volunteer work.  
+%\subsection{P2P-MapReduce Systems}
 
-
-
-\subsection{P2P-MapReduce Systems}
-
-P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapRecude is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations.
+P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapReduce is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations.
 
 Closest to our work is Lee et al.'s work \emph{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
 
@@ -299,6 +274,8 @@ Our work handles issues of fault tolerance and reassigning lost jobs.  We also d
 \section{CHRONUS}
 
 
+
+
 \subsection{Implementation}
 Paragraph here about the bidding nature of the amazon market.
 age of the inherent ring structure.
@@ -322,9 +299,7 @@ The job of this stager is to take the work and divide it into \emph{data atoms},
 
 Nodes which receive data atoms apply the map function to the data to create intermediate data atoms, which are sent to other BLANK.  DESCRIBE HOW TWO INTERMEDIATE ATOMS GET TO THE SAME PLACE.  Nodes that receive at least two intermediate values merge them into one data atom using the reduce function.   The atoms are continually merged until only one remains at the hash address of the stager. 
 
-Once the reductions are finished, the user gets his results from the node at the stager's address.
-
-Once the stager has sent all the data atoms, his job is done.  The stager does not need to collect the results work, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change.
+Once the reductions are finished, the user gets his results from the node at the stager's address.  This may not be be the stager himself, as once the stager has sent all the data atoms, his job is done.  The stager does not need to collect the results work, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change.
 
 
 
@@ -339,9 +314,7 @@ The developer does not need to worry about distributing work evenly, nor does he
 
 All a developer needs to do to write three functions: the staging function, map, and reduce.  These define how to split up the work into manageable portions,  the  work to be performed on each portion to get some results, and how to combine these results into a single result. 
 
-In the next section, we show two of the implementations we ran on our ring of nodes.
 
-\subsection{Example implementations of mapreduce}
 
 \subsubsection{Calculating Pi}
 

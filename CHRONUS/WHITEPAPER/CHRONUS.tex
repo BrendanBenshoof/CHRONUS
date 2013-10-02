@@ -56,31 +56,32 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\D
 \maketitle
 
 \begin{abstract}
-Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network.  From Chord, we introduce the concept of the Hashnet, where computers use distributed hash table as a means of distributing both data and work.  Because Chord provides the backbone of this network, a Hashnet is robust, scalable, resilient to churn, fault tolerant, and automatically  and evenly distributes work throughout the network.
+
+Large problems in Computer Science are often able to be split into many smaller, functionally identical tasks, the results of which can be reduced into the desired solution.  MapReduce is a framework for 
+performing distributed computations of these types of problems, but most of these frameworks are strongly dependent on a heirarchical structure.  Chord is a distributed hash table that provides $\log_{2}n$ connectivity among processors.  Our experiments show that a Chord ring has number of desirable advantages for implementing MapReduce, such as a lack of a single point of failure, fault-tolerance, an even distribution of work, scalability, and minimal overhead.
+%Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network.  From Chord, we introduce the concept of the Hashnet, where computers use distributed hash table as a means of distributing both data and work.  Because Chord provides the backbone of this network, a Hashnet is robust, scalable, resilient to churn, fault tolerant, and automatically  and evenly distributes work throughout the network.
 
 %We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant.
-HARRISON:  Map reduce is a family of algorithms for distributed computations. The basic idea with these algorithms is to factor a large task into independent tasks that can be mapped to a set of processors and the have the results reduced back to the desired solution. Chord networks are a ring of processors with a log(n) connectivity.  In this paper we show that the chord network has advantages for implementing map/reduce because of its low latency (low overhead?) connectivity. (you probably can state this better than me).
 
+%HARRISON:  Map reduce is a family of algorithms for distributed computations. The basic idea with these algorithms is to factor a large task into independent tasks that can be mapped to a set of processors and the have the results reduced back to the desired solution. Chord networks are a ring of processors with a log(n) connectivity.  In this paper we show that the chord network has advantages for implementing map/reduce because of its low latency (low overhead?) connectivity. (you probably can state this better than me).
 \end{abstract}
 \section{Introduction}
 
 
-Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.\footnote{Needs more expansion, perhaps some about increased availability of distributed computing.}
+Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.
 
-One of the most popular platforms is Hadoop, Apache's open-source implementation of MapReduce \cite{Hadoop}.
-
-CONNECTING SENTENCE(S) TO BRIDGE THE GAP
-
-Chord \cite{Chord} is a distributed hash table (DHT) designed for peer-to-peer networks with a number of remarkable qualities.  Chord guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is minimal maintenance required by the network as a whole to handle individual nodes.
+The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Haddop has two components, the Hadoop Distributed File System (HDFS) and the Hapdoop MapReduce Framework \cite{mrsurvey}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode is responsible for keeping track of whcih DataNodes posess which files, as well as coordinating the work done under a MapReduce job \textsuperscript{\textbf{double check the latter}}. 
  
-However, the architectures that provide the backbone of many a peer-to-peer network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applied to distributing work among member nodes.  We built a framework on CHRONUS for performing Map and Reduce tasks on Chord ring.  CHRONUS leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure.
+However, what if we desire a less heirarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
 
-At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in CHRONUS can be setup in a cluster for high performance or over the Internet, for volunteer computing tasks. 
+Chord \cite{Chord} is a distributed hash table (DHT) that possesses these qualities.  Chord guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is little maintenance required by the network as a whole to handle individual nodes.  Files in the network are distributed evenly among its members.
+ 
+However, rather that viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called CHRONUS, that builds off the concepts that make Chord a powerful means of evenly distributing files and applies it toward distributing work among member nodes\footnote{repetitive}.  We built a framework on CHRONUS for performing Map and Reduce tasks on Chord ring.  CHRONUS leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure.
 
-Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained incorperating by incorperating more nodes into the problem. 
+At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in CHRONUS can be setup in a cluster for high performance or they can be deployed the Internet, for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained incorperating by incorperating more nodes into the problem. 
 
 
-In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is described in Section  $X$, while our experiments and their results are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
+Section X covers the specifics of the Chord Protocol and the design choices we made for implementation. We describe MapReduce and Hadoop in more detail in Section QA4162.  Related Work is discussed in Section 42. Details of CHRONUS's implementation and code is described in Section Q, while our experiments and their results are covered in Section Z.  Lastly, Section L discusses fruitful avenues of future research.
 
 %\subsubsection{Current models of distributing work}
 %Talk about hadoop mention how we basically have a way to distribute reduce.
@@ -96,7 +97,7 @@ In section $number$ we discuss the Chord Protocol, as well as the specifics of o
 
 
 \section{CHORD}
-The Chord protocol \cite{Chord} takes in some key and returns the identity (ID) of the node responsible for that key.  These keys are generated by hashing a value of the node, such as the IP address, or by hashing  the filename of a file.  The hashing process creates a $m$-bit hash identifier.
+The Chord protocol \cite{Chord} takes in some key and returns the identity (ID) of the node responsible for that key.  These keys are generated by hashing a value of the node, such as the IP address and port, or by hashing the filename of a file.  The hashing process creates a $m$-bit hash identifier.
 
 The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord then takes the hashed files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value.  This node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  Since the overlay is a circle, this assignment is computed in module $2^m$ space.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 could be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, it would inform node 27, who would then be responsible for all the keys node 25 was covering. An example Chord network is drawn in in Figure INSERT FIG HERE.
 
@@ -131,7 +132,7 @@ Suppose Alice, Bob, Carol, and Dan are members of the ring and everyone happens 
 
 When Bob sees that notification, he can see Alice is closer than whoever his previous predecessor is and sets Alice to be his predecessor.  During the next stabilization cycle, Alice will see that she is still Bob's predecessor and notify him that she's still there (Figure \ref{abcd2}).
 
-One of the major design choices for Chord implementation is not figuring which node is responsible for a given key, but figuring out who decides which node is responsible for a given key.  In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  A node that does not have a predecessor assigns itself as its own predecessor and considers itself responsible for all messages it receives.  COUNTER WHY THIS IS A BAD IDEA.  THIS IS A VERY DEFINITE CRITICISM 
+One of the major design choices for Chord implementation is not figuring which node is responsible for a given key, but figuring out who decides which node is responsible for a given key.  In our implementation, a node $n$ is responsible for the keys ($predecessor(n)$, $n$].  In other words, when $n$ gets a message, it considers itself the intended destination for the message if the message's destination hash is between $predecessor(n)$ and $n$.  A node that does not have a predecessor assigns itself as its own predecessor and considers itself responsible for all messages it receives. 
 
 When a node $n$ changes his successor, $n$ asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is better suited to hold onto, packages it up, and sends it along to $n$.  The successor does not have to delete this data. If fact, keeping this data as a backup is beneficial to the network as a whole, as $n$ could decide to leave the network at any point. 
 
@@ -203,7 +204,9 @@ Here is a list.
     \item CHRONUS doesn't rely in a scheduler; we just send messages.  
 
     \item There is no single point of failure for CHRONUS.  Our master node can go down and we don't care. Hadoop's name node is a single point of failure \cite{shvachko2010hadoop}.
-
+    \item DataNodes register with the NameNode, so that the DataNode's identity and responsibilities persist even if the node is restarted under different address or port.
+    
+    \item no need for heartbeats.  HFDS has nodes send a heartbeat to the NameNode every 3 seconds \cite{shvachko2010hadoop}.  
 \end{itemize}
 
 \section{Related Work}
@@ -273,7 +276,7 @@ Our work handles issues of fault tolerance and reassigning lost jobs.  We also d
 
 \section{CHRONUS}
 
-
+CHRONUS bagan its life as a much more generalized response to the question "Is there something I can do with peer-to-peer networks \emph{other} that distrubute files?."
 
 
 \subsection{Implementation}
@@ -286,6 +289,9 @@ age of the inherent ring structure.
 
 \subsubsection{Code Details}
 We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls.
+
+\subsubsection{Latency}
+The latency depends heavily on deployment.  Obviously if the network's node are distriuted all over the world, you won't be able to expect the types of gains you'd want in a cluster, but the type of work that you would distribute over the Internet as a whole is different that the work you would want to do in a local cluster.  And you'd have different expectations of each
 
 
 \subsubsection{Targets for CHRONUS}
@@ -355,9 +361,10 @@ We ran word count on James Joyce's \emph{Ulysses} \cite{joyce1924ulysses}.
  
 \section{Results}
 
-\section{Conclusion}
+\section{Conclusion and Future Work}
 Our stuff \cite{code} is awesome.
-CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes
+CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes.
+Tackle security and distrubuted authentication.
 
 
 \bibliographystyle{plain}

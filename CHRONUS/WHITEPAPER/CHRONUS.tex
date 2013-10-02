@@ -62,16 +62,6 @@ Distributed Hash networks, such as Chord, are an established technique for stori
 HARRISON:  Map reduce is a family of algorithms for distributed computations. The basic idea with these algorithms is to factor a large task into independent tasks that can be mapped to a set of processors and the have the results reduced back to the desired solution. Chord networks are a ring of processors with a log(n) connectivity.  In this paper we show that the chord network has advantages for implementing map/reduce because of its low latency (low overhead?) connectivity. (you probably can state this better than me).
 
 \end{abstract}
-
-WHAT'S GOING ON IN THE PAPER
-
-\begin{itemize}
-    \item The subsubsections are being combined as I write stuff
-    \item The Introduction and related work are the sketchiest areas, as the old paper isn't really relevent to this 
-    \item Writing more relevent sections for map-reduce, getting ready to comment out sections for conference length.
-\end{itemize}
-
-
 \section{Introduction}
 
 GOALS:
@@ -84,16 +74,18 @@ GOALS:
 
 Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.\footnote{Needs more expansion, perhaps some about increased availability of distributed computing.}
 
+One of the most popular platforms for MapReduce is Hadoop
+
 CONNECTING SENTENCE(S) TO BRIDGE THE GAP
 
-Chor
+Chord \cite{Chord} is a distributed hash table (DHT) designed for peer-to-peer networks with a number of remarkable qualities.  Chord guaratees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is minimal maintenence required by the network as a whole to handle individual nodes.
+ 
 
-However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applyed to di.  CHRONUS provides a scalable of evenly distributing both data and work among its member nodes
+However, the architectures that provide the backbone of many a P2P network, such as Chord \cite{Chord} have been viewed solely as a means for sharing files  or routing traffic.  We have developed a system, called CHRONUS, that takes the idea of evenly distributing files and applyed to distributing work among member nodes.  CHRONUS provides a scalable of evenly distributing both data and work among its member nodes.  Our experiments demonstrate that using  .  The larger the problem is, the greater the advantage of distributing the work and the gains of further distributing the work are increased (REWRITE). 
 
-In this arrangement, MapReduce task can be performed 
+CHRONUS provides a number of useful benefits over Hadoop.  Chord's routing properties allows us to avoid the single point of failure that Hadoop has.
 
-
-In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is descrubed in Section  $X$, while our experiments are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
+In section $number$ we discuss the Chord Protocol, as well as the specifics of our implementation.  We describe MapReduce and Hadoop in more detail in section $number$.  CHRONUS is descrubed in Section  $X$, while our experiments and their results are covered in section $Y$.  Lastly, Section $number$ discusses fruitful avenues of future research.
 
 %\subsubsection{Current models of distributing work}
 %Talk about hadoop mention how we basically have a way to distribute reduce.
@@ -111,27 +103,27 @@ In section $number$ we discuss the Chord Protocol, as well as the specifics of o
 \section{Background}
 
 
-\subsection{Old Background}
-Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
+%\subsection{Old Background}
+%Not all peer-to-peer networks are equal; there are variety of protocols and methodologies that a networks could implement and this affects what kind of solutions are available to reduce the traffic on the network    \cite{SurveyCompare} \cite{Overview}.
 
 %\subsection{Basic Peer-to-Peer Networks}
-The most basic type of network is a structured, centralized  network.  Peers in this network communicate with a central server to provide their files and to locate other peers that have the files they are searching for.  This is structured in the sense that the layout of the overlay network is tightly controlled, in this case by the server(s). While this avoids the problems of routing, it has the same issues of scalability as a client-server layout and is not much of an improvement. An example of this network is the long defunct Napster  \cite{SurveyCompare} \cite{Overview}.
+%The most basic type of network is a structured, centralized  network.  Peers in this network communicate with a central server to provide their files and to locate other peers that have the files they are searching for.  This is structured in the sense that the layout of the overlay network is tightly controlled, in this case by the server(s). While this avoids the problems of routing, it has the same issues of scalability as a client-server layout and is not much of an improvement. An example of this network is the long defunct Napster  \cite{SurveyCompare} \cite{Overview}.
 
-On the other side of the spectrum, there are unstructured, decentralized networks.  These networks create overlay links between nodes in a random manner. This leads to a very unstructured overlay, but it is one that is very easily constructed.  No single node is responsible for the whole of the network;  files are located by sending out requests to neighboring peers, which in turn request from their neighbors and so on. Should a file become suddenly popular, the flood of traffic generated by requests can easily bring some peers to their knees \cite{Lv:2002:SRU:514191.514206}, making them a poor choice for implementation \cite{Overview}.
+%On the other side of the spectrum, there are unstructured, decentralized networks.  These networks create overlay links between nodes in a random manner. This leads to a very unstructured overlay, but it is one that is very easily constructed.  No single node is responsible for the whole of the network;  files are located by sending out requests to neighboring peers, which in turn request from their neighbors and so on. Should a file become suddenly popular, the flood of traffic generated by requests can easily bring some peers to their knees \cite{Lv:2002:SRU:514191.514206}, making them a poor choice for implementation \cite{Overview}.
 
-Modern P2P implementations are hard to classify easily, due to the variety of methods used to create a working network that avoids the weaknesses of the two above network types.  Many networks today use a decentralized structured approach to distribute files, where the topology of the overlay is constructed and controlled by the protocol and the information about the network is distributed among the peers.  This distribution is typically accomplished by a distributed hash table (DHT).  Networks that use a DHT choose specific peers in which to place information about how to find particular files or data.  These peers are chosen so that the peer's ID in the network corresponds to the file or data's ID, typically by hashing both ID's and comparing them  \cite{SurveyCompare}. 
+%Modern P2P implementations are hard to classify easily, due to the variety of methods used to create a working network that avoids the weaknesses of the two above network types.  Many networks today use a decentralized structured approach to distribute files, where the topology of the overlay is constructed and controlled by the protocol and the information about the network is distributed among the peers.  This distribution is typically accomplished by a distributed hash table (DHT).  Networks that use a DHT choose specific peers in which to place information about how to find particular files or data.  These peers are chosen so that the peer's ID in the network corresponds to the file or data's ID, typically by hashing both ID's and comparing them  \cite{SurveyCompare}. 
 
-In addition, the network topology is distributed among various peers.  Each peer has a table consisting of other peers in the network and the means of communicating with them.  The contents of this table are also controlled by the protocol.  The table handles the routing of requests from one node to another; when a peer receives a request it cannot fulfill, such as information about where to find a particular file, it directs the the request to the node that is "closest" to the destination of the request. How this works is determined by each protocol \cite{Chord}.  It should be noted that closeness is relative to the algorithm; depending on what identifiers are assigned, a node in New York City might be "close" to a node in Russia, but "far" from a node physically a few miles away.  Examples of protocols that use these techniques are trackerless BitTorrent \cite{BitTorrent}, Chord \cite{Chord}, and Kademlia \cite{Kademlia}.  As our work is implemented using Chord, our implementation of the protocol is covered in the following section. 
-
-
+%In addition, the network topology is distributed among various peers.  Each peer has a table consisting of other peers in the network and the means of communicating with them.  The contents of this table are also controlled by the protocol.  The table handles the routing of requests from one node to another; when a peer receives a request it cannot fulfill, such as information about where to find a particular file, it directs the the request to the node that is "closest" to the destination of the request. How this works is determined by each protocol \cite{Chord}.  It should be noted that closeness is relative to the algorithm; depending on what identifiers are assigned, a node in New York City might be "close" to a node in Russia, but "far" from a node physically a few miles away.  Examples of protocols that use these techniques are trackerless BitTorrent \cite{BitTorrent}, Chord \cite{Chord}, and Kademlia \cite{Kademlia}.  As our work is implemented using Chord, our implementation of the protocol is covered in the following section. 
 
 
 
 
-\subsection{CHORD}
+
+
+\section{CHORD}
 The Chord protocol \cite{Chord} takes in some key and returns the identity (ID) of the node responsible for that key.  These keys are generated by hashing a value of the node, such as the IP address, or by hashing  the filename of a file.  The hashing process creates a $m$-bit hash identifier.
 
-The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord then takes the hashed files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value.  This node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  Since the overlay is a circle, this assignment is computed in module $2^m$ space.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 could be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, it would inform node 27, who would then be responsible for all the keys node 25 was covering. An example Chord network is drawn in in Figure \ref{chordreal}.
+The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord then takes the hashed files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value.  This node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  Since the overlay is a circle, this assignment is computed in module $2^m$ space.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 could be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, it would inform node 27, who would then be responsible for all the keys node 25 was covering. An example Chord network is drawn in in Figure INSERT FIG HERE.
 
 With this scheme, we can reliably find the node responsible for some key by asking the next node in the circle for the information, who would then pass the request through the circle until the successor was found.  We can then proceed to directly connect with the successor to retrieve the file.  This naive approach is largely inefficient, and is a simplification of the lookup process, but it is the basis of how Chord theoretically works.
 
@@ -192,7 +184,7 @@ Chunking also opens up the options for implementing additional redundancy such a
 
 
 
-\subsection{MapReduce}
+\section{MapReduce and Hadoop}
 
 
 
@@ -268,7 +260,7 @@ The difference is that Symphony seeks to exploit the small world phenomena \cite
 
 To speed up routing in Symphony, the fingers are bidirectional, rather than unidirectional (does this mean when k is 4 there's effectively 8 fingers?  I think it does according to the \# tcp connection).  Symphony also has nodes maintain a 1-lookahead list for each finger \footnote{these speedups could be implemented on chord.}.
 
-In the simulation of a $2^15$ node network in \cite{Symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
+In the simulation of a $2^15$ node network in \cite{symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
 
 However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
 
@@ -392,6 +384,8 @@ We ran word count on James Joyce's \emph{Ulysses} \cite{joyce1924ulysses}.
 
 \section{Conclusion}
 Our stuff \cite{code} is awesome.
+CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes
+
 
 \bibliographystyle{plain}
 \bibliography{CHRONUS}

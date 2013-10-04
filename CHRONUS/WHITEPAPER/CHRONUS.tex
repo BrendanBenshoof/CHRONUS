@@ -225,53 +225,41 @@ THIS SECTION NEEDS OOMPH due to narrowing of focus.
  
 %Our program would provide an excellent platform for users to write their own program for volunteer work.  
 %\subsection{P2P-MapReduce Systems}
+\subsubsection{P2P-MapReduce }\cite{marozzo2012p2p}
+\begin{itemize}
+    \item Focuses on being able to handle churn during execution.
+    \item Much of the paper is focused on creating a new architecture, rather than leveraging a P2P protocol.  CHRONUS's architecture runs right on top of Chord. 
+    \item multiple master nodes, each can run a job.  If one master fails, another master can take over that nodes particular job after being elected to . 
+    \item experimental results are all simulations.
+    \item "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}
+\end{itemize} 
 
-P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at MapReduce; MapReduce is only one of the services CHRONUS provides.  It consumed more network resources than the traditional centralized implementation, but was much more tolerant to churn and lost less time when nodes?jobs failed\footnote{Fix this, actual quote was "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."}.  P2P-MapReduce was not implemented on a large scale; the test results for larger networks were derived from simulations.
-
-Closest to our work is Lee et al.'s work \emph{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
-
-The MapReduce built on Brunet is not as robust as our design.  Our protocol can account for Chrun during the execution of the  
-
-\subsubsection{Underlying protocol: Chord vs Symphony}
-
-\cite{leemap}\footnote{I need to find a better way to reference this; it doesn't have a  catchy name.} is implemented on top of BruNet\cite{BruNet}, which itself is an implantation of the DHT protocol Symphony \cite{symphony}.  Symphony and Chord share a great deal of symetry.  Both protocol create an overlay in the shape of a ring, both  use a hash to assign files to a node that corresponds to that hash, and both use a finger table\footnote{For simplicity, we use the Chord terminology in discussing Symphony concepts. The \emph{long-distance links} are analogous to Chord's fingers and the \emph{short-distance links} correspond to the predecessor and successors of a node.} to create shortcuts across the ring.
-
-The difference is that Symphony seeks to exploit the small world phenomena \cite{kleinberg2000navigation}, where the fingers are chosen at random along a probability distribution function.  The further away a node is, the less likely it will be chosen as a finger \footnote{Check this with brendan.}.  Like Chord, messages travel along the paths that bring them closest to their target destination, which is the node responsible the destination's hash value.  In a network with  $N$ nodes, each with $k$ fingers, a message will take on average $O(\frac{1}{k} \log^{2}(N))$ hops to reach its destination.   In comparison, the average lookup time in Chord is $\frac{1}{2}\log(N)$ \cite{Chord}.
-
-To speed up routing in Symphony, the fingers are bidirectional, rather than unidirectional (does this mean when k is 4 there's effectively 8 fingers?  I think it does according to the \# tcp connection).  Symphony also has nodes maintain a 1-lookahead list for each finger \footnote{these speedups could be implemented on chord.}.
-
-In the simulation of a $2^15$ node network in \cite{symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
-
-However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
+\subsubsection{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}. 
+\begin{itemize}
+    \item Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
+    \item based off of an implementation of Symphony \cite{symphony}, DHT protocol very similar to Chord.
+    \item Their churn is handled by the underlying protocol and no special arrangements have been made for handling churn during a job.
+    \item If their ad-hoc master node goes down during the execution, there is no recovery.
+\end{itemize}
 
 
 
 
+Both these papers have promising results and confirm the viablility of our own effort.  The experimental results in P2P-MapReduce demonstrate that while there is additional overhead resulting from the fault-tolerant aspects of the system, it's more than made up for by job failures \cite{marozzo2012p2p}.
 
-\subsubsection{Maintenence}
+Both systems have their masters take a very hands on approach, whereas CHRONUS leverages the neighbors of the nodes to handle any problems, like recovery. 
 
-Symphony is extremely effective in a (relatively) smaller network because of the simplicity of the maintenance.  
+%\subsubsection{Underlying protocol: Chord vs Symphony}
 
-It's okay to have $<k$ fingers or different $k$ for a finger.
+%\cite{leemap}is implemented on top of BruNet\cite{BruNet}, which itself is an implantation of the DHT protocol Symphony \cite{symphony}.  Symphony and Chord share a great deal of symetry.  Both protocol create an overlay in the shape of a ring, both  use a hash to assign files to a node that corresponds to that hash, and both use a finger table\footnote{For simplicity, we use the Chord terminology in discussing Symphony concepts. The \emph{long-distance links} are analogous to Chord's fingers and the \emph{short-distance links} correspond to the predecessor and successors of a node.} to create shortcuts across the ring.
 
-\subsubsection{Fault Tolerence}
-At a glance Symphony and Chord seem to handle churn the same way, backing up nodes for the data.
+%The difference is that Symphony seeks to exploit the small world phenomena \cite{kleinberg2000navigation}, where the fingers are chosen at random along a probability distribution function.  The further away a node is, the less likely it will be chosen as a finger \footnote{Check this with brendan.}.  Like Chord, messages travel along the paths that bring them closest to their target destination, which is the node responsible the destination's hash value.  In a network with  $N$ nodes, each with $k$ fingers, a message will take on average $O(\frac{1}{k} \log^{2}(N))$ hops to reach its destination.   In comparison, the average lookup time in Chord is $\frac{1}{2}\log(N)$ \cite{Chord}.
 
-Nodes entering the a Symphony ring choose their address uniformly at random, do they hash it?  If not, then nodes will basically be unable to resume their place in the network.
+%To speed up routing in Symphony, the fingers are bidirectional, rather than unidirectional (does this mean when k is 4 there's effectively 8 fingers?  I think it does according to the \# tcp connection).  Symphony also has nodes maintain a 1-lookahead list for each finger \footnote{these speedups could be implemented on chord.}.
 
+%In the simulation of a $2^15$ node network in \cite{symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
 
-\subsubsection{Implementation of map reduce}
-
-\subsubsection{Important thing is the paradigm shift}
-
-\subsubsection{Does Brunet address security?}
-Doesn't look like it, so we should especially talk about our encrypted chat later and make mention of it heare
-
-\subsubsection{We're looking at a giant computer, a distributed operating system.}
-
-Our work handles issues of fault tolerance and reassigning lost jobs.  We also don't explicitly form a hierarchical structure.
-
-
+%However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
 
 
 
@@ -282,6 +270,14 @@ Our work handles issues of fault tolerance and reassigning lost jobs.  We also d
 \section{CHRONUS}
 
 CHRONUS bagan its life as a much more generalized response to the question "Is there something I can do with peer-to-peer networks \emph{other} that distrubute files?."
+
+
+Our first step was to implement Chord.  Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top of our C, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring.
+
+Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.
+
+
+
 
 
 \subsection{Implementation}
@@ -313,8 +309,12 @@ Nodes which receive data atoms apply the map function to the data to create inte
 Once the reductions are finished, the user gets his results from the node at the stager's address.  This may not be be the stager himself, as once the stager has sent all the data atoms, his job is done.  The stager does not need to collect the results work, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change.
 
 
+We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to achieve what we want.  The Stager process randomly assigns a destination hash to each job it sends out, knowing the even distribution of the network will ensure that each node that ends up getting a Map task will be doing an equal amount of work.  
 
-\subsubsection{What happens if the stager goes down while staging} 
+If node $n$ was responsible for collecting all the data and suddenly goes down, his successor will automatically receive all the incoming data, which he can add to his backup of the data $n$ had.  Here, we are leverging two features. First,  we use the automatic assignment of responsibility to automatically route the data to the sucessor. Second the same process Chord uses to backup files is used to backup the intermediate data. 
+
+Similar precautions are taken for nodes working on map and reduce tasks.  Those tasks get backedup  by a node's successor, who will run the task if the node quits the network before the doing the job (eg the successor loses his predecessor).   The only addition to the architecture we've made here is that a node $n$ will send a message to his sucessor when  $n$'s map or reduce task is done.  This message tells $n$'s successor that the backup is no longer needed.  This is done to prevent a job being submitted twice if $n$ goes down after finishing his task and sending it out.
+
 
 \subsubsection{Recap the issues  of normal MapReduce  and why ours is better} 
 We present our implementation of MapReduce not as a direct competitor to MapReduce, but as proof of a more versatile system able to support many complex operations.
@@ -370,7 +370,7 @@ Once started, nodes would pull the latest version of the code and run it, automa
 Our stuff \cite{code} is awesome.
 CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes.
 Tackle security and distrubuted authentication.
-
+Really security,  We're aware that as our prototype code currently stands, and adversary could make his map and reduce tasks do anything he wants(   I direct your attention to the word \emph{protoype})
 
 \bibliographystyle{plain}
 \bibliography{CHRONUS}

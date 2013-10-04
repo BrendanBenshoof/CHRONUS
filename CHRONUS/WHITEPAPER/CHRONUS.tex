@@ -78,7 +78,7 @@ Chord \cite{Chord} is a distributed hash table (DHT) that possesses these qualit
  
 However, rather that viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called CHRONUS, that builds off the concepts that make Chord a powerful means of evenly distributing files and applies it toward distributing work among member nodes\footnote{repetitive}.  We built a framework on CHRONUS for performing Map and Reduce tasks on Chord ring.  CHRONUS leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure.
 
-At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in CHRONUS can be setup in a cluster for high performance or they can be deployed the Internet, for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained incorperating by incorperating more nodes into the problem. 
+At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in CHRONUS can be setup in a cluster for high performance or they can be deployed the Internet, for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorperating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose any node to churn and still process jobs successfully\footnote{Brendan, check}.
 
 
 Section X covers the specifics of the Chord Protocol and the design choices we made for implementation. We describe MapReduce and Hadoop in more detail in Section QA4162.  Related Work is discussed in Section 42. Details of CHRONUS's implementation and code is described in Section Q, while our experiments and their results are covered in Section Z.  Lastly, Section L discusses fruitful avenues of future research.
@@ -230,6 +230,8 @@ P2P-MapReduce \cite{marozzo2012p2p}, is similar to our work, but looks only at M
 
 Closest to our work is Lee et al.'s work \emph{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
 
+The MapReduce built on Brunet is not as robust as our design.  Our protocol can account for Chrun during the execution of the  
+
 \subsubsection{Underlying protocol: Chord vs Symphony}
 
 \cite{leemap}\footnote{I need to find a better way to reference this; it doesn't have a  catchy name.} is implemented on top of BruNet\cite{BruNet}, which itself is an implantation of the DHT protocol Symphony \cite{symphony}.  Symphony and Chord share a great deal of symetry.  Both protocol create an overlay in the shape of a ring, both  use a hash to assign files to a node that corresponds to that hash, and both use a finger table\footnote{For simplicity, we use the Chord terminology in discussing Symphony concepts. The \emph{long-distance links} are analogous to Chord's fingers and the \emph{short-distance links} correspond to the predecessor and successors of a node.} to create shortcuts across the ring.
@@ -241,6 +243,9 @@ To speed up routing in Symphony, the fingers are bidirectional, rather than unid
 In the simulation of a $2^15$ node network in \cite{symphony}, this allowed the Symphony to perform at nearly identical speeds with Chord while utilizing only 4 bidirectional fingers and a 1-lookahead.  With 27 bidriectional finger and 1-lookahead, Symphony's lookups took half the time that Chord did. 
 
 However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
+
+
+
 
 
 \subsubsection{Maintenence}
@@ -353,13 +358,13 @@ We can have multiple non interacting secure file systems.
 First $k$ bits of hash used to describe files
 
 \section{Experiments}
-A set of experiments were run on large groups of Amazon EC2 Micro Instances\cite{amazon-micro}.
 
-We ran word count on James Joyce's \emph{Ulysses} \cite{joyce1924ulysses}.
-
+\subsection{Setup}
+\subsubsection{Execution}
+Once started, nodes would pull the latest version of the code and run it, automatically joining the network.  We could choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks  and what number, the other nodes don't have to be updated and are happy to perform the jobs they are given..   
 
  
-\section{Results}
+\subsection{Results}
 
 \section{Conclusion and Future Work}
 Our stuff \cite{code} is awesome.

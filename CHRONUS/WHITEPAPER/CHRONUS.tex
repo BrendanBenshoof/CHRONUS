@@ -228,9 +228,12 @@ THIS SECTION NEEDS OOMPH due to narrowing of focus.
 \subsubsection{P2P-MapReduce }\cite{marozzo2012p2p}
 \begin{itemize}
     \item Focuses on being able to handle churn during execution.
-    \item Much of the paper is focused on creating a new architecture, rather than leveraging a P2P protocol.  CHRONUS's architecture runs right on top of Chord. 
-    \item multiple master nodes, each can run a job.  If one master fails, another master can take over that nodes particular job after being elected to . 
+    \item Much of the paper is focused on creating a new architecture, rather than leveraging a P2P protocol.  CHRONUS's architecture runs right on top of Chord.
+    \item multiple master nodes, each can run a job.  If one master fails, another master can take over that nodes particular job after being elected to. Coordinator, a special master, maintains the master/slave ratio
+    \item Slave failures are handled by master nodes.
     \item experimental results are all simulations.
+    \item Their results showed that while P2P-MapReduce could generated an order of magnitude more messages than a centralized approach, the difference rapidly began to shrink at higher rates of churn.  
+    However,  when looking at actual amounts of \emph{data} being passed around the network, rather than the number of messages, the bandwidth\footnote{ANU, is this the correct term?} required by the centralized approach greatly increases as a function of churn, while the distrubuted approach again remains relatively static in terms of increased bandwidth usage and messages sent. 
     \item "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}
 \end{itemize} 
 

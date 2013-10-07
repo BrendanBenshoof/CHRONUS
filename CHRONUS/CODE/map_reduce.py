@@ -41,6 +41,8 @@ class Data_Atom(object):
 
 job_todo = Queue.Queue()
 
+backups = []
+
 reduce_todo = Queue.Queue()
 
 
@@ -75,6 +77,11 @@ class Map_Reduce_Service(Service):
         #if not msg.service == self.service_id:
         #    raise "Mismatched service recipient for message."
         if msg.service == self.service_id:
+            if msg.type==MAP and msg.backup: #short circuited and to avoid typeerror
+                backups.append(msg)
+            elif msg.type==MAP:
+                msg.backup = True
+                self.send_message(msg,node.successor)
             job_todo.put(msg)
             return True
         else:
@@ -116,8 +123,18 @@ class Map_Reduce_Service(Service):
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
-        pass #this is called when a new, closer predicessor is found and we need to re-allocate
-            #responsibilties
+        print "checking my backupped work"
+        for b in backups:
+            if b.timestamp < time.time()-b.keepalive:
+                if hash_util.hash_between(b.hashid, new_pred_key, my_key):
+                    print "gonna do a backup"
+                    todo.put(b)
+                    backups.remove(b)
+                    b.backup = True
+                    self.send_message(b,node.successor)
+            else:
+                backups.remove(b)
+                
     
     def test(self, to_test):
         X = importlib.import_module("."+to_test,"tests")
@@ -210,7 +227,7 @@ class Map_Reduce_Service(Service):
             newmsg.origin = msg.origin
             newmsg.timeingRecord = msg.timeingRecord + "\n--\n" + newmsg.timeingRecord
             newmsg.timeingRecord += "Map start: "+str(starttime)+"\n"+"Map done: "+str(time.time())+"\n"
-            self.send_message(newmsg, msg.reply_to)
+            self.send_message(newmsg, None)
 
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []
@@ -239,12 +256,15 @@ class Map_Message(Message):
     def __init__(self, jobid, dataset, map_function, reduce_function):
         super(Map_Message, self).__init__(MAP_REDUCE, MAP)
         self.jobid = jobid
-        self.map_function = map_function  #store you function here
+        self.map_function = map_function  #store your function here
         self.dataset = dataset  #list of atoms
         self.reduce_function = reduce_function
         self.origin = None
+        self.backup = False
         self.type = MAP
         self.timeingRecord = "'map msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
+        self.timestamp = time.time()
+        self.keepalive = 1000
 
 
 class Reduce_Message(Message):

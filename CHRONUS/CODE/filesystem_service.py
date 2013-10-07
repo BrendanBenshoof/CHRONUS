@@ -117,7 +117,7 @@ class FileSystem(service.Service):
                     get_datafile_message = shelver.Database_Message(self.owner,hash_util.Key(k), "FileSystem", "GET")
                     self.send_message(get_datafile_message,None)
             else:
-                #print contents
+                print contents
                 addr, cont = contents.split("\n",1)
                 if addr in self.partial_files.keys():
                     self.partial_files[addr].input_stream.put(msg)

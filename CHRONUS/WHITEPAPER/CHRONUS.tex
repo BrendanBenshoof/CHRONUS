@@ -211,7 +211,6 @@ Here is a list.
 
 \section{Related Work}
 
-THIS SECTION NEEDS OOMPH due to narrowing of focus.
 
 %\subsection{Volunteer Computing}
 %In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
@@ -272,38 +271,12 @@ Both systems have their masters take a very hands on approach, whereas CHRONUS l
 
 \section{CHRONUS}
 
-CHRONUS bagan its life as a much more generalized response to the question "Is there something I can do with peer-to-peer networks \emph{other} that distrubute files?."
+
+CHRONUS, at its core, is a fully functional Chord implementation in Python\footnote{The original implementation is in C++}.  Our installation was designed to be as simple as possible.   It consists of downloading our code\cite{code} and running chord.py.  You can specify the port you plan on using and the IP and port of a node in the ring you want to join.  Once that is done, the node will automatically integrate into the ring.
+Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top of our C, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.  
 
 
-Our first step was to implement Chord.  Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top of our C, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring.
-
-Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.
-
-
-
-
-
-\subsection{Implementation}
-Paragraph here about the bidding nature of the amazon market.
-age of the inherent ring structure.
-
-
-
-
-
-\subsubsection{Code Details}
-We implemented the Chord based on the psuedocode  in the Stoica's paper \cite{Chord}, using Python instead of C++.  We also sent messages instead of performing remote procedure calls.
-
-\subsubsection{Latency}
-The latency depends heavily on deployment.  Obviously if the network's node are distriuted all over the world, you won't be able to expect the types of gains you'd want in a cluster, but the type of work that you would distribute over the Internet as a whole is different that the work you would want to do in a local cluster.  And you'd have different expectations of each
-
-
-\subsubsection{Targets for CHRONUS}
-Who are we marketing to.
-\subsection{Distributed MapReduce}
-
-\subsubsection{Operation}
-In our implementation of a distributed map reduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a p2p file-sharing service will act as both a client and a server.  To start a job, the user contacts a node a specified hash address. The node he contacts to be the stager may be his own computer, and this is preferable when the job involves dividing up a large pile of data. 
+In our implementation of a distributed map reduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  To start a job, the user contacts a node a specified hash address. The node he contacts to be the stager may be his own computer, and this is preferable when the job involves dividing up a large pile of data. 
 
 The job of this stager is to take the work and divide it into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.  The specifics of how to divide the work are defined by the user in a \emph{stage} function.  These \emph{data atoms} are then given a random hash and sent to that hash address, guaranteeing an even distribution of the data atoms throughout the network.  The \emph{data atoms} also contain the map function and reduce function, as defined by the user.
 
@@ -331,6 +304,8 @@ All a developer needs to do to write three functions: the staging function, map,
 
 
 \subsubsection{Calculating Pi}
+To stress test the network, we use MapReduce to run a Monte-Carlo approximation of $\pi$. 
+
 
 \subsubsection{Word Count}
 

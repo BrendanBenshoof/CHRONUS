@@ -171,7 +171,7 @@ At its core, MapReduce \cite{mapreduce} is a system for division of labor, provi
 The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
 
-One very popular implementation of MapReduce is Apache's Hadoop. \cite{Hadoop}.  
+One very popular implementation of MapReduce is Apache's Hadoop. \cite{Hadoop}.  Hadoop is an Apache open-source project and backed by Yahoo!. 
 
 
 \subsubsection{Requirements for a viable MapReduce platform}
@@ -211,32 +211,18 @@ Here is a list.
 
 \section{Related Work}
 
+We have identified two extant papers that have done work on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways
 
-%\subsection{Volunteer Computing}
-%In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
+\subsection{P2P-MapReduce}
+Marozzo et al. \cite{marozzo2012p2p} looked at the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new, P2P based MapReduce architecture called P2P-MapReduce.  P2P-MapReduce is designed to be more robust, able to better handle node and job failures during execution.
 
-%This concerted effort has been immensely successful, providing data for 109 peer-reviewed publications as of August 2013 \cite{foldingPapers}\footnote{Check the format of this citation}.
+Rather than use a single master node, P2P-MapReduce would have multiple master nodes, each responsible for some job.  If one of those master nodes fails, another will be ready as a backup to take its place and manage the slave nodes assigned to that job.  Failures of the slave nodes are handled by the master node responsible for it.
 
-%In a similar vein, SETI@home is a concerted effort by millions of users to analyze collected radio signals for signs of intelligent life \cite{anderson2002seti}\footnote{Check the sizes, I think seti is bigger}.
+Experimental results were gathered via simulation. Their results showed that while P2P-MapReduce could generated an order of magnitude more messages than a centralized approach, the difference rapidly began to shrink at higher rates of churn.  However, when looking at actual amounts of \emph{data} being passed around the network, rather than the number of messages, the bandwidth\footnote{ANU, is this the correct term?} required by the centralized approach greatly increases as a function of churn, while the distrubuted approach again remains relatively static in terms of increased bandwidth usage and messages sent.  
 
-%Great Internet Mersenne Prime Search, or GIMPS, is a large scale distributed computing software to find Mersenne Primes.  Mersenne primes are prime numbers of format $M_{p} = 2^{p} - 1$, where $p$ is a prime number. The largest known prime number is a Mersenne Prime found using GIMPS.
- 
- 
-%Our program would provide an excellent platform for users to write their own program for volunteer work.  
-%\subsection{P2P-MapReduce Systems}
-\subsubsection{P2P-MapReduce }\cite{marozzo2012p2p}
-\begin{itemize}
-    \item Focuses on being able to handle churn during execution.
-    \item Much of the paper is focused on creating a new architecture, rather than leveraging a P2P protocol.  CHRONUS's architecture runs right on top of Chord.
-    \item multiple master nodes, each can run a job.  If one master fails, another master can take over that nodes particular job after being elected to. Coordinator, a special master, maintains the master/slave ratio
-    \item Slave failures are handled by master nodes.
-    \item experimental results are all simulations.
-    \item Their results showed that while P2P-MapReduce could generated an order of magnitude more messages than a centralized approach, the difference rapidly began to shrink at higher rates of churn.  
-    However,  when looking at actual amounts of \emph{data} being passed around the network, rather than the number of messages, the bandwidth\footnote{ANU, is this the correct term?} required by the centralized approach greatly increases as a function of churn, while the distrubuted approach again remains relatively static in terms of increased bandwidth usage and messages sent. 
-    \item "In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}
-\end{itemize} 
+RUNTIME RESULTS?? They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures\footnote{"In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}} \cite{marozzo2012p2p}.
 
-\subsubsection{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}. 
+\subsection{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}. 
 \begin{itemize}
     \item Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
     \item based off of an implementation of Symphony \cite{symphony}, DHT protocol very similar to Chord.
@@ -264,10 +250,17 @@ Both systems have their masters take a very hands on approach, whereas CHRONUS l
 %However, for large numbers of fingers, keeping a lookahead list becomes expensive.   Unless their metrics for Symphony are actually log base 10, then it's unbelievable amazing looking.  I have my doubts there.
 
 
+%\subsection{Volunteer Computing}
+%In recent years, there has been a trend of crowd-sourcing large and complicated tasks among willing participants.  Folding@home is a distributed program for simulating the way proteins put themselves together, a process called folding \cite{folding}.  \cite{folding}.  The program has been a huge boon to the research of various diseases, such as Alzheimer's Disease, cystic fibrosis, and Huntington's Disease.  These diseases and others are believed to be tied to proteins misfolding, or failing to assemble properly.  Folding@home simulates the molecular dynamics of proteins during the folding process, with the aim to understand  how misfolds occur\footnote{Get this entire paragraph reviewed by a bio guy}.  A fast processor can simulate about 20 nanoseconds of behavior a day, but protein interactions occur at the millisecond and second scale, which necessitated a distributed approach.  
 
+%This concerted effort has been immensely successful, providing data for 109 peer-reviewed publications as of August 2013 \cite{foldingPapers}\footnote{Check the format of this citation}.
 
+%In a similar vein, SETI@home is a concerted effort by millions of users to analyze collected radio signals for signs of intelligent life \cite{anderson2002seti}\footnote{Check the sizes, I think seti is bigger}.
 
+%Great Internet Mersenne Prime Search, or GIMPS, is a large scale distributed computing software to find Mersenne Primes.  Mersenne primes are prime numbers of format $M_{p} = 2^{p} - 1$, where $p$ is a prime number. The largest known prime number is a Mersenne Prime found using GIMPS.
 
+%Our program would provide an excellent platform for users to write their own program for volunteer work.  
+%\subsection{P2P-MapReduce Systems}
 
 \section{CHRONUS}
 
@@ -341,7 +334,7 @@ First $k$ bits of hash used to describe files
 
 \subsection{Setup}
 \subsubsection{Execution}
-Once started, nodes would pull the latest version of the code and run it, automatically joining the network.  We could choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks  and what number, the other nodes don't have to be updated and are happy to perform the jobs they are given..   
+Once started, nodes would pull the latest version of the code and run it, automatically joining the network.  We could choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks  and what number, the other nodes don't have to be updated and are happy to perform the jobs they are given.
 
  
 \subsection{Results}

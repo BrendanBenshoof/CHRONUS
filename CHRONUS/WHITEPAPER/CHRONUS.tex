@@ -301,6 +301,8 @@ The developer does not need to worry about distributing work evenly, nor does he
 
 All a developer needs to do to write three functions: the staging function, map, and reduce.  These define how to split up the work into manageable portions,  the  work to be performed on each portion to get some results, and how to combine these results into a single result. 
 
+No single node needs to keep track of all other nodes.  Each node is automatically looked after by  other nodes via the Chord protocol.  
+
 
 
 \subsubsection{Calculating Pi}

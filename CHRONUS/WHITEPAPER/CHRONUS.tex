@@ -211,31 +211,37 @@ Here is a list.
 
 \section{Related Work}
 
-We have identified two extant papers that have done work on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways
+We have identified two extant papers that have done work on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways.
 
 \subsection{P2P-MapReduce}
 Marozzo et al. \cite{marozzo2012p2p} looked at the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new, P2P based MapReduce architecture called P2P-MapReduce.  P2P-MapReduce is designed to be more robust, able to better handle node and job failures during execution.
 
 Rather than use a single master node, P2P-MapReduce would have multiple master nodes, each responsible for some job.  If one of those master nodes fails, another will be ready as a backup to take its place and manage the slave nodes assigned to that job.  Failures of the slave nodes are handled by the master node responsible for it.
 
-Experimental results were gathered via simulation. Their results showed that while P2P-MapReduce could generated an order of magnitude more messages than a centralized approach, the difference rapidly began to shrink at higher rates of churn.  However, when looking at actual amounts of \emph{data} being passed around the network, rather than the number of messages, the bandwidth\footnote{ANU, is this the correct term?} required by the centralized approach greatly increases as a function of churn, while the distrubuted approach again remains relatively static in terms of increased bandwidth usage and messages sent.  
+Experimental results were gathered via simulation. Their results showed that while P2P-MapReduce could generated an order of magnitude more messages than a centralized approach, the difference rapidly began to shrink at higher rates of churn.  However, when looking at actual amounts of \emph{data} being passed around the network, rather than the number of messages, the bandwidth\footnote{ANU, is this the correct term?} required by the centralized approach greatly increases as a function of churn, while the distrubuted approach again remains relatively static in terms of increased bandwidth usage and messages sent\footnote{Check the execution time results when I get home}.  
 
-RUNTIME RESULTS?? They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures\footnote{"In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}} \cite{marozzo2012p2p}.
+They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures\footnote{"In summary, the experimental results show that even if the P2P-MapReduce system consumes in most cases more network resources than a centralized implementation of MapReduce, it is far more efficient in job management since it minimizes the lost computing time due to jobs failures."\cite{marozzo2012p2p}} \cite{marozzo2012p2p}.
 
-\subsection{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives} \cite{leemap}. 
-\begin{itemize}
-    \item Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions. 
-    \item based off of an implementation of Symphony \cite{symphony}, DHT protocol very similar to Chord.
-    \item Their churn is handled by the underlying protocol and no special arrangements have been made for handling churn during a job.
-    \item If their ad-hoc master node goes down during the execution, there is no recovery.
-\end{itemize}
+Our work differs from Marozzo et al.'s in that P2P-MapReduce doesn't examine leverage using the underlying strengths of a particular P2P protocol or group of protocols, which would have made the architecture simpler.  P2P-Mapreduce is decentralized, but still relies on a very definate master/slave heirarchy.  All nodes in CHRONUS are workers and masters.  We also implemented our MapReduce system rather than simulating the work\footnote{Rewrite, any way to make this more polite?}.
 
+\subsection{Parallel Processing Framework on a P2P System Using Map and Reduce Primitives}
+Lee et al.'s work more strongly resembles our own in that their system uses a P2P protocol to perform Map Reduce\cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions.
 
+Rather than using Chord, Lee et al. used another DHT protocol with a ring topology, Symphony \cite{symphony}\footnote{I can expand here on Symphony if we need space, but I think that is better suited for the journal}.  To run a MapReduce job over the Symphony ring, a node is selected by the user to effectively act as the master.  This ad-hoc master then performs a bounding broadcast over a subsection the ring.  Each node repeasts this broadcasts over a subsection of that subsection, resulting in a tree.  Map task are sent to the leaves of this tree and their intermediate results are reduced on the way up.
+
+PARAGRAPH ABOUT EXPERIMENTAL RESULTS HERE.
+
+The Symphony based approach does not have any features handle runtime failures of the master node\footnote{or if it did, not attention was focused on it in the paper}. Their churn is handled by the underlying protocol and no special arrangements have been made for handling churn during a job\footnote{rewrite}.  CHRONUS does not use the bounded broadcast approach presented by Lee et al., but it would not be difficult to implement it through Chord.
+9
+\subsection{Wrapup if necessary}
 
 
 Both these papers have promising results and confirm the viablility of our own effort.  The experimental results in P2P-MapReduce demonstrate that while there is additional overhead resulting from the fault-tolerant aspects of the system, it's more than made up for by job failures \cite{marozzo2012p2p}.
 
-Both systems have their masters take a very hands on approach, whereas CHRONUS leverages the neighbors of the nodes to handle any problems, like recovery. 
+Both systems have their masters take a very hands on approach, whereas CHRONUS relies on the automatic assignment of responsibily from Chord to handle node failures. 
+\subsubsection{Things we didn't do but the other protocol did}  Pruning underperforming nodes
+
+
 
 %\subsubsection{Underlying protocol: Chord vs Symphony}
 
@@ -299,10 +305,10 @@ No single node needs to keep track of all other nodes.  Each node is automatical
 
 
 \subsubsection{Calculating Pi}
-To stress test the network, we use MapReduce to run a Monte-Carlo approximation of $\pi$. 
+To stress test the network, we use MapReduce to run a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it AS SHOWN BY FIGURE 4QANBS, and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.  It is one that distributes extremely well, however.} of $\frac{\pi}{4}$.
 
+This make the job extremely easy to distribute.  Each map job defines the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields of the intermediate results together. 
 
-\subsubsection{Word Count}
 
 \subsubsection{My computer can do way more work}  In which case you boot up more instances of a node, declaring you can do that much more of the network's work.
 
@@ -326,9 +332,12 @@ We can assign every node a \emph{ring id}.  When a node creates a ring, he rando
 \subsubsection{The security we didn't do}
 We can have multiple non interacting secure file systems.
 
+\subsubsection{Just Chord or can we use a different Protocol}
+This architecture can be adapted for any P2P protocol that has features similar to Chord: consistant hashing, automatic routing and responsiblilty handling.
 
-\subsubsection{File system via hash prefixing}
-First $k$ bits of hash used to describe files
+
+
+
 
 \section{Experiments}
 
@@ -344,6 +353,11 @@ Our stuff \cite{code} is awesome.
 CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes.
 Tackle security and distrubuted authentication.
 Really security,  We're aware that as our prototype code currently stands, and adversary could make his map and reduce tasks do anything he wants(   I direct your attention to the word \emph{protoype})
+
+
+\subsubsection{File system via hash prefixing}
+First $k$ bits of hash used to describe files
+
 
 \bibliographystyle{plain}
 \bibliography{CHRONUS}

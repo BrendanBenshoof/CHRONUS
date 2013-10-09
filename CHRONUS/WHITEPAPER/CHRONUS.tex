@@ -48,7 +48,7 @@
 
 \title{Map Reduce on a Chord Distributed Hash Table}
 \author{
-Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
+Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Robert Harrison \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
 %\date{} % Activate to display a given date or no date (if empty),
          % otherwise the current date is printed 
 
@@ -71,6 +71,10 @@ TODO GO THROUGH AND UNIFY TERMINOLOGY:  MAPREDUCE TASK/JOB
 RELATED WORK MIGHT BE BETTER PLACED NEAR CONCLUSION
 
 CAPITALIZE ALL MAPS AND REDUCES
+
+ADD WHAT CHRONUS STANDS FOR
+
+CHECK FORMATTING MATCHES WHAT THEY WANT FOR SUBMISSION
 
 \section{Introduction}
 
@@ -274,7 +278,6 @@ Both these papers have promising results and confirm the viablility of our own f
 %\subsection{P2P-MapReduce Systems}
 
 \section{CHRONUS}
-
 
 CHRONUS, at its core, is a fully functional Chord implementation in Python\footnote{The original implementation is in C++}.  Our installation was designed to be as simple as possible.   It consists of downloading our code\cite{code} and running chord.py.  You can specify the port you plan on using and the IP and port of a node in the ring you want to join.  Once that is done, the node will automatically integrate into the ring.
 

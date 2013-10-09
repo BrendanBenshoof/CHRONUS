@@ -67,7 +67,9 @@ performing distributed computations of these types of problems, but most of thes
 \end{abstract}
 
 TODO GO THROUGH AND UNIFY TERMINOLOGY:  MAPREDUCE TASK/JOB
+
 RELATED WORK MIGHT BE BETTER PLACED NEAR CONCLUSION
+
 CAPITALIZE ALL MAPS AND REDUCES
 
 \section{Introduction}
@@ -169,15 +171,11 @@ At its core, MapReduce \cite{mapreduce} is a system for division of labor, provi
 
 The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
+One very popular open-source implementation of MapReduce is Apache's Hadoop \cite{Hadoop}.  Hadoop serves as both a distributed file system and framework for MapReduce\cite{shvachko2010hadoop}.
 
-One very popular implementation of MapReduce is Apache's Hadoop. \cite{Hadoop}.  Hadoop is an Apache open-source project and backed by Yahoo!. 
+However, like any implemention, Hadoop has certain quirks to distinguish it from the platonic ideal.  Hadoop's MapReduce framework is very strongly tied to the Hadoop Distributed File System (HDFS).  
 
-
-\subsubsection{Requirements for a viable MapReduce platform}
-scalability and fault-tolerence.
-
-Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign responsibilty to nodes makes it extremely fault tolerant.  
-
+Designing programs for Hadoop is nontrivial.  Hadoop is  centralized around the NameNode.  The NamdeNode's job is JOB HERE.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop}, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
 
 
 \subsubsection{Why are we an interesting and viable alternative to Hadoop}
@@ -185,13 +183,8 @@ Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\lo
 Here is a list.
 
 \begin{itemize}
-    \item Much easier to program on ours? Citation of complaints.
-
     \item Hadoop has a specific architecture.  Ours is really easy to setup.  Step 1: add node to ring. Step 2: there is no step 2.
 
-    \item Hadoop is bound to it's filesystem. For our system to use a database, make the query during stage().  Or if part of the job requires making queries to the database, just write those calls in.
-    
-    
     \item If I'm reading this correctly, Hadoop keeps track of where the data is stored and asks the node where the data is stored to do the map tasks.  In CHRONUS we don't make any assumption about the data, including where it's coming from.  This means we can lose time feeding in our data
 
 
@@ -208,6 +201,12 @@ Here is a list.
     
     \item no need for heartbeats.  HFDS has nodes send a heartbeat to the NameNode every 3 seconds \cite{shvachko2010hadoop}.  
 \end{itemize}
+
+
+\subsubsection{Requirements for a viable MapReduce platform}
+scalability and fault-tolerence.
+
+Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign responsibilty to nodes makes it extremely fault tolerant.  
 
 \section{Related Work}
 
@@ -278,50 +277,35 @@ Both these papers have promising results and confirm the viablility of our own f
 
 
 CHRONUS, at its core, is a fully functional Chord implementation in Python\footnote{The original implementation is in C++}.  Our installation was designed to be as simple as possible.   It consists of downloading our code\cite{code} and running chord.py.  You can specify the port you plan on using and the IP and port of a node in the ring you want to join.  Once that is done, the node will automatically integrate into the ring.
-Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top of our C, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.  
 
-
-In our implementation of a distributed map reduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  To start a job, the user contacts a node a specified hash address. The node he contacts to be the stager may be his own computer, and this is preferable when the job involves dividing up a large pile of data. 
+Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top of our C, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.    We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
+  
+In our implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  To start a job, the user contacts a node a specified hash address. The node he contacts to be the stager may be his own computer, and this is preferable when the job involves dividing up a large pile of data. 
 
 The job of this stager is to take the work and divide it into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.  The specifics of how to divide the work are defined by the user in a \emph{stage} function.  These data atoms are then given a random hash and sent to that hash address, guaranteeing an even distribution of the data atoms throughout the network.  The data atoms also contain the map function and reduce function, as defined by the user.  A job id is also included, so that data atoms from different jobs don't get mixed up.
 
-Nodes which receive data atoms apply the map function to the data to create intermediate data atoms, which are sent to other BLANK.  DESCRIBE HOW TWO INTERMEDIATE ATOMS GET TO THE SAME PLACE. PULSED REDUCE EVERY .1 seconds. Nodes that receive at least two intermediate values merge them into one data atom using the reduce function.   The atoms are continually merged until only one remains at the hash address of the stager. 
+Nodes which receive data atoms apply the map function to the data to create intermediate data atoms, which are then sent back to the stager's hash address (or some other user defined address).  Traveling using Chord's fingers, this will take $\log n$ hops.  At each hop, the node waits .1 seconds for each. Nodes that receive at least two intermediate values merge them into one data atom using the reduce function.   The atoms are continually merged until only one remains at the hash address of the stager. 
 
-Once the reductions are finished, the user gets his results from the node at the stager's address.  This may not be be the stager himself, as once the stager has sent all the data atoms, his job is done.  The stager does not need to collect the results work, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change.
+Once the reductions are finished, the user gets his results from the node at the stager's address.  This may not be be the stager himself, as once the stager has sent all the data atoms, his job is done.  The stager does not need to collect the results work, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change. Here, we are leverging two features. First,  we use the automatic assignment of responsibility to automatically route the data to the sucessor. Second the same process Chord uses to backup files is used to backup the intermediate data. 
 
+Similar precautions are taken for nodes working on map and reduce tasks.  Those tasks get backed up  by a node's successor, who will run the task if the node quits the network before the doing the job (eg the successor loses his predecessor).   The only addition to the architecture we've made here is that a node $n$ will send a message to his sucessor when  $n$'s map or reduce task is done.  This message tells $n$'s successor that the backup is no longer needed.  This is done to prevent a job being submitted twice if $n$ goes down after finishing his task and sending it out.
 
-We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to achieve what we want.  The Stager process randomly assigns a destination hash to each job it sends out, knowing the even distribution of the network will ensure that each node that ends up getting a Map task will be doing an equal amount of work.  
-
-If node $n$ was responsible for collecting all the data and suddenly goes down, his successor will automatically receive all the incoming data, which he can add to his backup of the data $n$ had.  Here, we are leverging two features. First,  we use the automatic assignment of responsibility to automatically route the data to the sucessor. Second the same process Chord uses to backup files is used to backup the intermediate data. 
-
-Similar precautions are taken for nodes working on map and reduce tasks.  Those tasks get backedup  by a node's successor, who will run the task if the node quits the network before the doing the job (eg the successor loses his predecessor).   The only addition to the architecture we've made here is that a node $n$ will send a message to his sucessor when  $n$'s map or reduce task is done.  This message tells $n$'s successor that the backup is no longer needed.  This is done to prevent a job being submitted twice if $n$ goes down after finishing his task and sending it out.
-
-
-\subsubsection{Recap the issues  of normal MapReduce  and why ours is better} 
-We present our implementation of MapReduce not as a direct competitor to MapReduce, but as proof of a more versatile system able to support many complex operations.
-
-The big advantage of our system is the ease of development.  
-
-The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work automatically.  The stager does not need to keep track of the status of the network.  In a node goes down while performing an operation, his successor takes over for him.
+The big advantage of our system is the ease of development.  The developer does not need to worry about distributing work evenly, nor does he have to worry about any node in the network going down.  The underlying Chord ring handles that automatically.  If a node joins the ring as the MapReduce process is running, that node can be assigned work automatically.  The stager does not need to keep track of the status of the network.  In a node goes down while performing an operation, his successor takes over for him.
 
 All a developer needs to do to write three functions: the staging function, map, and reduce.  These define how to split up the work into manageable portions,  the  work to be performed on each portion to get some results, and how to combine these results into a single result. 
 
-No single node needs to keep track of all other nodes.  Each node is automatically looked after by  other nodes via the Chord protocol.  
+While MapReduce is most efficient when each node is physically close in a cluster, minimizing the impact of latency, this does not exclude the option of tasks being distributed throughout the world.  This setup maybe more applicable to a volunteer computing framework, such as Folding@home \cite{folding}.
+
+Many local configuations assume identical or near identical hardware, running an equal amount of nodes, performing an equal amount of work. This is not always a safe assumption to make.  If the hardware used for computations is not equal, then some processors can be left idling when they could be doing more work, while others may be overwhelmed, holding back the rest of the network.
+
+This is relatively easy to fix on the user's end.  If some hardware can take more work than others, then that system can boot up more instances of nodes locally. Running two nodes locally would mean that approximately twice as much work would assigned to that computer.  Automatically balancing this load is an avenue for future research.
+
+
+%\subsubsection{Just Chord or can we use a different Protocol}
+%This architecture can be adapted for any P2P protocol that has features similar to Chord: consistant hashing, automatic routing and responsiblilty handling.
 
 
 
-\subsubsection{My computer can do way more work}  In which case you boot up more instances of a node, declaring you can do that much more of the network's work.
-
-
-\subsubsection{The security we didn't do}
-We can have multiple non interacting secure file systems.
-
-\subsubsection{Just Chord or can we use a different Protocol}
-This architecture can be adapted for any P2P protocol that has features similar to Chord: consistant hashing, automatic routing and responsiblilty handling.
-
-
-
-Once started, nodes pull the latest version of the code and run it, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
 
 
 \section{Experiments}
@@ -332,6 +316,8 @@ This makes the job extremely easy to distribute.  Each map job defines the numbe
 \subsection{Setup}
 We ran this experiment under these scenarios with these systems.
 
+Once started, nodes pull the latest version of the code and run it, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
+
 \subsection{Results}
 Look at our data! See how nice and pretty it is?  Look at those graphs!  Aren't they lovely and informative? 
 
@@ -340,6 +326,7 @@ Look at our data! See how nice and pretty it is?  Look at those graphs!  Aren't 
 Our stuff \cite{code} is awesome.
 CHRONUS can be adapted to handle mutable data, unlike other MapReduce schemes.
 Tackle security and distrubuted authentication.
+We can have multiple non interacting secure file systems.
 Really security,  We're aware that as our prototype code currently stands, and adversary could make his map and reduce tasks do anything he wants(   I direct your attention to the word \emph{protoype})
 
 

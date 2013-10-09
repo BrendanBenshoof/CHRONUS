@@ -165,11 +165,6 @@ Chunking also opens up the options for implementing additional redundancy such a
 
 
 \section{MapReduce and Hadoop}
-
-\subsubsection{What is it}
-
-MapReduce became a major topic of interest in 2004 when Google published a paper detailing their implementation, called MapReduce \cite{mapreduce}.
-
 At its core, MapReduce \cite{mapreduce} is a system for division of labor, providing a layer of speration between the programmer and the nastier parts of parallel processing.  The programmer sends a large task to a master node, who then divides that task among slave nodes (which may further divide the task).  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then produces a result for each map operation.  This intermediate data can then be reduced, combining these sets of intermediate data into a set, which is further combined with other sets.  This process continues until one set of data remains.
 
 The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
@@ -181,7 +176,7 @@ One very popular implementation of MapReduce is Apache's Hadoop. \cite{Hadoop}. 
 \subsubsection{Requirements for a viable MapReduce platform}
 scalability and fault-tolerence.
 
-Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign nodes responibilty as the ring adds and loses nodes makes it extremely fault tolerant.  
+Chord is highly scalable and fault tolerent.  Chord guarantees a latency of $\log(n)$, making it extremely scalable.  Chord's ability to automatically assign responsibilty to nodes makes it extremely fault tolerant.  
 
 
 
@@ -315,30 +310,8 @@ No single node needs to keep track of all other nodes.  Each node is automatical
 
 
 
-\subsubsection{Calculating Pi}
-To stress test the network, we use MapReduce to run a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it AS SHOWN BY FIGURE 4QANBS, and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.  It is one that distributes extremely well, however.} of $\frac{\pi}{4}$.
-
-This make the job extremely easy to distribute.  Each map job defines the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields of the intermediate results together. 
-
-
 \subsubsection{My computer can do way more work}  In which case you boot up more instances of a node, declaring you can do that much more of the network's work.
 
-
-\subsection{In which we address possible criticism}
-
-
-\subsubsection{Mirco versus small}
-We had huge issues with micro instances because of their sporadic cpu power.  Less of an issue with Small instances.
-
-
-\subsubsection{If we hash a filename to get the identifier, then you can't have two same file names.}
-
-\subsubsection{Determining when you're done is expensive}
-As a whole yes, but merging two sorted lists is $O(n)$ time. 
-
-
-\subsubsection{Disjoint rings}
-We can assign every node a \emph{ring id}.  When a node creates a ring, he randomly chooses a number for the ring id.  Nodes joining that ring use that ring's id.  If a node finds another node on differing ring, he compares the their ring id's and leaves if  
 
 \subsubsection{The security we didn't do}
 We can have multiple non interacting secure file systems.
@@ -348,16 +321,20 @@ This architecture can be adapted for any P2P protocol that has features similar 
 
 
 
+Once started, nodes pull the latest version of the code and run it, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
 
 
 \section{Experiments}
+To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. Dartboard), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.} of $\frac{\pi}{4}$.
+
+This makes the job extremely easy to distribute.  Each map job defines the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields of the intermediate results together. 
 
 \subsection{Setup}
-\subsubsection{Execution}
-Once started, nodes would pull the latest version of the code and run it, automatically joining the network.  We could choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify it's MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks  and what number, the other nodes don't have to be updated and are happy to perform the jobs they are given.
+We ran this experiment under these scenarios with these systems.
 
- 
 \subsection{Results}
+Look at our data! See how nice and pretty it is?  Look at those graphs!  Aren't they lovely and informative? 
+
 
 \section{Conclusion and Future Work}
 Our stuff \cite{code} is awesome.

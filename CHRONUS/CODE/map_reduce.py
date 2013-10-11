@@ -83,6 +83,9 @@ class Map_Reduce_Service(Service):
                 msg.backup = True
                 self.send_message(msg,node.successor)
             job_todo.put(msg)
+            if msg.type==MAP:
+                msg.isbackup=True
+                self.send_message(msg,node.successor)
             return True
         else:
             return False
@@ -116,6 +119,7 @@ class Map_Reduce_Service(Service):
         if comand_st =="clear":
             self.job_records = {}
             self.temp_data = {}
+            backups = []
 
         return None
 
@@ -135,6 +139,7 @@ class Map_Reduce_Service(Service):
             else:
                 backups.remove(b)
                 
+
     
     def test(self, to_test):
         X = importlib.import_module("."+to_test,"tests")
@@ -191,7 +196,7 @@ class Map_Reduce_Service(Service):
                             myreduce = msg.reduce_function
                             root.dataAtom = myreduce(atom1, root_atom)
                             root.timeingRecord+=msg.timeingRecord
-                    self.send_message(root,root.origin)
+                    self.send_message(root,None)
             time.sleep(0.1)
 
     def doreduce(self,msg):
@@ -267,6 +272,7 @@ class Map_Message(Message):
         self.keepalive = 1000
 
 
+
 class Reduce_Message(Message):
     def __init__(self, jobid, dataAtom, reduce_function):
         super(Reduce_Message, self).__init__( MAP_REDUCE, REDUCE)
@@ -275,7 +281,7 @@ class Reduce_Message(Message):
         self.reduce_function = reduce_function
         self.type = REDUCE
         self.timeingRecord = "'reduce msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
-
+        self.isbackup = False
 
 
 

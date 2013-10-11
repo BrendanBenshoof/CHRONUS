@@ -79,13 +79,13 @@ class Map_Reduce_Service(Service):
         if msg.service == self.service_id:
             if msg.type==MAP and msg.backup: #short circuited and to avoid typeerror
                 backups.append(msg)
+                print "sent a backup map"
             elif msg.type==MAP:
                 msg.backup = True
                 self.send_message(msg,node.successor)
-            job_todo.put(msg)
-            if msg.type==MAP:
-                msg.isbackup=True
-                self.send_message(msg,node.successor)
+                job_todo.put(msg)
+            else:
+                job_todo.put(msg)
             return True
         else:
             return False
@@ -162,6 +162,7 @@ class Map_Reduce_Service(Service):
     def Mapreduce_worker(self):
         while True:
             newjob = job_todo.get(True)
+            print job_todo.qsize()
             if newjob.type == MAP:
                 self.domap(newjob)
                 job_todo.task_done()
@@ -196,7 +197,7 @@ class Map_Reduce_Service(Service):
                             myreduce = msg.reduce_function
                             root.dataAtom = myreduce(atom1, root_atom)
                             root.timeingRecord+=msg.timeingRecord
-                    self.send_message(root,None)
+                self.send_message(root,root.origin)
             time.sleep(0.1)
 
     def doreduce(self,msg):
@@ -281,7 +282,7 @@ class Reduce_Message(Message):
         self.reduce_function = reduce_function
         self.type = REDUCE
         self.timeingRecord = "'reduce msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
-        self.isbackup = False
+        self.backup = False
 
 
 

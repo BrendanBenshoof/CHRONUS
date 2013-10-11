@@ -40,7 +40,7 @@ class Data_Atom(object):
 
 
 job_todo = Queue.Queue()
-
+backup_messages = []
 reduce_todo = Queue.Queue()
 
 
@@ -75,7 +75,13 @@ class Map_Reduce_Service(Service):
         #if not msg.service == self.service_id:
         #    raise "Mismatched service recipient for message."
         if msg.service == self.service_id:
+            if(msg.isbackup):
+                backup_messages.append(msg)
+                return True
             job_todo.put(msg)
+            if msg.type==MAP:
+                msg.isbackup=True
+                send_message(msg,node.successor)
             return True
         else:
             return False
@@ -116,8 +122,11 @@ class Map_Reduce_Service(Service):
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
-        pass #this is called when a new, closer predicessor is found and we need to re-allocate
-            #responsibilties
+        for m in backup_messages:
+            if node.I_own_hash(m.destination_key):
+                job_todo.put(m)
+                backup_messages.remove(m)
+                print "doing a backuped message"
     
     def test(self, to_test):
         X = importlib.import_module("."+to_test,"tests")
@@ -174,7 +183,7 @@ class Map_Reduce_Service(Service):
                             myreduce = msg.reduce_function
                             root.dataAtom = myreduce(atom1, root_atom)
                             root.timeingRecord+=msg.timeingRecord
-                    self.send_message(root,root.origin)
+                    self.send_message(root,None)
             time.sleep(0.1)
 
     def doreduce(self,msg):
@@ -245,6 +254,7 @@ class Map_Message(Message):
         self.origin = None
         self.type = MAP
         self.timeingRecord = "'map msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
+        self.isbackup = False
 
 
 class Reduce_Message(Message):
@@ -255,7 +265,7 @@ class Reduce_Message(Message):
         self.reduce_function = reduce_function
         self.type = REDUCE
         self.timeingRecord = "'reduce msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
-
+        self.isbackup = False
 
 
 

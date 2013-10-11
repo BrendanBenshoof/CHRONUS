@@ -81,7 +81,7 @@ class Map_Reduce_Service(Service):
             job_todo.put(msg)
             if msg.type==MAP:
                 msg.isbackup=True
-                send_message(msg,node.successor)
+                self.send_message(msg,node.successor)
             return True
         else:
             return False
@@ -126,6 +126,7 @@ class Map_Reduce_Service(Service):
             if node.I_own_hash(m.destination_key):
                 job_todo.put(m)
                 backup_messages.remove(m)
+                self.send_message(m,node.successor)
                 print "doing a backuped message"
     
     def test(self, to_test):

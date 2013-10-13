@@ -57,13 +57,13 @@ Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Robert Harrison \q
 
 \begin{abstract}
 
-Large problems in Computer Science are often able to be split into many smaller, functionally identical tasks, the results of which can be reduced into the desired solution.  MapReduce is a framework for 
-performing distributed computations of these types of problems, but most of these frameworks are strongly dependent on a heirarchical structure.  Chord is a distributed hash table that provides $\log_{2}n$ connectivity among processors.  Our experiments show that a Chord ring has number of desirable advantages for implementing MapReduce, such as a lack of a single point of failure, fault-tolerance, an even distribution of work, scalability, and minimal overhead.
-%Distributed Hash networks, such as Chord, are an established technique for storing data in a distributed fashion. In Chord, nodes are evenly distributed and are responsible for files based on their position in the overlay network.  From Chord, we introduce the concept of the Hashnet, where computers use distributed hash table as a means of distributing both data and work.  Because Chord provides the backbone of this network, a Hashnet is robust, scalable, resilient to churn, fault tolerant, and automatically  and evenly distributes work throughout the network.
+MapReduce frameworks are generally hierarchical, with the responsibility of scheduling work, distributing data and tasks, and tracking progress at the top.  This leads to centralized MapReduce implementations having a single point of failure.  A MapReduce framework with both responsibility and work distributed among its members would eliminate the need for a central source of coordination.  Such a framework would need to be highly scalable, fault-tolerant during execution, able to handle a high degree of churn, and minimize the amount of traffic that results from maintaining the network. 
 
-%We can exploit this property to automatically distribute large and complicated tasks, such as MapReduce, evenly among nodes in the same manner. Our experiments show that our framework distributes work among nodes in manner that is highly scalable, resilient to churn, and fault tolerant.
+This paper proposes ChordReduce, a novel implementation of Chord that acts as middleware for creating and running MapReduce jobs. ChordReduce satisfies the desired properties for a distributed MapReduce platform. Chord is a peer-to-peer networking protocol for distributed storage and file sharing that provides log(n) lookup time for any particular file or node.  Files and nodes are evenly distributed across a ring overlay and organized such that the responsibilities of a failed node are automatically reassigned.  ChordReduce leverages these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  The loss of a single node or a group of nodes during execution does not impact the soundness of the results and the tasks are automatically reassigned.  An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
 
-%HARRISON:  Map reduce is a family of algorithms for distributed computations. The basic idea with these algorithms is to factor a large task into independent tasks that can be mapped to a set of processors and the have the results reduced back to the desired solution. Chord networks are a ring of processors with a log(n) connectivity.  In this paper we show that the chord network has advantages for implementing map/reduce because of its low latency (low overhead?) connectivity. (you probably can state this better than me).
+Our experiments validate the ability of ChordReduce to perform MapReduce tasks efficiently. The applications are far-reaching, especially for big data problems and those that are massively parallel.  It is particularly suited for a variety of applications such as solving Monte-Carlo approximations, running machine learning algorithms, and performing distributed data mining. 
+
+
 \end{abstract}
 
 TODO GO THROUGH AND UNIFY TERMINOLOGY:  MAPREDUCE TASK/JOB
@@ -307,9 +307,16 @@ The execution of the Reduce stage in this manner prevents the node responsible f
 
 
 \section{Experiments}
-To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. Dartboard), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle\footnote{caption for the figure:  The "dartboard." The computer throws a dart by choosing a random $x$ and $y$.  If $x^{2} + y^{2} < 1^{2} $, the dart landed inside the circle.} to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.} of $\frac{\pi}{4}$.
+To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.} of $\frac{\pi}{4}$.
 
 This makes the job extremely easy to distribute.  Each map job defines the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields of the intermediate results together. 
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{dartboard}
+    \caption{The "dartboard." The computer throws a dart by choosing a random $x$ and $y$.  If $x^{2} + y^{2} < 1^{2} $, the dart landed inside the circle.}
+    \label{dartboard}
+\end{figure}
+
 
 \subsection{Setup}
 We ran this experiment under these scenarios with these systems.

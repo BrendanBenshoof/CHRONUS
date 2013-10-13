@@ -270,7 +270,7 @@ class Map_Message(Message):
         self.type = MAP
         self.timeingRecord = "'map msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
         self.timestamp = time.time()
-        self.keepalive = 1000
+        self.keepalive = 60.0
 
 
 

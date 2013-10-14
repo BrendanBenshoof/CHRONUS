@@ -130,7 +130,7 @@ class Map_Reduce_Service(Service):
         print "checking my backupped work"
         for b in backups:
             if b.timestamp < time.time()-b.keepalive:
-                if hash_util.hash_between(b.hashid, new_pred_key, my_key):
+                if hash_between(b.hashid, new_pred_key, my_key):
                     print "gonna do a backup"
                     todo.put(b)
                     backups.remove(b)

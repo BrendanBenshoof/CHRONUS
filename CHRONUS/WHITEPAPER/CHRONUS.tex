@@ -359,27 +359,15 @@ We also had at our disposal a subroutine called $plot$, which sends a message to
 
 \begin{figure}
     \includegraphics[width=\linewidth]{expTime}
-    \caption{A pretty graph}
+    \caption{For a sufficiently large job, it was almost always preferable to parallelize it.  When the job is too small, such as with the $10^{9}$ data set, our runtime is dominated by the overhead.  Our results are what we would expect when overhead grows logarithmically to the number of workers}
     \label{expTime}
 \end{figure}
 
 
 \begin{figure}
     \includegraphics[width=\linewidth]{expSpeed}
-    \caption{The same graph but presented diffently}
+    \caption{The larger the size of the job, the greater the gains of parallelizing with ChordReduce.  In addtion, the larger the job, the more workers can be added before we start seeing dimishing returns.  This demonstrates that ChordReduce is scalable.}
     \label{expSpeed}
-\end{figure}
-
-\begin{figure}
-    \includegraphics[width=\linewidth]{projTime}
-    \caption{Our projected times.}
-    \label{projTime}
-\end{figure}
-
-\begin{figure}
-    \includegraphics[width=\linewidth]{projSpeed}
-    \caption{Note the linear speedup}
-    \label{projSpeed}
 \end{figure}
 
 Our experiments show that for a given problem, ChordReduce can effectively parallelize the problem, yielding a substansial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.  During run time, we experienced multiple instances where plot would fail to run and the stager would report socket errors, indicating that it had lost connection with a node in the ring.  Despite this turbulence, the nodes all managed to reestablish connection with each other and report back all the data.  This demonstrated that we were able to handle the churn in the network.
@@ -393,6 +381,22 @@ The $10^{8}$ sample set confirms that the network overhead is logarithmic.  At t
 We discovered that some nodes having a high latency greately affects the value of $k$.
 
 Since we have now established that $time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$, we can approximate the mean of $k$ from our datapoints.  Using $k = 36.5$, we can estimate how long a job that takes 2 hours for a single node would take in parallel for abitrary number of nodes.  The execution time is shown in Figure and the corresponsing speedup in Figure .
+
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{projTime}
+    \caption{The projected runtime for different sized jobs using ChordReduce.  Each curve projects the behavior you would see if a job that takes a single worker }
+    \label{projTime}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{projSpeed}
+    \caption{The projected speedup for different sized jobs. Note that as the jobs become larger, the speedup from ChordReduce becomes closer and closer to linear.}
+    \label{projSpeed}
+\end{figure}
+
+
+
 
 \section{Conclusion and Future Work}
 MapReduce is an extremely powerful tool for solving big data problems, but many centralized implementations h

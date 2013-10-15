@@ -65,28 +65,18 @@ Our experiments validate the ability of ChordReduce to perform MapReduce tasks e
 
 
 \end{abstract}
-TODO:
-\begin{enumerate}
-    \item Move specifics of our implementation over to ChordReduce
-    \item Make sure all Map and Reduce are capitalized
-    \item Define Job vs Task, make sure they are consistant
-    \item Review networking terms with Dr. Anu
-    \item Make sure out latex format for the title is what they want.
-    \item Fix .bib Capitalizations
-\end{enumerate}
+
 
 
 \section{Introduction}
 
 Ever since Google published a paper on the subject \cite{mapreduce}, MapReduce has rapidly become an integral part in the world of data processing.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.
 
-The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode is responsible for keeping track of whcih DataNodes posess which files, as well as coordinating the work done under a MapReduce job \textsuperscript{\textbf{double check the latter}}. 
- 
-However, what if we desire a less heirarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
+Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, require a centralized source of coordination and organization to store and operate on data\footnote{I basically just cut down a paragraph to this, I wanted to get to our work as soon as possible. Carpe Jugulum.} . However, what if we desire a less heirarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
 
-Chord \cite{Chord} is a distributed hash table (DHT) that possesses these qualities.  Chord guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is little maintenance required by the network as a whole to handle individual nodes.  Files in the network are distributed evenly among its members.
+Chord \cite{Chord} is a distributed hash table (DHT) that possesses these qualities.  Chord guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is little maintenance required by the network as a whole to handle individual nodes.  Files in the network are distributed evenly among its members\footnote{insert the stuff Dr. Harrison wants here.}.
  
-However, rather that viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called ChordReduce, that builds off the concepts that make Chord a powerful means of evenly distributing files and applies it toward distributing work among member nodes\footnote{repetitive}.  We built a framework on ChordReduce for performing Map and Reduce tasks on Chord ring.  ChordReduce leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure.
+However, rather that viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called ChordReduce, that builds off the concepts that make Chord a powerful means of evenly distributing files and applies it toward distributing work among member nodes\footnote{repetitive}.  We built a framework on ChordReduce for performing Map and Reduce tasks on Chord ring.  ChordReduce leverages the underlying protocol to distribute map and reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  The network has no single point of failure. 
 
 At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in ChordReduce can be setup in a cluster for high performance or they can be deployed the Internet, for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorperating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes from churn and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job  during runtime.
 
@@ -184,6 +174,11 @@ Chunking also opens up the options for implementing additional redundancy such a
 At its core, MapReduce \cite{mapreduce} is a system for division of labor, providing a layer of speration between the programmer and the nastier parts of parallel processing.  The programmer sends a large task to a master node, who then divides that task among slave nodes (which may further divide the task).  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then produces a result for each map operation.  This intermediate data can then be reduced, combining these sets of intermediate data into a set, which is further combined with other sets.  This process continues until one set of data remains.
 
 The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
+
+
+
+%The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode is responsible for keeping track of which DataNodes posess which files as well as other metadata essential for controlling the netowork. MOVE THIS DOWN
+ 
 
 One very popular open-source implementation of MapReduce is Apache's Hadoop \cite{Hadoop}.  Hadoop serves as both a distributed file system and framework for MapReduce \cite{shvachko2010hadoop}.  Like any implemention, Hadoop has certain quirks to distinguish it from the platonic ideal.  Hadoop's MapReduce framework is very strongly tied to the Hadoop Distributed File System (HDFS) and the heirarchy of servers that implies.  Hadoop is centralized around the NameNode.  The NameNode's job is to organize and distribute infomation to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
 
@@ -306,7 +301,7 @@ This is relatively easy to fix on the user's end.  If some hardware can take mor
 
 The centralized structure of Hadoop requires that the NameNode be solely responsible for keeping track of where all the data is in the network \cite{Hadoop}.  ChordReduce has two options for the handling the data used for performing MapReduce.  Data may be distributed by the stager along with the dissemination of the Map and Reduce functions.  The data may also be stored in the ring \cite{CFS}.  In either case, no single node is responsible for knowing the location of all of the data.  
 
-Because in ChordReduce nodes do not know stuff is, we need an intelligent procedure to send and store large volumes of data.  Attempting to distribute each data atom via its own individual message quickly overwhelemed the networking library. Thus, when the stager distributes data atoms, it sends at most one message to each of its fingers.  This message contains the subset data atoms for which that subsection of the network is responsible for.  This data is further divided by those servers such that the data atoms are distributed via an emergenent minimum spanning tree, similar to the bounded broadcast\footnote{check the above about bounded broadcast} used in \cite{leemap}.  The intermediate data being sent back using the Chord routing protocol produces a similar emergent tree. 
+Because in ChordReduce nodes do not know stuff is, we need an intelligent procedure to send and store large volumes of data.  Attempting to distribute each data atom via its own individual message quickly overwhelmed the networking library. Thus, when the stager distributes data atoms, it sends at most one message to each of its fingers.  This message contains the subset data atoms for which that subsection of the network is responsible for.  This data is further divided by those servers such that the data atoms are distributed via an emergenent minimum spanning tree, similar to the bounded broadcast\footnote{check the above about bounded broadcast} used in \cite{leemap}.  The intermediate data being sent back using the Chord routing protocol produces a similar emergent tree. 
 
 The execution of the Reduce stage in this manner prevents the node responsible for the final result from being overwhelmed with traffic \cite{hadoop-bottle}.  This configuration ensures that the average amount of data transfered between any two nodes is less than or equal to $\frac{size of all intermediate data}{number of nodes}$.  This assumes that the Reduce step results in a data atom whose contents are equal to or less than the size of the combined intermediate data.  This is guaranteed to be equal to or less than the average amount of data distributed from each DataNode to the NameNode in Hadoop\footnote{PROOF WOULD BE NICE}.
 
@@ -336,20 +331,23 @@ $$time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$$, where $\frac{time_{1}}{
 %where $n$ is the number of nodes in the network, $time_{solo}$ is the amount of time a job would take without parallelization, and $k \cdot \log_{2}(n)$ is network induced overhead. $k \cdot \log_{2}(n)$  is a measure of additional time spent on the problem due to network latency and maintenence and grows logarithmically proportion to $n$.  It reflects that for each problem, there is a point at which that the cost of parallization starts providing dimishing returns.  $k$ is unique to each problem.
 
 \subsection{Setup}
-To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
-
-
 \begin{figure}
     \includegraphics[width=\linewidth]{dartboard}
     \caption{The "dartboard." The computer throws a dart by choosing a random $x$ and $y$.  If $x^{2} + y^{2} < 1^{2} $, the dart landed inside the circle.}
     \label{dartboard}
 \end{figure}
 
+
+To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
+
+
 We chose this experiment for a number of reasons. The job is extremely easy to distribute. Each map job is defined by the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields together. 
 
 This also made it very easy to test scalabilty. By doubling the amount of samples, we can double the amount of work each node gets.  We could test also test the effectiveness of distributing job among different numbers of workers. 
 
-We ran our experiments using Amazons's EC2 service \footnote{I want to blaze through this section, adding citations later}.  Each node was an individual EC2 small instance with a preconfigured Ubuntu 12.04 image.  These instances were strong enough that they could provide constant compuation, \emph{but still were weak enough that they would be overwhelmed by traffic on occasions, creating a constant churn effect in the ring.}  Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
+We ran our experiments using Amazons's EC2 service.  Each node was an individual EC2 small instance \cite{amazon-instances} with a preconfigured Ubuntu 12.04 image.  These instances were capable enough that they could provide constant compuation, but still were incapable enough that they would be overwhelmed by traffic on occasions, creating a constant churn effect in the ring.  
+
+Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
 
 Our experiments were ran on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests done on $10^{8}$ and $10^{10}$.  Due to the size of the $10^{8}$ job, we also gathered data for 5 nodes. 
 
@@ -380,12 +378,12 @@ The $10^{8}$ sample set confirms that the network overhead is logarithmic.  At t
 
 We discovered that some nodes having a high latency greately affects the value of $k$.
 
-Since we have now established that $time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$, we can approximate the mean of $k$ from our datapoints.  Using $k = 36.5$, we can estimate how long a job that takes 2 hours for a single node would take in parallel for abitrary number of nodes.  The execution time is shown in Figure and the corresponsing speedup in Figure .
+Since we have now established that $time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$, we can approximate the mean of $k$ from our datapoints.  Using $k = 36.5$, we can estimate how long a job that takes 2 hours for a single node would take in parallel for abitrary number of nodes.  The execution time is shown in Figure \ref{projTime} and the corresponsing speedup in Figure \ref{projSpeed}.
 
 
 \begin{figure}
     \includegraphics[width=\linewidth]{projTime}
-    \caption{The projected runtime for different sized jobs using ChordReduce.  Each curve projects the behavior you would see if a job that takes a single worker }
+    \caption{The projected runtime for different sized jobs using ChordReduce.  Each curve projects the behavior you would see if a job that takes a single worker the specified amount of time.}
     \label{projTime}
 \end{figure}
 
@@ -399,7 +397,7 @@ Since we have now established that $time_{n} = \frac{time_{1}}{n} + k \cdot \log
 
 
 \section{Conclusion and Future Work}
-MapReduce is an extremely powerful tool for solving big data problems, but many centralized implementations h
+ChordReduce is good because overhead scales logarithmically.
 
 Since research into Chord and other P2P networks has considered a wide variety of problems, ChordReduce would provide a suitable platform to solving problems that would otherwise be insurmountable\footnote{citation}, such as handling mutable data \cite{IRM}.
 
@@ -410,6 +408,17 @@ Using multiple stagers with a specific return hash for large jobs.
 
 Over the course of our development, we've stumbled across various optimizations and tweaks that would be advantageous to Chord, but would have minimal impact on ChordReduce.
 First $k$ bits of hash used to describe files
+
+TODO:
+\begin{enumerate}
+    \item Move specifics of our implementation over to ChordReduce
+    \item Make sure all Map and Reduce are capitalized
+    \item Define Job vs Task, make sure they are consistant
+    \item Review networking terms with Dr. Anu
+    \item Make sure out latex format for the title is what they want.
+    \item Fix .bib Capitalizations
+\end{enumerate}
+
 
 
 \bibliographystyle{plain}

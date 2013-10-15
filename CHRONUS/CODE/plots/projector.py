@@ -5,22 +5,20 @@ k_mean = 36.489
 k_stdev = 24.25
 
 n_min = 1
-n_max = 1000
+n_max = 5000
 
-t_0 = 60*60*5
 
-x = range(n_min,n_max)
-ymean = map(lambda x: t_0/(t_0/x + k_mean*math.log(x,2)), x)
-yplus = map(lambda x: t_0/(t_0/x + (k_mean+k_stdev)*math.log(x,2)), x)
-yminus = map(lambda x: t_0/(t_0/x + (k_mean-k_stdev)*math.log(x,2)), x)
+for i in range(3,10,1):
+    t_0 = 10**i
+    x = range(n_min,n_max)
+    ymean = map(lambda x: (t_0/x + k_mean*math.log(x,2)), x)
 
-a,= plt.plot(x,ymean,"b")
-b,= plt.plot(x,yminus,"g")
-c,= plt.plot(x,yplus,"r")
+    plt.plot(x,ymean,label="projected 10^"+str(i)+" second job")
 
-plt.legend([a,b,c],["Mean experimental k value", "1 standard deviation lower experimental k value", "1 standard deviation higher experimental k value"])
+plt.legend(loc=0)
 
-plt.title("Expected Speedup of 5hr job")
+plt.title("Projected duration using experimental overhead")
 plt.xlabel("number of workers")
-plt.ylabel("speedup (nX)")
+plt.ylabel("time (seconds)")
+plt.yscale('log')
 plt.show()

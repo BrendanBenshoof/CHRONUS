@@ -20,9 +20,24 @@ r2 = [4382.2,1082.1,483.21,430.78,686.43]
 t0=44.8099999427795
 t1=438.22
 t2=4382.2
-k0 = []
-k1 = []
-k2 = []
+s0 = []
+s1 = []
+s2 = []
+
+
+for i in r0:
+    s0.append(t0/i)
+
+for i in r1:
+    s1.append(t1/i)
+    
+for i in r2:
+    s2.append(t2/i)
+    
+r0 = s0
+r1 = s1
+r2 = s2
+
 
 #for l in f:
     #line = l.rstrip("\n").split(",")
@@ -66,7 +81,7 @@ xnew = np.linspace(1.0,40.0,300)
 xnew = np.linspace(min(n2),max(n2),300)
 y2 = spline(n2,r2,xnew)
 #plt.figure(1)
-a = plt.plot(xnew,y2,"-")
+#a = plt.plot(xnew,y2,"-")
 plt.plot(n2,r2,"ok", label="10^10 sample job")
 
 print r2
@@ -74,12 +89,12 @@ print r2
 xnew = np.linspace(min(n1),max(n1),300)
 y1 = spline(n1,r1,xnew)
 #plt.figure(2)
-b = plt.plot(xnew,y1,"-")
+#b = plt.plot(xnew,y1,"-")
 plt.plot(n1,r1,"+k",label="10^9 sample job")
 xnew = np.linspace(min(n0),max(n0),300)
 y0 = spline(n0,r0,xnew)
 #plt.figure(3)
-c = plt.plot(xnew,y0,"-")
+#c = plt.plot(xnew,y0,"-")
 plt.plot(n0,r0,"xk",label="10^8 sample job")
 
 k_mean = 36.489
@@ -97,11 +112,10 @@ for i in range(3,10,1):
 
     plt.plot(x,ymean,label="projected 10^"+str(i)+" second job")
 
-
-plt.legend()
-plt.ylabel('time (seconds)')
+plt.legend(loc=2)
+plt.ylabel('Speedup (ratio)')
 plt.xlabel('number of workers')
-plt.title("Experimental times")
+plt.title("Experimental Speedup")
 
 
 

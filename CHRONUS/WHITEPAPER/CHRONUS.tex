@@ -114,7 +114,7 @@ The Chord protocol \cite{Chord} takes in some key and returns the identity (ID) 
 The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord then takes the hashed files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value.  This node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  Since the overlay is a circle, this assignment is computed in module $2^m$ space.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 could be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, its absence would inform node 27, who would then be responsible for all the keys node 25 was covering. An example Chord network is drawn in in Figure ~\ref{chordreal}.
 \begin{figure}
     \includegraphics[width=\linewidth]{chordreal}
-    \caption{A Chord network with 16 nodes and.}
+    \caption{A Chord ring with 16 nodes.}
     \label{chordreal}
 \end{figure}
 
@@ -351,17 +351,42 @@ This also made it very easy to test scalabilty. By doubling the amount of sample
 
 We ran our experiments using Amazons's EC2 service \footnote{I want to blaze through this section, adding citations later}.  Each node was an individual EC2 small instance with a preconfigured Ubuntu 12.04 image.  These instances were strong enough that they could provide constant compuation, \emph{but still were weak enough that they would be overwhelmed by traffic on occasions, creating a constant churn effect in the ring.}  Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
 
-Our experiments were ran on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests done on $10^{8}$ and $10^{10}$.  Due to the irregularities 
+Our experiments were ran on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests done on $10^{8}$ and $10^{10}$.  Due to the size of the $10^{8}$ job, we also gathered data for 5 nodes. 
 
 We also had at our disposal a subroutine called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing some kind of instability.
 
 \subsection{Results}
 
+\begin{figure}
+    \includegraphics[width=\linewidth]{expTime}
+    \caption{A pretty graph}
+    \label{expTime}
+\end{figure}
+
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{expSpeed}
+    \caption{The same graph but presented diffently}
+    \label{expSpeed}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{projTime}
+    \caption{Our projected times.}
+    \label{projTime}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{projSpeed}
+    \caption{Note the linear speedup}
+    \label{projSpeed}
+\end{figure}
+
 Our experiments show that for a given problem, ChordReduce can effectively parallelize the problem, yielding a substansial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.  During run time, we experienced multiple instances where plot would fail to run and the stager would report socket errors, indicating that it had lost connection with a node in the ring.  Despite this turbulence, the nodes all managed to reestablish connection with each other and report back all the data.  This demonstrated that we were able to handle the churn in the network.
 
 Our default series was the $10^{9}$ samples series.  On average, it took a single node 422 seconds, or approximately 7 minutes, to generate $10^{9}$ samples.  Generating the same number of points in parallel with 10, 20, 30, or 40 nodes was always quicker.  Notice that the samples were generated fastest when there were 20 workers, with a speedup factor of 4.83, while increasing the number of workers to 30 yielded a speedup of only 3.6.  At 30 nodes, the gains of parrellization were still there, but the cost of overhead ($k \cdot \log_{2}(n)$) had more of an impact.  This effect is more pronounced at 40 workers, with a speedup of 3.57.
 
-Since our data showed that approximating $\pi$ on one node with $10^{9}$ samples took approximately 7 minutes, collecting $10^{10}$ samples on a single node would take 70 minutes at minimum.  Figure shows that increasing the 
+Since our data showed that approximating $\pi$ on one node with $10^{9}$ samples took approximately 7 minutes, collecting $10^{10}$ samples on a single node would take 70 minutes at minimum.  Figure shows that the $10^{10}$ sample set runs quickest when more nodes are more nodes working on it. 
 
 The $10^{8}$ sample set confirms that the network overhead is logarithmic.  At that job size, the job is too small to be effectively parallelized and we start seeing overheard acting as the dominant factor in out dataset.  This matches the behavior predicted by our equation, $time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$. For a small $time_{1}$, $\frac{time_{1}}{n}$  approaches 0 as $n$ gets larger, while $k \cdot \log_{2}(n)$, our overhead, dominates the sample.  The samples from our dataset fit the curve $k \cdot \log_{2}(n)$, establishing that our overhead is increases logarithmicly with the number of workers.
 

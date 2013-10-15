@@ -67,10 +67,12 @@ Our experiments validate the ability of ChordReduce to perform MapReduce tasks e
 \end{abstract}
 TODO:
 \begin{enumerate}
+    \item Move specifics of our implementation over to ChordReduce
     \item Make sure all Map and Reduce are capitalized
     \item Define Job vs Task, make sure they are consistant
     \item Review networking terms with Dr. Anu
     \item Make sure out latex format for the title is what they want.
+    \item Fix .bib Capitalizations
 \end{enumerate}
 
 
@@ -315,8 +317,26 @@ The execution of the Reduce stage in this manner prevents the node responsible f
 
 
 \section{Experiments}
+In order for ChordReduce to be a viable framework, we had to show that it could provide a significant speedup when a job was distributed, that ChordReduce scales, and that ChordReduce handles churn during execution.  The first can be demonstrated by showing that, in general, a distributed job performs quicker than the same job handled by a single worker.  To establish scalability, we need to show that the overhead of distributing the work grows logarithmically with the number of workers.  In addition, we need to demonstrate that the larger the job is, the number of nodes we can have working on the problem without the overhead incurring dimishing returns increases. Finally to demonstrate robustess, we need to show that ChordReduce can handle arbitarary node failure in the ring and that such failures did not affect the overall speedup of the network.
 
-To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation\footnote{This is not intended to be a particularly good approximate of $\pi$.} of $\frac{\pi}{4}$.
+
+More formally we need establish that $\exists n$ such that $time_{n} < time_{1}$, where $time_{n}$ is the amount of time it takes for $n$ nodes to finish the job.  In addition, to establish scalability,
+
+$$time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$$, where $\frac{time_{1}}{n}$ is the amount of time the job would take when parrellized in an ideal universe and $k \cdot \log_{2}(n)$ is network induced overhead.
+
+%In an ideal universe, where the movement of data from one node to another is instantanous, scalabilty would not be an issue.  A job with five nodes working on it would be 5 times faster than a job be executed by a single node.  In other words, $time_{n} = \frac{time_{1}}{n}$, where $time_{n}$ is the amount of time it takes for $n$ nodes to finish the job.  However, distributing the job across multiple nodes incurs a .  To establish scalability, we need to show that there is some $p$ workers  
+
+
+
+%The goal of these experiments is to prove that speedup behavior follows the approximate equations 
+%
+%$$time_{n} = \frac{time_{1}}{n} + k \cdot \log_{2}(n)$$
+%$$speedup = \frac{time_{1}}{\frac{time_{solo}}{n} + k \cdot \log_{2}(n)}$$ 
+
+%where $n$ is the number of nodes in the network, $time_{solo}$ is the amount of time a job would take without parallelization, and $k \cdot \log_{2}(n)$ is network induced overhead. $k \cdot \log_{2}(n)$  is a measure of additional time spent on the problem due to network latency and maintenence and grows logarithmically proportion to $n$.  It reflects that for each problem, there is a point at which that the cost of parallization starts providing dimishing returns.  $k$ is unique to each problem.
+
+\subsection{Setup}
+To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at it.  We then check to see where these darts land.  Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
 
 
 \begin{figure}
@@ -325,28 +345,23 @@ To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This 
     \label{dartboard}
 \end{figure}
 
-This makes the job extremely easy to distribute.  Each map job defines the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields of the intermediate results together. 
+We chose this experiment for a number of reasons. The job is extremely easy to distribute. Each map job is defined by the number of throws the node needs to make and yields an intermediate result containing the number of throws that node made and the number of those throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields together. 
 
+This also made it very easy to test scalabilty. By doubling the amount of samples, we can double the amount of work each node gets.  We could test also test the effectiveness of distributing job among different numbers of workers. 
 
+We ran our experiments using Amazons's EC2 service \footnote{I want to blaze through this section, adding citations later}.  Each node was an individual EC2 small instance with a preconfigured Ubuntu 12.04 image.  Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
 
-The goal of these experiments is to prove that speedup behavior follows the approximate equations 
+Our experiments were ran on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate 1 billion samples by default, with later tests done on 100 million and 10 billion.
 
-$$time = \frac{time_{solo}}{n} + k \cdot \log_{2}(n)$$
-$$speedup = \frac{time_{solo}}{\frac{time_{solo}}{n} + k \cdot \log_{2}(n)}$$ 
-
-where $n$ is the number of nodes in the network, $time_{solo}$ is the amount of time a job would take without parallelization, and $k \cdot \log_{2}(n)$ is network induced overhead. $k \cdot \log_{2}(n)$  is a measure of additional time spent on the problem due to network latency and maintenence and grows logarithmically proportion to $n$.  It reflects that for each problem, there is a point at which that the cost of parallization starts providing dimishing returns.  $k$ is unique to each problem.
-
-\subsection{Setup}
-We ran our experiments using Amazons's EC2 service \footnote{I want to blaze through this section, adding citations later}.  %Initially, each node was a micro instance, but the specifications and the cpu burst behavior made the  
-Each node was an individual EC2 small instance.  Once started, nodes pull the latest version of the code and run it, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
-
-Once all nodes have booted, we run our Monte-Carlo approximation of $pi$.  Our experiments looked at the number of samples that were to be taken and the number of nodes performing MapReduce.
-
+We also had at our disposal a subroutine called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing some kind of instability.
 
 \subsection{Results}
-Our experiments show that for a given problem, ChordReduce can effectively parralelize the problem, yielding a substansial speedup.  Furthermore, our results showed that the larger the problem is %what happens
 
-Since our data showed that approximating $\pi$ on one node took approximately 7 minutes, collecting ten times as many samples on a single node would take an hour at minimum. 
+Our experiments show that for a given problem, ChordReduce can effectively parralelize the problem, yielding a substansial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.
+
+Our default series was the 1 billion samples series.  On average, it took a single node 422 seconds, or approximately 7 minutes, to generate 1 billion samples.  Generating the same number of points in parallel with 10, 20, 30, or 40 nodes was always quicker.  Notice that the samples were generated fastest when there were 30 workers,
+
+Since our data showed that approximating $\pi$ on one node took approximately 7 minutes, collecting ten times as many samples on a single node would take 70 minutes at minimum.  
 
 \section{Conclusion and Future Work}
 MapReduce is an extremely powerful tool for solving big data problems, but many centralized implementations h
@@ -356,6 +371,7 @@ Since research into Chord and other P2P networks has considered a wide variety o
 
 %Really security,  We're aware that as our prototype code currently stands, and adversary could make his map and reduce tasks do anything he wants(   I direct your attention to the word \emph{protoype})
 
+Using multiple stagers with a specific return hash for large jobs.
 
 Over the course of our development, we've stumbled across various optimizations and tweaks that would be advantageous to Chord, but would have minimal impact on ChordReduce.
 First $k$ bits of hash used to describe files
@@ -364,3 +380,4 @@ First $k$ bits of hash used to describe files
 \bibliographystyle{plain}
 \bibliography{CHRONUS}
 \end{document}
+

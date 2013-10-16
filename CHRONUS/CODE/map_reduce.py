@@ -132,7 +132,7 @@ class Map_Reduce_Service(Service):
             if b.timestamp < time.time()-b.keepalive:
                 if hash_between(b.destination_key, new_pred_key, my_key):
                     print "gonna do a backup"
-                    todo.put(b)
+                    job_todo.put(b)
                     backups.remove(b)
                     b.backup = True
                     self.send_message(b,node.successor)

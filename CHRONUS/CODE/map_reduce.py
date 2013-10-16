@@ -132,7 +132,7 @@ class Map_Reduce_Service(Service):
             if b.timestamp < time.time()-b.keepalive:
                 if hash_between(b.destination_key, new_pred_key, my_key):
                     print "gonna do a backup"
-                    todo.put(b)
+                    job_todo.put(b)
                     backups.remove(b)
                     b.backup = True
                     self.send_message(b,node.successor)
@@ -233,7 +233,7 @@ class Map_Reduce_Service(Service):
             newmsg.origin = msg.origin
             newmsg.timeingRecord = msg.timeingRecord + "\n--\n" + newmsg.timeingRecord
             newmsg.timeingRecord += "Map start: "+str(starttime)+"\n"+"Map done: "+str(time.time())+"\n"
-            self.send_message(newmsg, None)
+            self.send_message(newmsg, msg.reply_to)
 
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []
@@ -270,7 +270,7 @@ class Map_Message(Message):
         self.type = MAP
         self.timeingRecord = "'map msg made', "+str(time.time())+"\n"+str(node.thisNode)+"\n"
         self.timestamp = time.time()
-        self.keepalive = 60.0
+        self.keepalive = 60.0*30
 
 
 

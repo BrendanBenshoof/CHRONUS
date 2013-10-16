@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+###Startup and commandline file
 from subprocess import Popen
 from time import sleep
 from random import random

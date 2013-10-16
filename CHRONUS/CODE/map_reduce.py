@@ -233,7 +233,7 @@ class Map_Reduce_Service(Service):
             newmsg.origin = msg.origin
             newmsg.timeingRecord = msg.timeingRecord + "\n--\n" + newmsg.timeingRecord
             newmsg.timeingRecord += "Map start: "+str(starttime)+"\n"+"Map done: "+str(time.time())+"\n"
-            self.send_message(newmsg, None)
+            self.send_message(newmsg, msg.reply_to)
 
     def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []

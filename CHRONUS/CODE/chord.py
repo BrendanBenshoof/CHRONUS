@@ -3,7 +3,7 @@
 from subprocess import Popen
 from time import sleep
 from random import random
-die_chance = 0.0025
+die_chance = 0.00025
 
 thingy = Popen(["./chordreduce.py", "?", "54.225.230.238","9000"])
 sleep(20)

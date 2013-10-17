@@ -399,6 +399,8 @@ Our experiments show that for a given problem, ChordReduce can effectively paral
 
 \section{Conclusion and Future Work}
 Chord, traditionally viewed as a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automaticly assigning responsibility, routing, and load balancing.  ChordReduce leverages these features provide a framework for MapReduce that is completely decentralized, scalable, automatically assigns work to new nodes, and highly tolerant to churn and node failure at any point in the network.  When the number of new nodes joining the network is close to the number of nodes leaving the network due to churn, executing jobs acutally experience a speedup due to redistribution of work to new nodes, while the data backed up from leaving nodes is automactially handles without addtional overhead cost.  Future research will explore how to optimize this property. 
+ 
+Another optimization to explore is in file and data distribution. One of the major advantages of Chord is that all files are evenly distributed throughout the network.  However, there are some cases where it would be preferable to keep related files together.  We can do this by manually assigning the first $x$ bits of the $m$-bit length ID for the file, where $x \leq \frac{m}{2}$, then generating the remaining $m-x$ bits of the id with a hash function, as normal.  This would allow users to define a specific prefix for an abritrary group of files and keep them together on the network.
 
  
 %ChordReduce is an effective platform because it scales logarithmically.  It is also able to handle churn during execution.
@@ -413,7 +415,6 @@ Many clusters assume identical or near identical hardware, running an equal amou
 Adjustments can be easily made on the user's end.  If some hardware can take more work than others, then that system can boot up more instances of nodes locally. Running two nodes locally would mean that approximately twice as much work would assigned to that computer.  Automatically balancing this load is also an avenue for future research.
 %Chord could also be used to create a distributed authentication service.
 
-%Over the course of our development, we stumbled across various optimizations and tweaks that would be advantageous to Chord and our future research, but would have minimal impact on ChordReduce.  One of the major advantages of Chord is that all files are evenly distributed throughout the network.  However, there are some cases where it would be preferable to keep related files together.  We can do this by manually assigning the first $x$ bits of the $m$-bit length ID for the file, where $x \leq \frac{m}{2}$, then generating the remaining $m-x$ bits of the id with a hash function, as normal.  This would allow users to define a specific prefix for an abritrary group of files and keep them together on the network.
 
 
 %Our future plans for ChordReduce itself is to recode the library in Java to take advantage of the multiprocessing support, which is limited in Python. 

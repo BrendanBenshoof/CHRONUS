@@ -1,4 +1,4 @@
-\documentclass[conference, compsocconf, letterpaper]{IEEEtran}
+\documentclass[10pt, conference, compsocconf]{IEEEtran}
 
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
 
@@ -160,7 +160,7 @@ When Bob sees that notification, he can see Alice is closer than whoever his pre
 
 
 \subsection{MapReduce and Hadoop}
-At its core, MapReduce \cite{mapreduce} is a system for division of labor, providing a layer of speration between the programmer and the more complicated parts of parallel processing.  The programmer sends a large task to a master node, who then divides that task among slave nodes (which may further divide the task).  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then produces a result for each map operation.  This intermediate data can then be reduced, combining these sets of intermediate data into a set, which is further combined with other sets.  This process continues until one set of data remains.
+At its core, MapReduce \cite{mapreduce} is a system for division of labor, providing a layer of speration between the programmer and the more complicated parts of parallel processing.  The programmer sends a large task to a master node, who then divides that task among slave nodes (which may further divide the task).  This task has two distinct parts: Map and Reduce.  Map performs some operation on a set of data and then produces a result for each Map operation.  This intermediate data can then be reduced, combining these sets of intermediate data into a set, which is further combined with other sets.  This process continues until one set of data remains.
 
 The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  The master node splits up the documents into multiple chunks and sends them off to workers.  Each worker then goes through each chunk and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
@@ -189,12 +189,13 @@ Experimental results were gathered via simulation. Their results showed that whi
 
 They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures \cite{marozzo2012p2p}.
 
-Our work differs from Marozzo et al.'s in that P2P-MapReduce does not examine leverage using the underlying strengths of a particular P2P protocol or group of protocols, which would have made the architecture simpler.  P2P-Mapreduce is decentralized, but still relies on a very definite master/slave hierarchy, while all nodes in ChordReduce are both workers and masters.  We also implemented our MapReduce system rather than simulating the work.
+Our work differs from Marozzo et al.'s in that P2P-MapReduce does not examine leverage using the underlying strengths of a particular P2P protocol or group of protocols, which would have made the architecture simpler.  P2P-MapReduce is decentralized, but still relies on a very definite master/slave hierarchy, while all nodes in ChordReduce are both workers and masters.  We also implemented our MapReduce system rather than simulating the work.
 
 \subsection{MapReduce using Symphony}
 
 ADDRESS FAULT TOLERANCE
-Lee et al.'s work more strongly resembles our own in that their system uses a P2P protocol to perform Map Reduce \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using map and reduce functions.
+
+Lee et al.'s work more strongly resembles our own in that their system uses a P2P protocol to perform Map Reduce \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using Map and Reduce functions.
 
 Rather than using Chord, Lee et al. used very similar DHT protocol with a ring topology, Symphony \cite{symphony}\footnote{I can expand here on Symphony if we need space, but I think that is better suited for the journal paper}.  To run a MapReduce job over the Symphony ring, a node is selected by the user to effectively act as the master.  This ad-hoc master then performs a bounded broadcast over a subsection the ring.  Each node repeats this broadcasts over a subsection of that subsection, resulting in a tree with the first node at the top.  Map tasks are disseminated evenly throughout the tree and their intermediate results are reduced on the way back up to the ad-hoc master node.  This allows the ring to disseminate Map and Reduce tasks without the need for a coordinator responsible for distributing these tasks and keeping track of them, unlike Hadoop.
  
@@ -277,7 +278,7 @@ In our implementation of MapReduce, each node takes on responsibilities of both 
 
 The job of this stager is to take the work and divide it into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might be a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.  The specifics of how to divide the work are defined by the user in a \emph{stage} function.  These data atoms are then given a random hash and sent to that hash address, guaranteeing an even distribution of the data atoms throughout the network.  The data atoms also contain the Map function and Reduce function, as defined by the user.  A job ID is also included, so that data atoms from different jobs can be differentiated.
 
-Nodes which receive data atoms apply the map function to the data to create intermediate data atoms, which are then sent back to the stager's hash address (or some other user defined address).  Traveling using Chord's fingers, this will take $\log n$ hops.  At each hop, the node waits a predetermined minimal amount of time to accumulate additional intermediate data atoms (In our experiments, this was .1 seconds).%\footnote{Actual footnote: The amount of time spent waiting can be manipulated to tradeoff between time spent reducing and network usage}.  
+Nodes which receive data atoms apply the Map function to the data to create intermediate data atoms, which are then sent back to the stager's hash address (or some other user defined address).  Traveling using Chord's fingers, this will take $\log n$ hops.  At each hop, the node waits a predetermined minimal amount of time to accumulate additional intermediate data atoms (In our experiments, this was .1 seconds).%\footnote{Actual footnote: The amount of time spent waiting can be manipulated to tradeoff between time spent reducing and network usage}.  
 
 Nodes that receive at least two intermediate data atoms merge them into one data atom using the Reduce function.   The atoms are continually merged until only one remains at the hash address of the stager. 
 
@@ -317,7 +318,7 @@ Speedup first can be demonstrated by showing that, in general, a distributed job
 
 More formally we need establish that $\exists n$ such that $T_{n} < T_{1}$, where $T_{n}$ is the amount of time it takes for $n$ nodes to finish the job.  In addition, to establish scalability,
 
-$$T_{n} = \frac{T_{1}}{n} + k \cdot \log_{2}(n)$$, where $\frac{T_{1}}{n}$ is the amount of time the job would take when distributed in an ideal universe and $k \cdot \log_{2}(n)$ is network induced overhead, $k$ being an unknown constant.
+$$T_{n} = \frac{T_{1}}{n} + k \cdot \log_{2}(n)$$, where $\frac{T_{1}}{n}$ is the amount of time the job would take when distributed in an ideal universe and $k \cdot \log_{2}(n)$ is network induced overhead, $k$ being an unknown constant dependant on network latency and available processing power.
 
 %In an ideal universe, where the movement of data from one node to another is instantanous, scalabilty would not be an issue.  A job with five nodes working on it would be 5 times faster than a job be executed by a single node.  In other words, $T_{n} = \frac{T_{1}}{n}$, where $T_{n}$ is the amount of time it takes for $n$ nodes to finish the job.  However, distributing the job across multiple nodes incurs a .  To establish scalability, we need to show that there is some $p$ workers  
 %The goal of these experiments is to prove that speedup behavior follows the approximate equations 
@@ -336,13 +337,13 @@ $$T_{n} = \frac{T_{1}}{n} + k \cdot \log_{2}(n)$$, where $\frac{T_{1}}{n}$ is th
 
 To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at random locations. Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
 
-We chose this experiment for a number of reasons. The job is extremely easy to distribute. Each map job is defined by the number of throws the node needs to make and yields an intermediate result containing the number of throws that the node made and the number of throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields together. 
+We chose this experiment for a number of reasons. The job is extremely easy to distribute. Each Map job is defined by the number of throws the node needs to make and yields an intermediate result containing the number of throws that the node made and the number of throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields together. 
 
 This also made it very easy to test scalability. By doubling the amount of samples, we can double the amount of work each node gets.  We could test also test the effectiveness of distributing job among different numbers of workers. 
 
 We ran our experiments using Amazons's EC2 service.  Each node was an individual EC2 small instance \cite{amazon-instances} with a preconfigured Ubuntu 12.04 image.  These instances were capable enough that they could provide constant computation, but still weak enough that they would be overwhelmed by traffic on occasions, creating a constant churn effect in the ring.  
 
-Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes do not have to be updated and execute the tasks they are given.
+Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the new code without any problems. Since only the stager has to know how to create the Map tasks, the other nodes do not have to be updated and execute the tasks they are given.
 
 We ran our experiments on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests generating on $10^{8}$ and $10^{10}$ samples.  Becuase of the small size of the $10^{8}$ job compared to the overhead, we gathered data for 5 nodes but not for 40 nodes. 
 
@@ -401,7 +402,7 @@ Our data shows that the larger the job, the closer our speedup is to linear.  Fi
 Figure \ref{churnSpeed} shows the experiments we ran for churn \footnote{The data we gathered for churn was gathered a different day and under completely different network conditions than the original data runs.  As a result, the results can not be fairly compared and are not compared to the other graphs}.   For example in, when the churn rate was $0.8\%/second$, the job took 191.25 seconds to complete.  This means there were effectively $$0.008 \times 191.25 \times 40 \text{ nodes} \approx 61 \text{ nodes} $$ working on the problem, but with the overhead of only 40 nodes. 
 
 \section{Conclusion and Future Work}
-Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automatic assigning of responsibility, routing, and load balancing.  ChordReduce leverages these features provide a framework for MapReduce that is completely decentralized, scalable, highly tolerant to churn and node failure at any point in the network.  
+Chord, traditionally viewed as a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automatic assigning of responsibility, routing, and load balancing.  ChordReduce leverages these features provide a framework for MapReduce that is completely decentralized, scalable, highly tolerant to churn and node failure at any point in the network.  
 
 So long as the average number of nodes in the ring remains the same, ChordReduce actually benefits from churn.
  
@@ -419,18 +420,12 @@ Chord can would provide a suitable platform to solving problems that would other
 
 TODO:
 \begin{enumerate}
-    \item Move specifics of our implementation over to ChordReduce
-    \item Make sure all Map and Reduce are capitalized
-    \item Define Job vs Task, make sure they are consistant
-    \item Review networking terms with Dr. Anu
-    \item Make sure out latex format for the title is what they want.
-    \item Fix .bib Capitalizations
     \item Change parallelized  $\implies$ distributed
 \end{enumerate}
 
 
 
-\bibliographystyle{plain}
+\bibliographystyle{IEEEtran}
 \bibliography{CHRONUS}
 \end{document}
 

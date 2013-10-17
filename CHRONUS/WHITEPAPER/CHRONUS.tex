@@ -387,9 +387,15 @@ Our data shows that the larger the job, the closer our speedup is to linear.  Fi
 \end{figure}
 
 
+Figure CHURNSPEEDUP shows the experiments we ran for churn
+
 \section{Conclusion and Future Work}
+Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout 
 
 
+
+So long as the average number of nodes in the ring remains the same, ChordReduce actually benefits from churn.
+ 
 %ChordReduce is an effective platform because it scales logarithmically.  It is also able to handle churn during execution.
 %However, MapReduce is not the only additional use for Chord.  Traditionally Chord is thought as a tool for P2P networks and file sharing.  We demonstrated through ChordReduce that Chord is much more than that.  Chord can serve as a scalable general purpose framework for distributed and cloud programming, thanks to its $\log(n)$ overhead.  We have identified many directions of future research for distributed programming using Chord.
 

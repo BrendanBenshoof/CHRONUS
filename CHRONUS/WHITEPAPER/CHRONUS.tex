@@ -200,17 +200,10 @@ While P2P-MapReduce is decentralized, it still relies on a very definite master/
 
 \subsection{MapReduce using Symphony}
 
-
-Lee et al.'s work more strongly resembles our own in that their system uses a P2P protocol to perform Map Reduce \cite{leemap}.  Their work, like ours, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using Map and Reduce functions.
-
-Rather than using Chord, Lee et al. used Symphony \cite{symphony}, another DHT protocol with a ring topology.  To run a MapReduce job over the Symphony ring, a node is selected by the user to effectively act as the master.  This ad-hoc master then performs a bounded broadcast over a subsection the ring.  Each node repeats this broadcasts over a subsection of that subsection, resulting in a tree with the first node at the top.  Map tasks are disseminated evenly throughout the tree and their intermediate results are reduced on the way back up to the ad-hoc master node.  This allows the ring to disseminate Map and Reduce tasks without the need for a coordinator responsible for distributing these tasks and keeping track of them, unlike Hadoop.
+Lee et al.'s work \cite{leemap}, draws attention to the fact that a P2P network can be much more than a way to distribute files and demonstrates how to accomplish different tasks using Map and Reduce functions.  Rather than using Chord, Lee et al. used Symphony \cite{symphony}, another DHT protocol with a ring topology.  To run a MapReduce job over the Symphony ring, a node is selected by the user to effectively act as the master.  This ad-hoc master then performs a bounded broadcast over a subsection the ring.  Each node repeats this broadcasts over a subsection of that subsection, resulting in a tree with the first node at the top.  Map tasks are disseminated evenly throughout the tree and their intermediate results are reduced on the way back up to the ad-hoc master node.  This allows the ring to disseminate Map and Reduce tasks without the need for a coordinator responsible for distributing these tasks and keeping track of them, unlike Hadoop.
  
+Their experimental results showed that the latency experienced by a centralized configuration is similar to the latency experienced in a completely distributed framework.  However, there are no mechanism in place to handle churn in the network.  If a node joins during a MapReduce job, it will be unable to contribute any of its resources to the problem. If a node in the bounded fails, or worse the master node fails, the data that node is responsible for is lost. 
 
-Their deployed experimental results showed that the latency experienced by a centralized configuration is similar to the latency experienced in a completely distributed framework.
-
-ADDRESS FAULT TOLERANCE AND CHURN
-
-DOES THE PAPER ADDRESS SCALABILITY
 %One of the major improvements that can be made to Lee et al.'s method is improving the fault tolerance of the system.  While in most cases the network is able to cope with churn via the underlying Symphony protocol, no arrangements are made to handle the loss of nodes during the execution of a MapReduce task \cite{leemap}.  This means the MapReduce operation on Symphony has the same single point of failure Hadoop has. 
 
 %ChordReduce exploits the backup feature used for files to protect MapReduce tasks from failure.  Our network can handle the failure of the node our reduced data is being sent to, as the data is being sent to a address on the ring, rather than a particular node.
@@ -243,17 +236,16 @@ DOES THE PAPER ADDRESS SCALABILITY
 
 \section{ChordReduce}
 
-
-%ChordReduce does not use the bounded broadcast approach presented by Lee et al., but it would not be difficult to implement it through Chord.  ChordReduce instead randomly chooses a hash address to receive a particular map operation, ensuring that such tasks are evenly distributed accross the network.
-\subsection{Motivation}
-
-
-
 Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.  However, Marozzo et al. do not explore the benefits of leveraging the properties of a P2P protocol to reduce the complexity of the architecture and completely distribute the responsibility of the task across the network.  As a result, P2P-MapReduce still relies on specific nodes to coordinate the network's actions.
 
-Lee et al.'s \cite{leemap} explores the benefits of building a MapReduce module to run on top of an existing P2P protocol, specifically Symphony.  This allows the MapReduce tasks to be executed without the need of a central source of coordination, unlike Hadoop.  The MapReduce architecture is constructed at runtime, via bounded broadcast. Despite these benefits, the Symphony based MapReduce architecture would be greatly improved by the addition of components to handle the failure of nodes during execution.  As it stands now, if a node crashes the job will fail due to the loss data
+Lee et al.'s \cite{leemap} explores the benefits of building a MapReduce module to run on top of an existing P2P protocol, specifically Symphony.  This allows the MapReduce tasks to be executed without the need of a central source of coordination, unlike Hadoop.  The MapReduce architecture is constructed at runtime, via bounded broadcast. Despite these benefits, the Symphony based MapReduce architecture would be greatly improved by the addition of components to handle the failure of nodes during execution.  As it stands now, if a node crashes the job will fail due to the loss data.
 
-Both these papers have promising results and confirm the capability of our own framework.  ChordReduce uses Chord to act as a completely distributed topology for MapReduce, negating the need to assign any explicit roles to nodes or have a scheduler or coordinator.  ChordReduce does not need to assign specific nodes the task of backing up work; nodes backup their tasks using the same process that would be used for any other data being sent around the ring.  Finally intermediate data works its way back to a specified hash address, rather than a specific hash node, eliminating any single point of failure in the network.  The result is a simple, distributed, and highly robust architecture for MapReduce.
+
+While both these papers have promising results and confirm the capability of our own framework, both solely look at P2P networks for routing their data and organizing the network, rather than a means of efficiently distributing responsibility thorughout the network and using existing features to add robustness to nodes working on Map and Reduce tasks.  
+
+ChordReduce uses Chord to act as a completely distributed topology for MapReduce, negating the need to assign any explicit roles to nodes or have a scheduler or coordinator.  ChordReduce does not need to assign specific nodes the task of backing up work; nodes backup their tasks using the same process that would be used for any other data being sent around the ring.  Finally intermediate data works its way back to a specified hash address, rather than a specific hash node, eliminating any single point of failure in the network.  The result is a simple, distributed, and highly robust architecture for MapReduce.
+
+
 
 
 \subsection{Handling Node Failures in Chord}
@@ -274,7 +266,7 @@ Our prototype framework does not implement a polite disconnect;  when a node qui
 
 \begin{figure}
     \includegraphics[width=\linewidth]{crArch}
-    \caption{The basic architecture of ChordReduce.}
+    \caption{The basic architecture of a node in ChordReduce.}
     \label{crArch}
 \end{figure}
 

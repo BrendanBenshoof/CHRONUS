@@ -68,14 +68,13 @@ Our experiments validate the ability of ChordReduce to perform MapReduce tasks e
 \end{abstract}
 
 \section{Introduction}
+Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing.  By using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts to other processors for computation.  The results are sent back to the user and combined until one large answer results.  Numerous programming tasks such as word counting, reverse indexing, sorting, and Monte-Carlo approximations can be efficiently distributed using MapReduce.
+
+Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, require a centralized source of coordination and organization to store and operate on data. However, what if we desire a less hierarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
 
 Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members.
 
 Rather than viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called ChordReduce, to establish the effectiveness of using Chord as a framework for distributed programming.  ChordReduce leverages the underlying protocol to distribute Map and Reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance. 
-
-Google's MapReduce paradigm has rapidly become an integral part in the world of data processing,  \cite{mapreduce}.  By using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts to other processors for computation.  The results are sent back to the user and combined until one large answer results.  Numerous programming tasks such as word counting, reverse indexing, sorting, and Monte-Carlo approximations can be efficiently distributed using MapReduce \cite{mapreduce}.
-
-Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, require a centralized source of coordination and organization to store and operate on data. However, what if we desire a less hierarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
 
 At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in ChordReduce can be setup in a cluster for high performance or they can be deployed over the Internet for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorporating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes to network turnover, or churn, and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job during runtime.
 

@@ -173,7 +173,7 @@ One very popular open-source implementation of MapReduce is Apache's Hadoop \cit
 
 To do work on Hadoop, the user stores thier data on the network.  This is handled by the NameNode, which equally apportions the data among the DataNodes.  When a user wants to run some analysis on the data or some subset the data, then that function is sent by the NameNode to each of the DataNodes that is responsible for the indicated data.   After the DataNode finishes processing, the result is sent handled by yet another node called a Reducer.
 
-Key differences between Hadoop and ChordReduce are discussed in Section V.
+Key differences between Hadoop and ChordReduce are discussed in Section IV.
 
 
 \section{Related Work}
@@ -296,10 +296,6 @@ Many clusters assume identical or near identical hardware, running an equal amou
 Adjustments can be easily made on the user's end.  If some hardware can take more work than others, then that system can boot up more instances of nodes locally. Running two nodes locally would mean that approximately twice as much work would assigned to that computer.  Automatically balancing this load is an avenue for future research.
 
 
-%\subsubsection{Just Chord or can we use a different Protocol}
-%This architecture can be adapted for any P2P protocol that has features similar to Chord: consistant hashing, automatic routing and responsiblilty handling.
-
-
 \subsection{Comparison of ChordReduce and Hadoop}
 
 The centralized structure of Hadoop requires that the NameNode be solely responsible for keeping track of where all the data is in the network \cite{Hadoop}.  ChordReduce has two options for the handling the data used for performing MapReduce.  Data may be distributed by the stager along with the dissemination of the Map and Reduce functions.  The data may also be stored in the ring \cite{CFS}.  In either case, no single node is responsible for knowing the location of all of the data.  
@@ -312,9 +308,9 @@ The execution of the Reduce stage in this manner prevents the node responsible f
 \section{Experiments}
 In order for ChordReduce to be a viable framework, we had to show that:
 \begin{enumerate}
-    \item it could provide a significant speedup when a job was distributed
-    \item ChordReduce scales
-    \item ChordReduce handles churn during execution
+    \item A job run on ChordReduce provides experiences a significant speedup it is distributed.
+    \item ChordReduce scales.
+    \item ChordReduce handles churn during execution.
 \end{enumerate}
 Speedup first can be demonstrated by showing that, in general, a distributed job performs quicker than the same job handled by a single worker.  To establish scalability, we need to show that the overhead of distributing the work grows logarithmically with the number of workers.  In addition, we need to demonstrate that the larger the job is, the number of nodes we can have working on the problem, without the overhead incurring diminishing returns, increases. Finally to demonstrate robustess, we need to show that ChordReduce can handle arbitrary node failure in the ring and that such failures minimally impact overall speedup of the network.
 
@@ -346,11 +342,11 @@ This also made it very easy to test scalability. By doubling the amount of sampl
 
 We ran our experiments using Amazons's EC2 service.  Each node was an individual EC2 small instance \cite{amazon-instances} with a preconfigured Ubuntu 12.04 image.  These instances were capable enough that they could provide constant computation, but still weak enough that they would be overwhelmed by traffic on occasions, creating a constant churn effect in the ring.  
 
-Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the code new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes don't have to be updated and are happy to perform the tasks they are given.
+Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the new code without any problems. Since only the stager has to know how to create the map tasks, the other nodes do not have to be updated and execute the tasks they are given.
 
-Our experiments were ran on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests done on $10^{8}$ and $10^{10}$.  Due to the size of the $10^{8}$ job, we also gathered data for 5 nodes. 
+We ran our experiments on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests generating on $10^{8}$ and $10^{10}$ samples.  Becuase of the small size of the $10^{8}$ job compared to the overhead, we gathered data for 5 nodes but not for 40 nodes. 
 
-We also had at our disposal a subroutine called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing some kind of instability.
+We also utilized a subroutine we wrote called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing some kind of instability.
 
 \subsection{Results}
 
@@ -367,7 +363,7 @@ We also had at our disposal a subroutine called $plot$, which sends a message to
     \label{expSpeed}
 \end{figure}
 
-Our experiments show that for a given problem, ChordReduce can effectively parallelize the problem, yielding a substansial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.  During run time, we experienced multiple instances where plot would fail to run and the stager would report socket errors, indicating that it had lost connection with a node in the ring.  Despite this turbulence, the nodes all managed to reestablish connection with each other and report back all the data.  This demonstrated that we were able to handle the churn in the network.
+Our experiments show that for a given problem, ChordReduce can effectively parallelize the problem, yielding a substantial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.  During run time, we experienced multiple instances where plot would fail to run and the stager would report socket errors, indicating that it had lost connection with a node in the ring.  Despite this turbulence, the nodes all managed to reestablish connection with each other and report back all the data.  This demonstrated that we were able to handle the churn in the network.
 
 Our default series was the $10^{9}$ samples series.  On average, it took a single node 422 seconds, or approximately 7 minutes, to generate $10^{9}$ samples.  Generating the same number of points in parallel with 10, 20, 30, or 40 nodes was always quicker.  Notice that the samples were generated fastest when there were 20 workers, with a speedup factor of 4.83, while increasing the number of workers to 30 yielded a speedup of only 3.6.  At 30 nodes, the gains of parrellization were still there, but the cost of overhead ($k \cdot \log_{2}(n)$) had more of an impact.  This effect is more pronounced at 40 workers, with a speedup of 3.57.
 
@@ -405,9 +401,7 @@ Our data shows that the larger the job, the closer our speedup is to linear.  Fi
 Figure \ref{churnSpeed} shows the experiments we ran for churn \footnote{The data we gathered for churn was gathered a different day and under completely different network conditions than the original data runs.  As a result, the results can not be fairly compared and are not compared to the other graphs}.   For example in, when the churn rate was $0.8\%/second$, the job took 191.25 seconds to complete.  This means there were effectively $$0.008 \times 191.25 \times 40 \text{ nodes} \approx 61 \text{ nodes} $$ working on the problem, but with the overhead of only 40 nodes. 
 
 \section{Conclusion and Future Work}
-Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automatic assigning of responsibility, routing, and load balancing.  ChordReduce leverages these features to allow MapReduce to be 
-
-
+Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automatic assigning of responsibility, routing, and load balancing.  ChordReduce leverages these features provide a framework for MapReduce that is completely decentralized, scalable, highly tolerant to churn and node failure at any point in the network.  
 
 So long as the average number of nodes in the ring remains the same, ChordReduce actually benefits from churn.
  

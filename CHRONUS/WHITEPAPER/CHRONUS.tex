@@ -181,7 +181,7 @@ Key differences between Hadoop and ChordReduce are discussed in Section IV.
 We have identified two papers that focus on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways.
 
 \subsection{P2P-MapReduce}
-Marozzo et al. \cite{marozzo2012p2p} investigated the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new, P2P based MapReduce architecture called P2P-MapReduce.  P2P-MapReduce is designed to be more robust at handling node and job failures during execution.
+Marozzo et al. \cite{marozzo2012p2p} investigated the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new, P2P MapReduce architecture based on JTXA \cite{935182} called P2P-MapReduce.  P2P-MapReduce is designed to be more robust at handling node and job failures during execution.
 
 Rather than use a single master node, P2P-MapReduce employs multiple master nodes, each responsible for some job.  If one of those master nodes fails, another will be ready as a backup to take its place and manage the slave nodes assigned to that job.  This avoids the single point of failure that Hadoop is vulnerable to. Failures of the slave nodes are handled by the master node responsible for it.
 
@@ -189,8 +189,13 @@ Experimental results were gathered via simulation. Their results showed that whi
 
 They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures \cite{marozzo2012p2p}.
 
+While P2P-MapReduce is decentralized, it still relies on a very definite master/slave hierarchy for organization and computations and to scale to large sizes.  1\% of the entire network during simualtions were assigned as master nodes, meaning for a simulation of 40000 nodes, 400 were required organize and coordinate jobs and unable to do any processing themselves.  In addition, loosely-consistent DHT such as JXTA can be much slower and fails to maintain the same level of guarentees of an actual DHT, such as Chord \cite{5359174}.   %In addtion, their simulations of churn 
 
-The responsibliltu
+
+%The loosely-consistent DHT can be much slower than using an acutal DHT such as Chord .
+%Scalability.  A huge issue would be tracking all the nodes and coordinating them. Scalability is handled by mainataining a ratio of masters to slaves 
+%Evaluated for low rates of churn.  Such low rates also mean master nodes are barely affected by churn.
+%Simulations 
 %Our work differs from Marozzo et al.'s in that P2P-MapReduce does not examine using the underlying strengths of a particular P2P protocol or group of protocols, which would have made the architecture simpler.  P2P-MapReduce is decentralized, but still relies on a very definite master/slave hierarchy, while all nodes in ChordReduce are both workers and masters.  We also implemented our MapReduce system rather than simulating the work.
 
 \subsection{MapReduce using Symphony}
@@ -204,6 +209,8 @@ Rather than using Chord, Lee et al. used Symphony \cite{symphony}, another DHT p
 Their deployed experimental results showed that the latency experienced by a centralized configuration is similar to the latency experienced in a completely distributed framework.
 
 ADDRESS FAULT TOLERANCE AND CHURN
+
+DOES THE PAPER ADDRESS SCALABILITY
 %One of the major improvements that can be made to Lee et al.'s method is improving the fault tolerance of the system.  While in most cases the network is able to cope with churn via the underlying Symphony protocol, no arrangements are made to handle the loss of nodes during the execution of a MapReduce task \cite{leemap}.  This means the MapReduce operation on Symphony has the same single point of failure Hadoop has. 
 
 %ChordReduce exploits the backup feature used for files to protect MapReduce tasks from failure.  Our network can handle the failure of the node our reduced data is being sent to, as the data is being sent to a address on the ring, rather than a particular node.
@@ -336,7 +343,7 @@ Once started, nodes pull the latest version of the code and run it as a service,
 
 We ran our experiments on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests generating on $10^{8}$ and $10^{10}$ samples.  Becuase of the small size of the $10^{8}$ job compared to the overhead, we gathered data for 5 nodes but not for 40 nodes. 
 
-We also utilized a subroutine we wrote called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing some kind of instability.
+We also utilized a subroutine we wrote called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing structural instability.
 
 \subsection{Results}
 

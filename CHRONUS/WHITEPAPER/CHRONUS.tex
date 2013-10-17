@@ -262,6 +262,13 @@ Our prototype framework does not implement a polite disconnect;  when a node qui
 
 \subsection{Implementation Details}
 
+\begin{figure}
+    \includegraphics[width=\linewidth]{crArch}
+    \caption{The basic architecture of ChordReduce.}
+    \label{crArch}
+\end{figure}
+
+
 ChordReduce, at its core, is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.   It consists of downloading our code \cite{code} and running chord.py.  You can specify a port and IP and port of a node in the ring you want to join.  With this minimal information, the node will automatically integrate into the ring.
 
 Other than a hashing library, we wrote the protocol and networking code from scratch.  Once we could create a stable ring, we created various services to run on top the network, such as a file system.  Our file system is capable of storing whole files or splitting the file up among the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service.    We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
@@ -387,10 +394,18 @@ Our data shows that the larger the job, the closer our speedup is to linear.  Fi
 \end{figure}
 
 
-Figure CHURNSPEEDUP shows the experiments we ran for churn
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{churnSpeed}
+    \caption{When the churn rate hit a high enough rate, churn began to have a}
+    \label{churnSpeed}
+\end{figure}
+
+
+Figure \ref{churnSpeed} shows the experiments we ran for churn \footnote{The data we gathered for churn was gathered a different day and under completely different network conditions than the original data runs.  As a result, the results can not be fairly compared and are not compared to the other graphs}.   For example in, when the churn rate was $0.8\%/second$, the job took 191.25 seconds to complete.  This means there were effectively $$0.008 \times 191.25 \times 40 \text{ nodes} \approx 61 \text{ nodes} $$ working on the problem, but with the overhead of only 40 nodes. 
 
 \section{Conclusion and Future Work}
-Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout 
+Chord, traditionally viewed as solely a P2P framework for distributing and sharing files, can be used as a platform for distributed computation.  Chord provides $\log(n)$ connectivity throughout network and has built in mechanisms for handling backup, automatic assigning of responsibility, routing, and load balancing.  ChordReduce leverages these features to allow MapReduce to be 
 
 
 

@@ -181,7 +181,7 @@ Key differences between Hadoop and ChordReduce are discussed in Section IV.
 We have identified two papers that focus on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways.
 
 \subsection{P2P-MapReduce}
-Marozzo et al. \cite{marozzo2012p2p} investigated the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new, P2P MapReduce architecture based on JTXA \cite{935182} called P2P-MapReduce.  P2P-MapReduce is designed to be more robust at handling node and job failures during execution.
+Marozzo et al. \cite{marozzo2012p2p} investigated the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new P2P based MapReduce architecture built on JTXA \cite{935182} called P2P-MapReduce.  P2P-MapReduce is designed to be more robust at handling node and job failures during execution.
 
 Rather than use a single master node, P2P-MapReduce employs multiple master nodes, each responsible for some job.  If one of those master nodes fails, another will be ready as a backup to take its place and manage the slave nodes assigned to that job.  This avoids the single point of failure that Hadoop is vulnerable to. Failures of the slave nodes are handled by the master node responsible for it.
 

@@ -69,28 +69,19 @@ Our experiments validate the ability of ChordReduce to perform MapReduce tasks e
 
 \section{Introduction}
 
-Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and there is little maintenance required by the network as a whole to handle individual nodes.  Files in the network are distributed evenly among its members.
+Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members.
 
-Rather than viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called ChordReduce, to establish the effectiveness of using Chord as a framework for distributed programming.  ChordReduce leverages the underlying protocol to distribute Map and Reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance.  We chose to implement MapReduce due to it's simple paradigm and ubiquitousness.
+Rather than viewing Chord solely as a means for sharing files, we see it as a means for distributing work.  We have developed a system, called ChordReduce, to establish the effectiveness of using Chord as a framework for distributed programming.  ChordReduce leverages the underlying protocol to distribute Map and Reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance. 
 
-Google's MapReduce paradigm has rapidly become an integral part in the world of data processing,  \cite{mapreduce}.  Using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts off to be worked on by other processors.  These results of these computations are then sent back to the user and combined until one large answer results.  Numerous programming tasks - word counts, reverse indexing, sorting, Monte-Carlo approximations - can be efficiently distributed using MapReduce \cite{mapreduce}.
+Google's MapReduce paradigm has rapidly become an integral part in the world of data processing,  \cite{mapreduce}.  By using MapReduce, a user can take a large problem, split it into small, equivalent parts and send those parts to other processors for computation.  The results are sent back to the user and combined until one large answer results.  Numerous programming tasks such as word counting, reverse indexing, sorting, and Monte-Carlo approximations can be efficiently distributed using MapReduce \cite{mapreduce}.
 
 Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, require a centralized source of coordination and organization to store and operate on data. However, what if we desire a less hierarchical structure among our nodes?  A single node in charge is a single point of failure.  We need a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes files evenly. 
 
-At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in ChordReduce can be setup in a cluster for high performance or they can be deployed the Internet, for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorporating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes from churn and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job  during runtime.
+At the same time we avoid the architectural and file system constraints of systems like Hadoop.  Nodes in ChordReduce can be setup in a cluster for high performance or they can be deployed over the Internet for volunteer computing tasks.  Our experiments demonstrate that our framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorporating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes to network turnover, or churn, and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job during runtime.
 
-Section II covers the background  of the Chord and MapReduce.  Related Work is discussed in Section III. Details of ChordReduce's implementation and code is described in Section IV, while our experiments and their results are covered in Section V.  Lastly, Section VI discusses potential lines for future research.
+Section II covers the background  of the Chord and MapReduce.  Related Work is discussed in Section III. Details of ChordReduce's implementation and code is described in Section IV, while our experiments and their results are covered in Section V.  Lastly, Section VI discusses potential avenues for future research.
 
-%\subsubsection{Current models of distributing work}
-%Talk about hadoop mention how we basically have a way to distribute reduce.
-%Hadoop is popular here's a citation.  Popular enough to justify using it as a means of comparison
 
-%\subsubsection{HFDS}
-%Hadoop is strongly tied to HFDS architecture.  We are tied to having a computer.
-
-%\subsubsection{Our proposed model Hashnet:  A system of computers connected together using a distributed hash table as a means for efficiently distributing both data and work.}
-
-%A hashnet is not a new paradigm for distributing work; it is an extension of the established and highly tested means of distributing files and applying the scheme to do the same for work.
 
 
 

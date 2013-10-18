@@ -7,19 +7,30 @@ import numpy as np
 
 
 
-
+# 
 f = open("data_ksolve.csv","r")
 
 n0=[1,5,10,20,30]
 n1=[1,10,20,30,40]
 n2=[1,10,20,30,40]
 r0 = [44.81,49.5699999332,115.7799998919,235.4800000191,361.4900000095]
-r1 = [438.22,126.42,82.53,87.89,214.03]
+r1 = [431.17,131.05,86.80,106.91,191.90]
 r2 = [4382.2,1082.1,483.21,430.78,686.43]
 
-t0=44.8099999427795
-t1=438.22
-t2=4382.2
+t0=r0[0]
+t1=r1[0]
+t2=r2[0]
+
+for i in range(0,len(r0)):
+    r0[i]=t0/r0[i]
+
+for i in range(0,len(r1)):
+    r1[i]=t1/r1[i]
+
+for i in range(0,len(r2)):
+    r2[i]=t2/r2[i]
+
+
 k0 = []
 k1 = []
 k2 = []
@@ -66,21 +77,21 @@ xnew = np.linspace(1.0,40.0,300)
 xnew = np.linspace(min(n2),max(n2),300)
 y2 = spline(n2,r2,xnew)
 #plt.figure(1)
-a = plt.plot(xnew,y2,"-")
-plt.plot(n2,r2,"ok", label="10^10 sample job")
+#a = plt.plot(xnew,y2,"-")
+plt.plot(n2,r2,"ok-", label="10^9 sample job")
 
 print r2
 
 xnew = np.linspace(min(n1),max(n1),300)
 y1 = spline(n1,r1,xnew)
 #plt.figure(2)
-b = plt.plot(xnew,y1,"-")
-plt.plot(n1,r1,"+k",label="10^9 sample job")
+#b = plt.plot(xnew,y1,"-")
+plt.plot(n1,r1,"+k-",label="10^8 sample job")
 xnew = np.linspace(min(n0),max(n0),300)
 y0 = spline(n0,r0,xnew)
 #plt.figure(3)
-c = plt.plot(xnew,y0,"-")
-plt.plot(n0,r0,"xk",label="10^8 sample job")
+#c = plt.plot(xnew,y0,"-")
+plt.plot(n0,r0,"xk-",label="10^7 sample job")
 
 k_mean = 36.489
 k_stdev = 24.25
@@ -90,18 +101,18 @@ n_max = 1000
 
 
 
-for i in range(3,10,1):
-    t_0 = 10**i
-    x = range(n_min,n_max)
-    ymean = map(lambda x: t_0/(t_0/x + k_mean*math.log(x,2)), x)
+# for i in range(3,10,1):
+#     t_0 = 10**i
+#     x = range(n_min,n_max)
+#     ymean = map(lambda x: t_0/(t_0/x + k_mean*math.log(x,2)), x)
 
-    plt.plot(x,ymean,label="projected 10^"+str(i)+" second job")
+#     plt.plot(x,ymean,label="projected 10^"+str(i)+" second job")
 
 
 plt.legend()
-plt.ylabel('time (seconds)')
+plt.ylabel('speedup')
 plt.xlabel('number of workers')
-plt.title("Experimental times")
+plt.title("Experimental speedup")
 
 
 

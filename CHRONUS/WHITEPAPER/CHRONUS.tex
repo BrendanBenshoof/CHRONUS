@@ -304,7 +304,7 @@ Finally, to demonstrate robustness, we need to show that ChordReduce can handle 
 \end{figure}
 
 
-To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (fig. \ref{dartboard}), and then throwing darts at random locations. Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
+To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (Fig. \ref{dartboard}), and then throwing darts at random locations. Counting the ratio of darts that land inside the circle to the total number of throws give us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximate of $\pi$. Each digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
 
 We chose this experiment for a number of reasons. The job is extremely easy to distribute. Each Map job is defined by the number of throws the node needs to make and yields an intermediate result containing the number of throws that the node made and the number of throws that landed inside the circular section.  Reducing intermediate results is then a matter of adding the respective fields together. 
 
@@ -395,7 +395,7 @@ which is traditionally viewed as a P2P framework for distributing and sharing fi
  
 %Another optimization to explore is in file and data distribution. One of the major advantages of Chord is that all files are evenly distributed throughout the network.  However, there are some cases where it would be preferable to keep related files together.  We can do this by manually assigning the first $x$ bits of the $m$-bit length ID for the file, where $x \leq \frac{m}{2}$, then generating the remaining $m-x$ bits of the id with a hash function, as normal.  This would allow users to define a specific prefix for an arbitrary group of files and keep them together on the network.
 
- Using Chord as the middleware for ChordReduce establishes its effectiveness for distributed and concurrent computation.
+Using Chord as the middleware for ChordReduce establishes its effectiveness for distributed and concurrent computation.
 The effectiveness of Chord opens up new approaches for tackling other distributed problems, such as supporting databases and machine learning for Big Data, and exoscale computations. We intend to further optimize the performance of ChordReduce and extend the middleware to other applications.
 
 
@@ -417,7 +417,8 @@ The effectiveness of Chord opens up new approaches for tackling other distribute
 TODO:
 \begin{enumerate}
     \item Change parallelized  $\implies$ distributed or concurrent.
-    \item Figure to fig
+    \item Figure to Fig. 
+    \item fig $\implies$  Fig.
     \item Intermediate data atoms $\implies$ results data atom.
     \item Results
 \end{enumerate}

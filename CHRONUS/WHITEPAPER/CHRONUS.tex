@@ -69,7 +69,7 @@ rosen@cs.gsu.edu}
 \begin{abstract}
 
 
-This paper proposes ChordReduce, a novel implementation of Chord that acts as middleware for creating and running MapReduce jobs. ChordReduce satisfies the desired properties for a distributed MapReduce platform. Chord is a peer-to-peer networking protocol for distributed storage and file sharing that provides $\log_{2}(n)$ lookup time for any particular file or node.  Files and nodes are evenly distributed across a ring overlay and organized such that the responsibilities of a failed node are automatically reassigned.  ChordReduce leverages these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  The loss of a single node or a group of nodes during execution does not impact the soundness of the results and the tasks are automatically reassigned.  An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
+This paper proposes ChordReduce, a novel implementation of Chord that acts as middleware for creating and running MapReduce jobs. ChordReduce satisfies the desired properties for a distributed MapReduce platform. Chord is a peer-to-peer networking protocol for distributed storage and file sharing that provides $\log_{2}(n)$ lookup time for any particular file or node.  Files and nodes are evenly distributed across a ring overlay and organized such that the responsibilities of a failed node are automatically reassigned.  ChordReduce leverages these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  The loss of a single node or a group of nodes during execution does not impact the soundness of the results and their tasks are automatically reassigned.  An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
 
 MapReduce frameworks are generally hierarchical, with the responsibility of scheduling work, distributing data and tasks, and tracking progress at the top.  This leads to centralized MapReduce implementations having a single point of failure.  A MapReduce framework with both responsibility and work distributed among its members would eliminate the need for a central source of coordination.  Such a framework would need to be highly scalable, fault-tolerant during execution, able to handle a high degree of churn, and minimize the amount of traffic that results from maintaining the network. 
 
@@ -84,19 +84,17 @@ MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Mi
 \end{IEEEkeywords}
 
 \section{Introduction}
-Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  By using MapReduce, a user can take a large problem, split it into small, equivalent tasks and send those tasks to other processors for computation.  The results are sent back to the user and combined into one answer.  Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling worker-node failures.
+Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  By using MapReduce, a user can take a large problem, split it into small, equivalent tasks and send those tasks to other processors for computation.  The results are sent back to the user and combined into one answer.  Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling node failures.
 
 We have developed a system, called ChordReduce, which employs a less hierarchical structure.  It is a system that can scale, is fault tolerant, has a minimal amount of latency, and distributes tasks evenly.  ChordReduce leverages the underlying protocol from Chord \cite{Chord} to distribute Map and Reduce tasks to nodes evenly, provide greater data redundancy, and guarantee a greater amount of fault tolerance. Rather than viewing Chord solely as a means for sharing files, we see it as a means for distributing work. This paper establishes the effectiveness of using Chord as a framework for distributed programming.   At the same time we avoid the architectural and file system constraints of systems like Hadoop.  
 
-Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a worst-case $\log n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn, the constant joining and leaving of nodes.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members.
+Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a high probability $\log_{2} n$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn, the constant joining and leaving of nodes.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members.
 
 Our experiments demonstrate that the ChordReduce framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorporating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes to churn, and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job during runtime.
 
-While Chord could be used to implement a grid computing environment similar to BOINC \cite{boinc} or Folding-at-Home \cite{folding}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding-at-Home use a master-slave architecture with critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
+While Chord could be used to implement a grid computing environment similar to BOINC \cite{boinc} or Folding@home \cite{folding}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding@home use a master-slave architecture with a critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
 
 Section II covers the background  of the Chord and MapReduce.  Related Work is discussed in Section III. Details of ChordReduce's implementation and code is described in Section IV, while our experiments and their results are covered in Section V.  Lastly, Section VI discusses potential avenues for future research.
-
-
 
 
 
@@ -105,7 +103,9 @@ Chord and MapReduce are integral parts of ChordReduce.  We summarize these frame
 \subsection{Chord}
 Chord \cite{Chord} is a P2P protocol for file sharing that uses a hash function to assign addresses to nodes and files for a ring overlay. The Chord protocol takes in some key and returns the identity (ID) of the node responsible for that key.  These keys are generated by hashing a value of the node, such as the IP address and port, or by hashing the filename of a file.  The hashing process creates a $m$-bit hash identifier.
 
-The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord next takes the hashed files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value is selected.  The node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  Since the overlay is a circle, this assignment is computed in module $2^m$ space.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 would be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, its absence would be detected by node 27, who would then be responsible for all the keys node 25 was covering. An example Chord network is drawn in in Fig. \ref{chordreal}.
+The nodes are then arranged in a ring from the lowest hash-value to highest.  Chord takes the files and places each in the node that has the same hashed identifier as it.  If no such node exists, the node with the first identifier that follows this value is selected. Since the overlay is a circle, this assignment is computed in modulo $2^m$ space.  
+
+The node responsible for the key $\kappa$ is called the $successor$ of $\kappa$, or $successor(\kappa)$.  For example, if there were some portion of the network with nodes 20, 25, and 27, node 25 would be responsible for the files with the keys (21,22,23,24,25). If node 25 were to decide to leave the network, its absence would be detected by node 27, who would then be responsible for all the keys node 25 was covering, in addition to its own keys. 
 \begin{figure}
     \includegraphics[width=\linewidth]{chordreal}
     \caption{A Chord ring with 16 nodes.  The bold lines are incoming edges.  Each node has a connection to its successor, as well as 4 fingers, some of which are duplicates.}
@@ -115,7 +115,7 @@ The nodes are then arranged in a ring from the lowest hash-value to highest.  Ch
 
 With this scheme, we can reliably find the node responsible for some key by asking the next node in the circle for the information, who would then pass the request through the circle until the successor was found.  We can then proceed to directly connect with the successor to retrieve the file.  This naive approach is largely inefficient, and is a simplification of the lookup process, but it is the basis of how Chord theoretically works.
 
-To speed up the lookup time, each node builds and maintains a \emph{finger table}.  The \emph{finger table} contains the locations of up to $m$ other nodes in the ring (Fig. \ref{chordreal}).  The $i$th entry of node $n$'s \emph{finger table} corresponds to the node that is the $successor(n+2^{i-1})$ $mod$ $2^m$. Hash values are not perfectly distributed, it is possible to have duplicate entries in the \emph{finger table}. 
+To speed up the lookup time, each node builds and maintains a \emph{finger table}.  The \emph{finger table} contains the locations of up to $m$ other nodes in the ring.  The $i$th entry of node $n$'s \emph{finger table} corresponds to the node that is the $successor(n+2^{i-1})$ $mod$ $2^m$. Hash values are not perfectly distributed, it is possible to have duplicate entries in the \emph{finger table}. An example Chord network with fingers is shown in in Fig. \ref{chordreal}.
 
 
 \begin{figure}
@@ -137,14 +137,14 @@ When a node $n$ is told to find some key, $n$ looks to see if the key is between
 
 To join the network, node $n$ first asks $n'$ to find $successor(n)$ for it.  Node $n$ uses the information to set his successor, but the other nodes in the ring will not acknowledge $n$'s presence yet.  Node $n$ relies on the stabilize routine to fully integrate into the ring.
 
-The stabilize routine helps the network integrate new nodes and route around nodes who have left the network. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes their successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the (possibly) new successor,  who then checks if he needs to change his predecessor based on this new information.  While complex, the stabilization process is no more expensive than a heartbeat function.  A more concrete example:
+The stabilize routine helps the network integrate new nodes and route around nodes who have left the network. Each node periodically checks to see who their successor's predecessor is.  In the case of a static network, this would be the checking node.  However, if the checking node gets back a different node, it looks at that returned node's hash value and changes its own successor if needed.  Regardless of whether the checking node changes its successor, that node then notifies the (possibly) new successor,  who then checks if he needs to change his predecessor based on this new information.  While complex, the stabilization process is no more expensive than a heartbeat function.  A more concrete example:
 
 
 Suppose Alice, Bob, Carol, and Dan are members of the ring and everyone happens to be ordered alphabetically (Fig. \ref{abcd1}). Alice is quite sure that Carol is her successor.  Alice asks Carol who her predecessor is and Carol says Bob is.  Since Bob is closer than Carol, Alice changes her successor to Bob and notifies him.  
 
 When Bob sees that notification, he can see Alice is closer than whoever his previous predecessor is and sets Alice to be his predecessor.  During the next stabilization cycle, Alice will see that she is still Bob's predecessor and notify him that she's still there (Fig. \ref{abcd2}).
 
-To prevent loss of data due to churn, each node sends a backup of their data to their successor.  The specifics of how this is implemented for ChordReduce and expanded upon to backing up Map and Reduce tasks is discussed in Section IV. 
+To prevent loss of data due to churn, each node sends a backup of their data to their successor.  Section IV discusses the implementation of the backup process and expands upon it for backing up Map and Reduce tasks.
 
 
 %\subsection{Extensions of Chord}
@@ -195,7 +195,7 @@ Experimental results were gathered via simulation and compared P2P-MapReduce to 
 They concluded that P2P-MapReduce would, in general, use more network resources than a centralized approach. However, this was an acceptable cost as the P2P-MapReduce would lose less time from node and job failures \cite{marozzo2012p2p}.
 
 While P2P-MapReduce is decentralized, it still relies on a very definite master/slave hierarchy for organization and computations and to scale to large sizes. 
-During simulation, 1\% of the entire network were assigned as master nodes. This means for a simulation of 40000 nodes, 400 were required to organize and coordinate jobs and unable to do any processing themselves.  In addition, loosely-consistent DHT such as JXTA can be much slower and fails to maintain the same level of guarentees of an actual DHT, such as Chord \cite{5359174}.   %In addtion, their simulations of churn 
+During simulation, 1\% of the entire network were assigned as master nodes. This means for a simulation of 40000 nodes, 400 were required to organize and coordinate jobs and unable to do any processing themselves.  In addition, loosely-consistent DHT such as JXTA can be much slower and fails to maintain the same level of guarentees of an actual DHT, such as Chord \cite{5359174}.   
 
 
 %The loosely-consistent DHT can be much slower than using an acutal DHT such as Chord .
@@ -418,10 +418,12 @@ TODO:
 \begin{enumerate}
     \item Results
     \item Fix figure captions
+    \item log base
+    \item worker node
     \item Go thru Dr. Anu's comments again
-    \item new citation for hadoop-bottle
     \item check over the paragraph below table 1 beginning with: "Our testing rates for churn are an order of maginitude higher that the rates used in the P2P-MapReduce simulation"
     \item fix the beginning of section III related work "We have identified two papers that focus on combining P2P concepts with MapReduce. Both papers are similar to our research, but differ in crucial ways
+    \item Check: Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a worst-case $\log_{2} n$
 
 \end{enumerate}
 

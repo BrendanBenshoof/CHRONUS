@@ -313,9 +313,9 @@ We ran our experiments using Amazons's Elastic Compute Cloud (EC2) service.  Ama
 
 Once started, nodes pull the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the new code without any problems. Since only the stager has to know how to create the Map tasks, the other nodes do not have to be updated and execute the tasks they are given.
 
-We ran our experiments on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $med$ samples by default, with later tests generating on $small$ and $large$ samples.  
+We ran our experiments on groups of 1, 10, 20, 30, and 40 workers, which generated a $med$ sample set and a $large$ sample set.  Additionally, we gathered data on a $small$ sample set using 1, 5, 10, 20, 30 nodes.  To test churn, we ran an experiment where each node had an equal chance of leaving and joining the network and varied the level of over multiple runs.  
 
-We also utilized a subroutine we wrote called $plot$, which sends a message sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing structural instability.
+We also utilized a subroutine we wrote called $plot$, which sends a message sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was experiencing structural instability.
 
 \subsection{Results}
 
@@ -332,11 +332,9 @@ We also utilized a subroutine we wrote called $plot$, which sends a message sequ
     \label{expSpeed}
 \end{figure}
 
-Figures \ref{expTime} and \ref{expSpeed}
+Figures \ref{expTime} and \ref{expSpeed} summarize the experimental results of job duration and speedup.  Our default series was the $med$ samples series.  On average, it took a single node 431 seconds, or approximately 7 minutes, to generate $med$ samples.  Generating the same number of samples in using MapReduce with 10, 20, 30, or 40 nodes was always quicker.  Notice that the samples were generated fastest when there were 20 workers, with a speedup factor of 4.96, while increasing the number of workers to 30 yielded a speedup of only 4.03.  At 30 nodes, the gains of distributing the work were present, but the cost of overhead ($k \cdot \log_{2}(n)$) had more of an impact.  This effect is more pronounced at 40 workers, with a speedup of 2.25.
 
-Our default series was the $med$ samples series.  On average, it took a single node 422 seconds, or approximately 7 minutes, to generate $med$ samples.  Generating the same number of samples in using MapReduce with 10, 20, 30, or 40 nodes was always quicker.  Notice that the samples were generated fastest when there were 20 workers, with a speedup factor of 4.83, while increasing the number of workers to 30 yielded a speedup of only 3.6.  At 30 nodes, the gains of parrellization were still there, but the cost of overhead ($k \cdot \log_{2}(n)$) had more of an impact.  This effect is more pronounced at 40 workers, with a speedup of 3.57.
-
-Since our data showed that approximating $\pi$ on one node with $med$ samples took approximately 7 minutes, collecting $large$ samples on a single node would take 70 minutes at minimum.  Figure \ref{expSpeed} shows that the $large$ set gained greater benefit from being distributed than the $medium$ set.  Likewise, when compared to the $medium$ set, more workers were able to participate before the ring began to experience diminishing returns.
+Since our data showed that approximating $\pi$ on one node with $med$ samples took approximately 7 minutes, collecting $large$ samples on a single node would take 70 minutes at minimum.  Figure \ref{expSpeed} shows that the $large$ set gained greater benefit from being distributed than the $med$ set, with the speedup factor at 20 workers being 9.07 compared to 4.03.  In addition, the gains of distributing work further increased at 30 workers and only began to decay at 40 workers, compared with the $med$ data set, which began its dropoff at 30 workers. This behavior demonstrates that the larger the job being distributed, the greater the gains of distributing the work among many nodes using ChordReduce.
 
 The $small$ sample set confirms that the network overhead is logarithmic.  At that job size, the job is too small to be effectively parallelized and we start seeing overheard acting as the dominant factor in out dataset.  This matches the behavior predicted by our equation, $T_{n} = \frac{T_{1}}{n} + k \cdot \log_{2}(n)$. For a small $T_{1}$, $\frac{T_{1}}{n}$  approaches 0 as $n$ gets larger, while $k \cdot \log_{2}(n)$, our overhead, dominates the sample.  The samples from our dataset fit the curve $k \cdot \log_{2}(n)$, establishing that our overhead is increases logarithmicly with the number of workers.
 
@@ -378,9 +376,11 @@ Our data shows that the larger the job, the closer our speedup is to linear.  Fi
 \end{table}
 
 
-Joining rate and leaving rate being equal is not an unusual assumption to make \cite{marozzo2012p2p}.
+Table \ref{churnSpeed} shows the experiments we ran for churn \footnote{The data we gathered for churn was gathered a different day and under completely different network conditions than the original data runs.  The results can not be fairly compared to the other data}.   40 nodes were put in a ring and generated $med$ samples at different rates of churn, as specified in Table \ref{churnSpeed}.  At 0.8\% rate of churn, there is a 0.8\% chance each second that any given node will leave the network and while another joins the network at a differnt location.  The joining rate and leaving rate being identical is not an unusual assumption to make \cite{marozzo2012p2p}.  
+EFFECTS
+For example  at the highest level of churn. $0.8\%/second$, the job took 191.25 seconds to complete.  This means there were effectively $$0.008 \times 191.25 \times 40 \text{ nodes} \approx 61 \text{ nodes} $$ working on the problem, but with the overhead of only 40 nodes. 
 
-Table \ref{churnSpeed} shows the experiments we ran for churn \footnote{The data we gathered for churn was gathered a different day and under completely different network conditions than the original data runs.  As a result, the results can not be fairly compared and are not compared to the other graphs}.   For example in, when the churn rate was $0.8\%/second$, the job took 191.25 seconds to complete.  This means there were effectively $$0.008 \times 191.25 \times 40 \text{ nodes} \approx 61 \text{ nodes} $$ working on the problem, but with the overhead of only 40 nodes. 
+
 
 
 Our experiments show that for a given problem, ChordReduce can effectively parallelize the problem, yielding a substantial speedup.  Furthermore, our results showed that the larger the problem is, the more workers could be added before dimishing returns were incurred.  During run time, we experienced multiple instances where plot would fail to run and the stager would report socket errors, indicating that it had lost connection with a node in the ring.  Despite this turbulence, the nodes all managed to reestablish connection with each other and report back all the data.  This demonstrated that we were able to handle the churn in the network.
@@ -414,6 +414,7 @@ TODO:
     \item ChordReduce vs Hadoop
     \item Finish Results
     \item Decribe why churn is an issue in MapReduce.
+    \item Double check for contractions
 \end{enumerate}
 
 

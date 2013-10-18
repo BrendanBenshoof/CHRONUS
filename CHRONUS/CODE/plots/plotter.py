@@ -22,14 +22,14 @@ t0=r0[0]
 t1=r1[0]
 t2=r2[0]
 
-# for i in range(0,len(r0)):
-#     r0[i]=t0/r0[i]
+for i in range(0,len(r0)):
+    r0[i]=t0/r0[i]
 
-# for i in range(0,len(r1)):
-#     r1[i]=t1/r1[i]
+for i in range(0,len(r1)):
+    r1[i]=t1/r1[i]
 
-# for i in range(0,len(r2)):
-#     r2[i]=t2/r2[i]
+for i in range(0,len(r2)):
+    r2[i]=t2/r2[i]
 
 
 k0 = []
@@ -81,7 +81,7 @@ xnew = np.linspace(min(churn),max(churn),300)
 y1 = spline(churn,churn_dur,xnew)
 
 plt.plot(churn,churn_dur,"o",label="100,000,000 sample run")
-plt.legend()
+plt.legend(loc=2)
 plt.ylabel('time (seconds)')
 plt.xlabel('likelyhood of failure per second')
 plt.title("Duration versus churn")
@@ -144,10 +144,10 @@ plt.plot([50.0],[0.0],"w")
 #     plt.plot(x,ymean,label="projected 10^"+str(i)+" second job")
 
 
-plt.legend()
-plt.ylabel('time (seconds)')
+plt.legend(loc=2)
+plt.ylabel('speedup')
 plt.xlabel('number of workers')
-plt.title("Experimental Duration")
+plt.title("Experimental speedup")
 plt.show()
 
 ##print s/(len(k0)+len(k1)+len(k2))

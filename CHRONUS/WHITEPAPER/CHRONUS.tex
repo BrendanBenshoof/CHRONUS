@@ -340,7 +340,7 @@ Once started, nodes pull the latest version of the code and run it as a service,
 
 We ran our experiments on groups of 1, 10, 20, 30, and 40 nodes.  Each sized ring was asked to generate $10^{9}$ samples by default, with later tests generating on $10^{8}$ and $10^{10}$ samples.  Becuase of the small size of the $10^{8}$ job compared to the overhead, we gathered data for 5 nodes but not for 40 nodes. 
 
-We also utilized a subroutine we wrote called $plot$, which sends a message to sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing structural instability.
+We also utilized a subroutine we wrote called $plot$, which sends a message sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, then the ring was undergoing structural instability.
 
 \subsection{Results}
 
@@ -419,6 +419,9 @@ Adjustments can be easily made on the user's end.  If some hardware can take mor
 TODO:
 \begin{enumerate}
     \item Change parallelized  $\implies$ distributed
+    \item ChordReduce vs Hadoop
+    \item Expand Amazon EC2
+    \item Put in new results.
 \end{enumerate}
 
 

@@ -48,7 +48,7 @@
 %%% The "real" document content comes below...
 
 \title{MapReduce on a Chord Distributed Hash Table}
-\author{\IEEEauthorblockN{Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Robert Harrison \qquad Anu Bourgeois}
+\author{\IEEEauthorblockN{Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Robert W. Harrison \qquad Anu G. Bourgeois}
 \IEEEauthorblockA{Department of Computer Science\\
 Georgia State University\\
 Atlanta, Georgia\\
@@ -92,7 +92,7 @@ Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distrib
 
 Our experiments demonstrate that the ChordReduce framework is highly scalable, solving problems significantly faster when distributed.  The larger the problem is, the greater the speedup gained by incorporating more nodes into the problem.  Our framework also provides a high level of robustness during execution;  we can lose many nodes to churn, and still process jobs successfully.  If we find a job requires more computational power, we can add more nodes to the job during runtime.
 
-While Chord could be used to implement a grid computing environment similar to BOINC or Folding-at-Home \cite{a}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding-at-Home use a master-slave architecture with critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
+While Chord could be used to implement a grid computing environment similar to BOINC \cite{boinc} or Folding-at-Home \cite{folding}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding-at-Home use a master-slave architecture with critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
 
 Section II covers the background  of the Chord and MapReduce.  Related Work is discussed in Section III. Details of ChordReduce's implementation and code is described in Section IV, while our experiments and their results are covered in Section V.  Lastly, Section VI discusses potential avenues for future research.
 
@@ -246,7 +246,7 @@ Our prototype framework does not implement a polite disconnect;  when a node qui
 \end{figure}
 
 ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  You can specify a port and IP of a node in the ring you want to join.  With this minimal information, the node will automatically integrate into the ring.  
-Other than a hashing library, we wrote the protocol and networking code from scratch.  The ring as implemented is stable and well organized. We created various services to run on top the network, such as a file system.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service (Figure \cite{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
+Other than a hashing library, we wrote the protocol and networking code from scratch.  The ring as implemented is stable and well organized. We created various services to run on top the network, such as a file system.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring. Our MapReduce module is a service that runs on top of our Chord implementation, just like our file service (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
   
 In our implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  Jobs still must start from a single location.  To start a job, the user contacts a node at specified hash address and provides it with the tasks and data.  The node at this hash address is designated the stager. 
 

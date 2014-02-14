@@ -1,7 +1,5 @@
 jobid = "pi"
 
-
-
 ##calculate pi mapreduce job
 from map_reduce import Data_Atom
 ## assume contents is a line of text
@@ -25,7 +23,6 @@ def map_func(atom):
     atom.jobid = jobid
     return atom
 
-
 def reduce_func(atom1, atom2):
     if atom2.jobid == atom2.jobid:
         jobid = atom2.jobid
@@ -40,7 +37,6 @@ def reduce_func(atom1, atom2):
     atom = Data_Atom("", atom1.hashkeyID, results)
     atom.jobid = atom1.jobid
     return atom
-
 
 def stage():
     samples = 100000000 #midsize run

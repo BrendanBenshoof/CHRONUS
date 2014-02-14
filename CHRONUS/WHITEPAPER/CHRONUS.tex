@@ -4,6 +4,8 @@
 \usepackage{listings}
 \usepackage[scaled]{beramono}
 \usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\definecolor{mygreen}{rgb}{0,0.6,0}
 
 %%% PAGE DIMENSIONS
 %\usepackage{geometry} % to change the page dimensions
@@ -67,7 +69,7 @@ rosen@cs.gsu.edu}
 \hyphenation{op-tical net-works semi-conduc-tor Chord-Reduce Map-Reduce Data-Nodes Name-Nodes}
 
 \begin{document}
-\lstset{language=Python, basicstyle= \footnotesize\ttfamily ,showstringspaces=false, frame=single} 
+\lstset{language=Python, basicstyle= \footnotesize\ttfamily ,showstringspaces=false, frame=single, commentstyle=\itshape\color{gray}, identifierstyle=\color{black},  keywordstyle=\bfseries\color{red!40!black}, stringstyle=\color{blue}} 
 \maketitle
 
 \begin{abstract}

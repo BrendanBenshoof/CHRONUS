@@ -1,6 +1,9 @@
 \documentclass[10pt, conference, compsocconf]{IEEEtran}
 
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+\usepackage{listings}
+\usepackage[scaled]{beramono}
+\usepackage[T1]{fontenc}
 
 %%% PAGE DIMENSIONS
 %\usepackage{geometry} % to change the page dimensions
@@ -64,6 +67,7 @@ rosen@cs.gsu.edu}
 \hyphenation{op-tical net-works semi-conduc-tor Chord-Reduce Map-Reduce Data-Nodes Name-Nodes}
 
 \begin{document}
+\lstset{language=Python, basicstyle= \footnotesize\ttfamily ,showstringspaces=false} 
 \maketitle
 
 \begin{abstract}
@@ -121,6 +125,8 @@ A note\footnote{I feel we have to justify why we want to use our system over stu
 
 \section{Background}
 Chord and MapReduce are integral parts of ChordReduce.  We summarize these frameworks in this section.
+
+
 \subsection{Chord}
 Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a high probability $\log_{2} N$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn, the constant joining and leaving of nodes.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members\footnote{This entire paragraph can probably be chopped up}.
 
@@ -221,6 +227,8 @@ All a developer needs to do is write three functions: the staging function, Map,
 
 
 \section{Experiments}
+%Our Provable: We used Python to build a prototype system implementing ChordReduce and deployed it on Amazon's EC2. We created programs to solve Monte-Carlo computations and word frequency counts on our deployed network (Section \textit{ExperimentNum}).
+
 In order for ChordReduce to be a viable framework, we had to show these three properties:
 \begin{enumerate}
     \item ChordReduce provides significant speedup during a distributed job.
@@ -232,6 +240,13 @@ Speedup can be demonstrated by showing that a distributed job is generally perfo
 To establish scalability, we need to show that the cost of distributing the work grows logarithmically with the number of workers.  In addition, we need to demonstrate that the larger the job is, the number of nodes we can have working on the problem without the overhead incurring diminishing returns increases. This can be stated as $$T_{n} = \frac{T_{1}}{n} + k \cdot \log_{2}(n)$$ where $\frac{T_{1}}{n}$ is the amount of time the job would take when distributed in an ideal universe and $k \cdot \log_{2}(n)$ is network induced overhead, $k$ being an unknown constant dependent on network latency and available processing power.
 
 Finally, to demonstrate robustness, we need to show that ChordReduce can handle arbitrary node failure in the ring and that such failures minimally impair the overall speed of the network.
+
+\subsection{Experimental Deployment}
+We built a fully functional prototype of ChordReduce in python.
+
+
+ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.  The ring as implemented is stable and well organized.  We created various services to run on top the network, such as a file system and distrubuted web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
+
 
 \subsection{Setup}
 
@@ -373,7 +388,9 @@ The effectiveness of Chord opens up new approaches for tackling other distribute
 
 %Our future plans for ChordReduce itself is to recode the library in Java to take advantage of the multiprocessing support, which is limited in Python. 
 
+\section*{Appendix}
 
+\lstinputlisting{pi.py}
 
 \bibliographystyle{IEEEtran}
 \bibliography{CHRONUS}

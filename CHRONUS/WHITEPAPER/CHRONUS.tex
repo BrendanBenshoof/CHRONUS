@@ -93,6 +93,10 @@ MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Mi
 
 \textit{Italics in the text indicate that I want to express this idea but with different words or a reference.}
 \section{Introduction}
+
+\textit{THe story we want to tell s that map redce is awesome.  Here is alist of pros for ma reduce. Awesome but designed for data center use, which is a subset of the possible configuration but really the only one explored in depth. Introduce single point of failure and if we want to explore using mapreduce in  a more generalized manner we have to solve the problem of a single point of failure.  P2P frameworks are explicitly designed to eliminate single points of failure, scale, wax platonic on virtues of P2P. 
+We were motivated to look at it from a more abstract point of view and ask how can we do map reduce jobs over a more generalized/distributed configuration.  THis paper presents ChordReduce}
+
 Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  By using MapReduce, a user can take a large problem, split it into small, equivalent tasks and send those tasks to other processors for computation.  The results are sent back to the user and combined into one answer.  Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling node failures.
 
 However, Hadoop and other MapReduce platforms are designed from the perspective of \textit{being used for high performance computing and data centers} and \textit{not in the context of P2P or volunteer computing}. These MapReduce platforms are highly centralized and tend to have single points of failure\footnote{reference of Hadoop single point of failure and schedulers goes here} as a result.   A centralized design assumes that the network is relatively unchanging and does not usually have mechanisms to hand node failure during execution or, conversely, cannot speed up the execution of a job by adding additional workers on the fly.   Finally, learning curve for deploying a system to perform MapReduce and develop programs to run on the \textit{is annoying}. 
@@ -128,7 +132,6 @@ A note\footnote{I feel we have to justify why we want to use our system over stu
 
 \section{Background}
 Chord and MapReduce are integral parts of ChordReduce.  We summarize these frameworks in this section.
-
 
 \subsection{Chord}
 Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a high probability $\log_{2} N$ lookup time for a particular node or file in the network. It is highly fault-tolerant to node failures and churn, the constant joining and leaving of nodes.  It scales extremely well and the network requires little maintenance to handle individual nodes.  Files in the network are distributed evenly among its members\footnote{This entire paragraph can probably be chopped up}.
@@ -200,6 +203,8 @@ It is unlikely that every time a node leaves the network, it will do so politely
 
 Our prototype framework does not implement a polite disconnect;  when a node quits, it does so quickly and abruptly.  This design ensures that the  system would be able to handle churn under the worst of cases.  Polite quit could be implemented quite easily.
 
+
+\textit{insert architecture layer diagram }  and \textit{insert work flow diagram.  Chord tree of stage, map , reduce.}
 
 \subsection{Implementation}
 

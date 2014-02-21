@@ -103,8 +103,6 @@ Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part
 
 Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, are designed with data centers in mind
 
-
-% http://wiki.apache.org/hadoop/Virtual%20Hadoop  Hapdoop assumptions.
 Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling node failures.
 
 However, Hadoop and other MapReduce platforms are designed from the perspective of \textit{being used for high performance computing and data centers} and \textit{not in the context of P2P or volunteer computing}. These MapReduce platforms are highly centralized and tend to have single points of failure\footnote{reference of Hadoop single point of failure and schedulers goes here} as a result.   A centralized design assumes that the network is relatively unchanging and does not usually have mechanisms to hand node failure during execution or, conversely, cannot speed up the execution of a job by adding additional workers on the fly.   Finally, learning curve for deploying a system to perform MapReduce and develop programs to run on the \textit{is annoying}.  \footnote{Awesome but designed for data center use, which is a subset of the possible configuration but really the only one explored in depth. Introduce single point of failure and if we want to explore using mapreduce in  a more generalized manner we have to solve the problem of a single point of failure.}

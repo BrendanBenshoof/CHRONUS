@@ -182,6 +182,23 @@ To do work on Hadoop, the user stores their data on the network.  This is handle
 
 
 
+\subsubsection{Notes}
+
+% http://wiki.apache.org/hadoop/Virtual%20Hadoop  Hapdoop assumptions.
+Two parts: HFDS and MapreduceHadoop is intended for thousands of nodes on commodity hardware (citation needed, but it's from the hortonwork vid IO watched, basically saying scale out not up, as scaling out gives data + storage scaling, but this is because analysis is moved to data.   Key is avoiding random seeks)  Name node keeps track of each block (64MB by default).  Can be rack aware. Logical file system; blocks not necessarily and almost definitely not continuous. 
+
+Fault tolerance of data nodes.  The DataNodes ping the NameNode.  If the NameNode doesn't  get the ping, it removes the data node and that is replaced by  a replication
+
+Mapreduce jobs are submitted by a client to the Jobtracker (in our framework it would be any NameNode), gets split into tasks, whcih get distributed to the TaskTrackers on local data nodes that have the data.  Map occurs and output is sent over  network to reducer via shuffle/sort (which matchs up all the values with the same key) and sends that to the reducer.
+
+
+
+The MapReduce framewoork and HFDS component of Hadoop are codesigned/developed/deployed, so you have combined processing and storing data.  MapReduce wants to move processing to data and minimize the movement of data, since that is where most of the cost is.  \textbf{THe MapReduce component takes advantage of the fact that the data is replicated in the network}
+
+
+One thing to take from this is that the for the wordcount program, the pieces should/can already be stored across the network, most likely using CFS.
+
+MapReduce \textit{always } thinks of data in terms of keys and values.
 
 
 \section{ChordReduce}

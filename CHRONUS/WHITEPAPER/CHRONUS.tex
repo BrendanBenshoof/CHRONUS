@@ -282,7 +282,7 @@ Once started, nodes retrieve the latest version of the code and run it as a serv
 
 We created an additional node to help configure the experiment, which we call the `configurer'.  We avoid calling it the `manager' or `coordinator' as we don't want to create the false impression that the configurer directly affects the experiments.  The configurer's roll is to tell nodes to stop running experiments,.  It does not actively participate in computing or distributing the work.  It exists to avoid having to purchase new instances each time we  shut down nodes to change experimental conditions.
 
-The configurer also produces the effects of churn, choosing the nodes to stop and start.
+The configurer also simulates the effects of churn by choosing which nodes to stop and start randomly.  
 
 
 ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.  The ring as implemented is stable and well organized.  We created various services to run on top the network, such as a file system and distrubuted web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 

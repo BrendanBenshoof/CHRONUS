@@ -127,9 +127,6 @@ Our paper presents our contributions:
 
 %While Chord could be used to implement a grid computing environment similar to BOINC \cite{boinc} or Folding@home \cite{folding}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding@home use a master-slave architecture with a critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
 
-
-
-
 \section{Background}
 Chord and MapReduce are integral parts of ChordReduce.  We summarize these frameworks in this section.
 
@@ -168,9 +165,6 @@ The classic example given for MapReduce is counting the occurrence of each word 
 %The master node splits up the documents into multiple blocks and sends them off to workers.  
 
 \textit{Insert psuedocode or code for word count here!}
-
-
-
 
 The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey} \cite{shvachko2010hadoop}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode's job is to organize and distribute information to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
 

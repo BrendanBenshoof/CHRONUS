@@ -164,15 +164,18 @@ At its core, MapReduce \cite{mapreduce} is a system for division of labor, provi
 
 \textit{A key point to this} is that MapReduce platforms utilize distributed file system.  When the user executes a program over a set of data, the Map tasks get distributed to the nodes that hold the data.  Those nodes . 
 
-The classic example given for MapReduce is counting the occurrence of each word in a collection of documents, called WordCount.  These documents have been split up into blocks and stored on the network over the distributed file system.  The master node locates the worker nodes with blocks and sends the Map and Reduce tasks associated with WordCount.  Each worker then goes through their blocks and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
-%The master node splits up the documents into multiple blocks and sends them off to workers.  
+The classic example given for MapReduce is counting the occurrence of each word in a collection of documents.  THeseThe master node locates the nodes holding th
+%The master node splits up the documents into multiple blocks and sends them off to workers.  Each worker then goes through their blocks and creates a small word frequency list.  These lists are then used by other workers, who combine them into larger and larger lists, until the master node is left with a word frequency list of all the words in the documents. 
 
 \textit{Insert psuedocode or code for word count here!}
 
 
 
 
-The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey} \cite{shvachko2010hadoop}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode's job is to organize and distribute information to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
+%The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation deveolped by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey}.  Under HFDS, nodes are arranged in a heirarchical tree, with a master node, called the NameNode, at the top.  The NameNode is responsible for keeping track of which DataNodes posess which files as well as other metadata essential for controlling the netowork. MOVE THIS DOWN
+ 
+
+One very popular open-source implementation of MapReduce is Apache's Hadoop \cite{Hadoop}.  Hadoop serves as both a distributed file system and framework for MapReduce \cite{shvachko2010hadoop}.  However,  Hadoop's MapReduce framework is very strongly tied to the Hadoop Distributed File System (HDFS) and the hierarchy of servers that is used by it.  Hadoop is centralized around the NameNode.  The NameNode's job is to organize and distribute information to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
 
 To do work on Hadoop, the user stores their data on the network.  This is handled by the NameNode, which equally apportions the data among the DataNodes.  When a user wants to run some analysis on the data or some subset the data, then that function is sent by the NameNode to each of the DataNodes that is responsible for the indicated data.   After the DataNode finishes processing, the result is handled by other nodes called Reducers which collect and reduce the results of multiple DataNodes.
 

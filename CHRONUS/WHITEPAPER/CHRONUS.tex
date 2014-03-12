@@ -180,6 +180,18 @@ To do work on Hadoop, the user stores their data on the network.  This is handle
 
 
 \section{ChordReduce}
+
+\subsubsection*{Carpe Jugularum}
+Popular platforms for MapReduce, such as Hadoop, are extremely powerful, but have some inherent limitations.  
+These platforms are designed to be deployed in a data center.  
+Their architecture relies on multiple nodes to coordinate the work, such as the NameNode and Jobtracker.
+These nodes perform necessary scheduling and distribution tasks and help provide fault-tolerence to the network as a whole, but in doing so become single points of failure themselves.
+
+ChordReduce is designed as a more abstract framework for MapReduce, able to run on any arbitrary distributed configuration.
+ChordReduce leverages the features of distributed hash tables to handle distributed file storage, fault tolerance, and lookup.  We designed ChordReduce to ensure that no single node is a point of failure and that there is no need for any node to coordinate the efforts of other nodes during processing.
+
+
+\subsubsection*{Other Related Work}
 Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.  However, Marozzo et al. do not explore the benefits of leveraging the properties of a P2P protocol to reduce the complexity of the architecture and completely distribute the responsibility of the task across the network.  As a result, P2P-MapReduce still relies on a ratio of masters to slaves to coordinate and organize the network, meaning a percentage of the network is unable to contribute processing power to the actual solving of a problem.   
 
 Lee et al. \cite{leemap} explores the benefits of building a MapReduce module to run on top of Symphony \cite{symphony},  a P2P protocol.  Unlike Hadoop, this allows the MapReduce tasks to be executed without the need of a central source of coordination by distributing tasks over a bounded broadcast tree created at runtime.  The Symphony based MapReduce architecture would be greatly improved by the addition of components to handle the failure of nodes during execution.  As it stands now, if a node crashes the job will fail due to the loss of data.
@@ -258,7 +270,7 @@ Finally, to demonstrate robustness, we need to show that ChordReduce can handle 
 We built a fully functional prototype of ChordReduce in python.  One difficulty with Hadoop is the installation an configuration of the software on arbitrary machines;  our design is intended to be as quick to deploy as possible. 
 
 
-We ran our experiments using Amazons's Elastic Compute Cloud (EC2) service.  Amazon EC2 allows users to purchase an arbitrary number of virtual machines and pay for the machines by the hour. Each node was an individual EC2 small instance \cite{amazon-instances} with a Ubuntu 12.04 image preconfigured with Git and a small startup script.  
+We ran our experiments using Amazon's Elastic Compute Cloud (EC2) service.  Amazon EC2 allows users to purchase an arbitrary number of virtual machines and pay for the machines by the hour. Each node was an individual EC2 small instance \cite{amazon-instances} with a Ubuntu 12.04 image preconfigured with Git and a small startup script which retrieves the latest version of the code when the node is booted..  
 
 \subsubsection*{Configurer}
 Once started, nodes retrieve the latest version of the code and run it as a service, automatically joining the network.  We can choose any arbitrary node as the stager and tell it to run the MapReduce process. We found that the network was robust enough that we could take a node we wanted to be the stager out of the network, modify its MapReduce test code, have it rejoin the network, and then run the new code without any problems. Since only the stager has to know how to create the Map tasks, the other nodes do not have to be updated and execute the new tasks they are given.  However, this process was extremely tedious and time consuming.

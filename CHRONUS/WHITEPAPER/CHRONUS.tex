@@ -122,7 +122,7 @@ These MapReduce platforms are highly centralized and tend to have single points 
 %While Chord could be used to implement a grid computing environment similar to BOINC \cite{boinc} or Folding@home \cite{folding}, it would be difficult to efficiently implement the MapReduce algorithm using grid computing tools. MapReduce uses persistent data to amortize the cost of distributing the data across the nodes over many calls, while grid environments typically transmit a transient bundle of data and computation to a volunteer node. BOINC and Folding@home use a master-slave architecture with a critical point of failure similar to Hadoop, while ChordReduce is a true peer-based approach.
 
 \section{Background}
-Chord and MapReduce are integral parts of ChordReduce.  We summarize these frameworks in this section \footnote{This section may flow better as part of ChordReduce}.
+ChordReduce takes its name from the two components it is built upon.  Chord\cite{Chord} provides the backbone for the network and the file system, providing scalable routing, distributed storage, and fault-tolerence.   MapReduce runs on top of the Chord network and utilizes the underlying features of the distributed hash table.  This section provides background on Chord and MapReduce.
 
 \subsection{Chord}
 Chord \cite{Chord} is a peer-to-peer (P2P) protocol for file sharing and distributed storage that guarantees a high probability $\log_{2} N$ lookup time for a particular node or file in the network. 
@@ -147,9 +147,6 @@ Full details on how Chord handles nodes entering the network and leaving the net
     \caption{A Chord ring 16 nodes where $m=4$.  The bold lines are incoming edges.  Each node has a connection to its successor, as well as 4 fingers, some of which are duplicates.}
     \label{chordreal}
 \end{figure}
-
-
-
 
 
 \subsection{MapReduce}

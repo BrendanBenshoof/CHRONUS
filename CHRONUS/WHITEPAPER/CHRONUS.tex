@@ -105,13 +105,18 @@ Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part
 
 Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, are designed to be utilized in data centers and \textit{other high performance computing contexts}.  
 \textit{The deployment of MapReduce at a data Center is the only option that has been heavily explored.}  
-These MapReduce platforms are highly centralized and tend to have single points of failure\footnote{reference of Hadoop single point of failure and schedulers goes here} as a result.   A centralized design assumes that the network is relatively unchanging and does not usually have mechanisms to hand node failure during execution or, conversely, cannot speed up the execution of a job by adding additional workers on the fly.   Finally, learning curve for deploying these systems and developing programs on them \textit{is annoying}.
+These MapReduce platforms are highly centralized and tend to have single points of failure\footnote{reference of Hadoop single point of failure and schedulers goes here} as a result.   A centralized design assumes that the network is relatively unchanging and does not usually have mechanisms to handle node failure during execution or, conversely, cannot speed up the execution of a job by adding additional workers on the fly.  Finally, learning curve for deploying these systems and developing programs on them \textit{is annoying}.
 
-\textit{A data center/HPC context is only one in a wide variety of possible distributed frameworks}.  We were motivated to start exploring a more abstract deployment for MapReduce, one that could be deployed in a much wider variety of contexts and required minimal setup for deployment.  We used Chord \cite{Chord}, a peer-2-peer distributed hash table, as the backbone for developing our system.  Our paper presents these contributions:
+
+% http://wiki.apache.org/hadoop/Virtual%20Hadoop  <---- look here for motivation.
+\textit{A data center/HPC context is only one in a wide variety of possible distributed frameworks}.  \textit{We were motivated to start exploring a more abstract deployment for MapReduce, one that could be deployed in a much wider variety of contexts. The is no reason that MapReduce jobs couldn't be run over peer-2-peer networks or as part of a volunteer computing framework.  No reason we can't use it in a data center either.}
+\textit{We also wanted to create something much easier to deploy and program on.}\footnote{Expand on motivation more;  make reader feel that yes, this does seem like a good project to spend time on}.  
+
+We used Chord \cite{Chord}, a peer-2-peer distributed hash table, as the backbone for developing our system.  Our paper presents these contributions:
 \begin{itemize}
 	\item We define the architecture and components of ChordReduce and demonstrate how they fit together to perform MapReduce jobs over a distributed system without the need of a central scheduler or coordinator, avoiding a central point of failure\footnote{TODO: defend why the starting node isn't considered to be this in corresponding section}. We also demonstrate how to create programs to solve MapReduce problems using ChordReduce (Section \textit{ChordReduceNum}). 
-	\item We used Python to build a prototype system implementing ChordReduce and deployed it on Amazon's EC2. We created programs to solve Monte-Carlo computations and word frequency counts on our deployed network (Section \textit{ExperimentNum}).
-	\item We prove that ChordReduce is scalable and highly fault tolerant, even under high levels of churn and can even benefit from churn under certain circumstances. Additionally, we show it is robust enough to reassign work during runtime in response to nodes entering and leaving the network (Section \textit{ResultsNum}).
+	\item We used built a prototype system implementing ChordReduce and deployed it on Amazon's Elastic Cloud Compute.  We tested our deployment by solving Monte-Carlo computations and word frequency counts on our network (Section \textit{ExperimentNum})\footnote{The point to make here is that we developed and tested it (results of tests is the next section).  Do we want to mention specifically what tests we run or leave it more abstract.}.
+	\item We prove that ChordReduce is scalable and highly fault tolerant, even under high levels of churn and can even benefit from churn under certain circumstances. Specifically, we show it is robust enough to reassign work during runtime in response to nodes entering and leaving the network (Section \textit{ResultsNum}).
 	\item We contrast ChordReduce with similar architectures and identify future areas of fruitful research using ChordReduce (Section \textit{Future/Related  Work}). 
 
 
@@ -163,17 +168,19 @@ To do work on Hadoop, the user stores their data on the network.  This is handle
 
 %%%%%%%%%%%%% Notes
 % http://wiki.apache.org/hadoop/Virtual%20Hadoop  Hapdoop assumptions.
-%Two parts: HFDS and Mapreduce/  Hadoop is intended for thousands of nodes on commodity hardware (citation needed, but it's from the hortonwork vid IO watched, basically saying scale out not up, as scaling out gives data + storage scaling, but this is because analysis is moved to data.   Key is avoiding random seeks)  Name node keeps track of each block (64MB by default).  Can be rack aware. Logical file system; blocks not necessarily and almost definitely not continuous. 
+%Two parts: HFDS and Mapreduce/  Hadoop is intended for thousands of nodes on commodity hardware citation needed, but it's from the hortonwork vid I watched, basically saying scale out not up, as scaling out gives data + storage scaling, but this is because analysis is moved to data.   Key is avoiding random seeks.
 
-%Fault tolerance of data nodes.  The DataNodes ping the NameNode.  If the NameNode doesn't  get the ping, it removes the data node and that is replaced by  a replication
+%Name node keeps track of each block (64MB by default).  Can be rack aware. Logical file system; blocks are not necessarily and almost definitely not continuous. 
 
-%MapReduce jobs are submitted by a client to the Jobtracker (in our framework it would be any NameNode), gets split into tasks, whcih get distributed to the TaskTrackers on local data nodes that have the data.  Map occurs and output is sent over  network to reducer via shuffle/sort (which matchs up all the values with the same key) and sends that to the reducer.
+%Fault tolerance of DataNodes:  The DataNodes ping the NameNode.  If the NameNode doesn't get the ping, it removes the DataNode and that is replaced by  a replication
+
+%MapReduce jobs are submitted by a client to the Jobtracker (in our framework it would be any node), gets split into tasks, which get distributed to the TaskTracker programs running on local data nodes who have the data.  Map occurs and output is sent over  network to reducer via shuffle/sort (which matchs up all the values with the same key) and sends that to the reducer.
 
 %The MapReduce framewoork and HFDS component of Hadoop are codesigned/developed/deployed, so you have combined processing and storing data.  MapReduce wants to move processing to data and minimize the movement of data, since that is where most of the cost is.  \textbf{THe MapReduce component takes advantage of the fact that the data is replicated in the network}
 
 %One thing to take from this is that the for the wordcount program, the pieces should/can already be stored across the network, most likely using CFS.
 
-%MapReduce \textit{always } thinks of data in terms of keys and values.
+%MapReduce \textit{always} thinks of data in terms of keys and values.
 
 
 \section{ChordReduce}

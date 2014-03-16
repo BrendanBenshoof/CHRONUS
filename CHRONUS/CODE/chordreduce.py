@@ -1,26 +1,21 @@
 #!/usr/bin/env python
 ###Startup and commandline file
-import services.service as service
-### When implementing new things, change this file! 
-### Start the new services in this file
-import shelver as db 
-import Topology_Service
-import httpservice
-import hash_util
-import random
-import simple_network
+
+
+from services import *
+##import all current services
+
 import node
+import hash_util
+#import utility functions
+
+#python2.7 builtins
+import random
 import time
-import filesystem_service
-import map_reduce
 import Queue
 import os
-
 import threading 
 import sys
-
-
-
 import json
 from urllib2 import urlopen
 
@@ -36,7 +31,7 @@ print "done waiting"
 # get my IP and port combo 
 def myIP():
     if not local_mode:
-        myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
+        myip = json.load(urlopen('http://httpbin.org/ip'))['origin']##REPLACE WITH SOMETHING BETTER IF IT EXISTS
         print "just got my ip:", myip
         return myip
     else:
@@ -83,7 +78,7 @@ def setup_Node(addr="localhost", port=None):
     
     #### setup services here
     database_name = str(node.thisNode.key)+".db"
-    database = db.Shelver(database_name)
+    database = shelver.Shelver(database_name)
     add_service(database)
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())

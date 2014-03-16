@@ -415,47 +415,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "CHRONUS/CODE/chordreduce.py",
-			"settings":
-			{
-				"buffer_size": 5756,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "CHRONUS/CODE/services/__init__.py",
-			"settings":
-			{
-				"buffer_size": 48,
-				"line_ending": "Windows",
-				"name": "#I make this into a package rather than a folder"
-			}
-		},
-		{
-			"file": "CHRONUS/CODE/node.py",
-			"settings":
-			{
-				"buffer_size": 12469,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "CHRONUS/CODE/services/service.py",
-			"settings":
-			{
-				"buffer_size": 4796,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "CHRONUS/CODE/services/simple_network.py",
-			"settings":
-			{
-				"buffer_size": 5020,
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "Packages/Python/Python.sublime-build",
 	"command_palette":
@@ -489,12 +448,17 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/simple_network.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/service.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/node.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/__init__.py",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/chordreduce.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/simple_network.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/netlogocode",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/sublimeProject-Brendan.sublime-project",
 		"/C/Users/Rhapso/Documents/fidelius/fidelius.config",
 		"/C/Users/Rhapso/Documents/fidelius/Fidelius.py",
-		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
 		"/C/Users/Rhapso/Documents/GitHub/HW/network/project/proposal.bib",
 		"/C/Users/Rhapso/Desktop/pass.txt",
 		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/pass2.txt",
@@ -611,12 +575,7 @@
 		"/C/Users/Rhapso/Documents/GitHub/HW/ai/project/render_k_means.py",
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/network_handler.py",
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/hijack_network.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/globals.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/filesystem_service.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/ftp.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/dummy_network.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/database.py",
-		"/C/Users/Rhapso/Documents/GitHub/gekko/config.js"
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/globals.py"
 	],
 	"find":
 	{
@@ -709,148 +668,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "CHRONUS/CODE/chordreduce.py",
-					"settings":
-					{
-						"buffer_size": 5756,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								305,
-								305
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "CHRONUS/CODE/services/__init__.py",
-					"settings":
-					{
-						"buffer_size": 48,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								48,
-								48
-							]
-						],
-						"settings":
-						{
-							"auto_name": "#I make this into a package rather than a folder",
-							"syntax": "Packages/Python/Python.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "CHRONUS/CODE/node.py",
-					"settings":
-					{
-						"buffer_size": 12469,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5139,
-								5139
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "CHRONUS/CODE/services/service.py",
-					"settings":
-					{
-						"buffer_size": 4796,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "CHRONUS/CODE/services/simple_network.py",
-					"settings":
-					{
-						"buffer_size": 5020,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3865,
-								3865
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 456.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],

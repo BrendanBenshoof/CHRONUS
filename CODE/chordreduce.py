@@ -44,6 +44,7 @@ def myIP():
 # to router which would then be instantiated in main()
 services = {}
 commands = {}
+help_texts = {}
 
 # adds services to the services list
 def add_service(service_object):
@@ -60,6 +61,11 @@ def attach_services():
         if not commands_list is None:
             for c in commands_list:
                 commands[c] = services[s_name]
+                try:
+                    if commands_list[c]:
+                        help_texts[c] = commands_list[c]
+                except TypeError:
+                    pass
 
 
 # Creates the services
@@ -122,7 +128,20 @@ def console():
             command = splitted[0]
         if len(splitted) == 2:
             args = splitted[1]
-        if command in commands.keys():
+        if command.lower() == "help" or command == "?":#USER NEEDS HELP
+            if not args or args == "list":
+                print "Help is availible on the following topics:"
+                for h in help_texts:
+                    print "\t"+h
+                print "use: help <topic> \n to get more help"
+            else:
+                if args in help_texts:
+                    print help_texts[args]
+                else:
+                    print "I have no help on "+args
+
+
+        elif command in commands.keys():
             mytarget = lambda: commands[command].handle_command(command, args)
             t = threading.Thread(target=mytarget)
             t.daemon = True
@@ -191,6 +210,7 @@ def main():
     
     # Start the node services and the console 
     node.startup()
+    print help_texts
     console()  
 
 if __name__ == "__main__":

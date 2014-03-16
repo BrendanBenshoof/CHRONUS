@@ -33,7 +33,7 @@ class Service(object):
         return msg.service == self.service_id
 
     def attach_to_console(self):
-        ### return a list of command-strings
+        ### return a dist of help texts, indexed by commands
         return None
 
     def handle_command(self, comand_st, arg_str):
@@ -109,7 +109,7 @@ class Internal_Service(Service):
 
     def attach_to_console(self):
         ### return a list of command-strings
-        return ["fingers","connect","quit"]
+        return {"fingers":"List current fingers","connect":"Connect to another server IP:port","quit":"disconnect from network (borked)"}
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in

@@ -1,0 +1,740 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"ency",
+				"encryptFile"
+			],
+			[
+				"sa",
+				"SampleCascade"
+			],
+			[
+				"ed",
+				"edges"
+			],
+			[
+				"edge",
+				"edges_removed"
+			],
+			[
+				"to",
+				"to_remove"
+			],
+			[
+				"ce",
+				"central"
+			],
+			[
+				"G",
+				"GenerateSmallworldGraph"
+			],
+			[
+				"cen",
+				"centrality"
+			],
+			[
+				"remo",
+				"remove_edge"
+			],
+			[
+				"nr",
+				"neighbors"
+			],
+			[
+				"pa",
+				"partials"
+			],
+			[
+				"wei",
+				"weight"
+			],
+			[
+				"a",
+				"add_edge"
+			],
+			[
+				"de",
+				"degreediscount"
+			],
+			[
+				"degre",
+				"degree"
+			],
+			[
+				"max",
+				"maxdegree"
+			],
+			[
+				"ne",
+				"nextTodo"
+			],
+			[
+				"weigh",
+				"weightsum"
+			],
+			[
+				"tri",
+				"trieslock"
+			],
+			[
+				"gl",
+				"global_tries"
+			],
+			[
+				"se",
+				"seconds"
+			],
+			[
+				"ch",
+				"chunkcount"
+			],
+			[
+				"erro",
+				"error_rate"
+			],
+			[
+				"the",
+				"threads"
+			],
+			[
+				"read",
+				"readfile"
+			],
+			[
+				"sta",
+				"startport"
+			],
+			[
+				"b",
+				"bucketizer"
+			],
+			[
+				"in",
+				"instream"
+			],
+			[
+				"thr",
+				"threading"
+			],
+			[
+				"chu",
+				"CHUNKSIZE"
+			],
+			[
+				"v",
+				"verbose"
+			],
+			[
+				"send",
+				"sendto"
+			],
+			[
+				"f",
+				"filename"
+			],
+			[
+				"y",
+				"yield_unto_Chunks"
+			],
+			[
+				"e",
+				"error"
+			],
+			[
+				"err",
+				"error_rate"
+			],
+			[
+				"U",
+				"UDP_PORT"
+			],
+			[
+				"UDP",
+				"UDP_IP"
+			],
+			[
+				"ud",
+				"UDP_PORT"
+			],
+			[
+				"if",
+				"ifmain	if __name__ == '__main__'"
+			],
+			[
+				"ma",
+				"match_str"
+			],
+			[
+				"mat",
+				"match"
+			],
+			[
+				"st",
+				"str2"
+			],
+			[
+				"str",
+				"str2"
+			],
+			[
+				"las",
+				"last_highest"
+			],
+			[
+				"s",
+				"score"
+			],
+			[
+				"file",
+				"filestream"
+			],
+			[
+				"re",
+				"release"
+			],
+			[
+				"P",
+				"PublicRPC"
+			],
+			[
+				"cli",
+				"clientlock"
+			],
+			[
+				"cl",
+				"clients"
+			],
+			[
+				"hex",
+				"hexstr"
+			],
+			[
+				"class",
+				"classmethod"
+			],
+			[
+				"new",
+				"newpeer"
+			],
+			[
+				"ran",
+				"random_k"
+			],
+			[
+				"stde",
+				"stdevsP"
+			],
+			[
+				"Ch",
+				"ChanService"
+			],
+			[
+				"dest",
+				"destination_key"
+			],
+			[
+				"des",
+				"destination_key"
+			],
+			[
+				"loc",
+				"localchan"
+			],
+			[
+				"chan",
+				"chanowner"
+			],
+			[
+				"publickey",
+				"publickey"
+			],
+			[
+				"pub",
+				"pub_key"
+			],
+			[
+				"gen",
+				"gen_short_public"
+			],
+			[
+				"User",
+				"UserInfo"
+			],
+			[
+				"get",
+				"get_content"
+			],
+			[
+				"use",
+				"userid_str"
+			],
+			[
+				"fom",
+				"from_b64"
+			],
+			[
+				"con",
+				"contact_str"
+			],
+			[
+				"add",
+				"add_contact"
+			],
+			[
+				"public",
+				"public_key_b64"
+			],
+			[
+				"url",
+				"urllib2"
+			],
+			[
+				"from",
+				"from_secret"
+			],
+			[
+				"arg",
+				"arg_str"
+			],
+			[
+				"open",
+				"openChanlist"
+			],
+			[
+				"hash",
+				"hash_str"
+			],
+			[
+				"cha",
+				"channame"
+			],
+			[
+				"me",
+				"Messages"
+			],
+			[
+				"lo",
+				"localCache"
+			],
+			[
+				"repl",
+				"reply_to"
+			],
+			[
+				"m",
+				"msg"
+			],
+			[
+				"cla",
+				"classifier"
+			],
+			[
+				"Chan",
+				"ChanServ"
+			],
+			[
+				"trash",
+				"trashMSG"
+			],
+			[
+				"mess",
+				"messages"
+			],
+			[
+				"w",
+				"wfile"
+			],
+			[
+				"i",
+				"iframe	Tag"
+			],
+			[
+				"addre",
+				"addresses"
+			],
+			[
+				"http",
+				"httpd"
+			],
+			[
+				"for",
+				"forumname"
+			],
+			[
+				"this",
+				"thisNode"
+			],
+			[
+				"curr",
+				"currentid"
+			],
+			[
+				"Min",
+				"minerMessage"
+			],
+			[
+				"Gen",
+				"GENSIS_BLOCK"
+			],
+			[
+				"sor",
+				"sorted_peers"
+			],
+			[
+				"temps",
+				"tempsorted_peers"
+			],
+			[
+				"back",
+				"backcount"
+			],
+			[
+				"Autho",
+				"authoritiative"
+			],
+			[
+				"poss",
+				"possibilities"
+			],
+			[
+				"is",
+				"isbackup"
+			],
+			[
+				"bestval",
+				"bestval0"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "Packages/Python/Python.sublime-build",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 512.0
+	},
+	"console":
+	{
+		"height": 146.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Rhapso/Documents/fidelius/fidelius.config",
+		"/C/Users/Rhapso/Documents/fidelius/Fidelius.py",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/project/proposal.bib",
+		"/C/Users/Rhapso/Desktop/pass.txt",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/pass2.txt",
+		"/C/Users/Rhapso/Documents/fidelius/SecretKeeper.py",
+		"/C/Users/Rhapso/Downloads/Homework4.java",
+		"/C/Users/Rhapso/Downloads/multiples.java",
+		"/C/Users/Rhapso/Downloads/hw4.java",
+		"/C/Users/Rhapso/Downloads/ProductSum.java",
+		"/C/Users/Rhapso/Downloads/MultipleSum.java",
+		"/C/Users/Rhapso/Downloads/Assignment4 (1).java",
+		"/C/Users/Rhapso/Downloads/HW4 (2).java",
+		"/C/Users/Rhapso/Downloads/Art.java",
+		"/C/Users/Rhapso/Dropbox/CSCTopics - Harrison/Brendan's/proteinTree.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/bio/dynamic_program.py",
+		"/C/Users/Rhapso/Downloads/Evens (1).java",
+		"/C/Users/Rhapso/Downloads/Evens (2).java",
+		"/C/Users/Rhapso/Downloads/Even.java",
+		"/C/Users/Rhapso/Downloads/Evens (3).java",
+		"/C/Users/Rhapso/Downloads/ASCIIART.java",
+		"/C/Users/Rhapso/Downloads/Evens (4).java",
+		"/C/Users/Rhapso/Downloads/Evens (5).java",
+		"/C/Users/Rhapso/Downloads/Evens (6).java",
+		"/C/Users/Rhapso/Downloads/Evens (7).java",
+		"/C/Users/Rhapso/Downloads/Even (1).java",
+		"/C/Users/Rhapso/Downloads/ASCIIArt (1).java",
+		"/C/Users/Rhapso/Documents/graphicstest.py",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/CHANGELOG.md",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/User/test.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/bio/midterm/XMLAdder.py",
+		"/C/Users/Rhapso/Dropbox/paper drafts/Quals/refs.bib",
+		"/C/Users/Rhapso/Dropbox/paper drafts/Quals/QualsCode/cascade.py",
+		"/C/Users/Rhapso/Darwinbots2/Robots/Animal_Minimalis.txt",
+		"/C/Users/Rhapso/Darwinbots2/Robots/Fish_School.txt",
+		"/C/Users/Rhapso/Dropbox/paper drafts/Quals/QualsCode/cascade.pyc",
+		"/C/Users/Rhapso/Dropbox/paper drafts/Quals/quals.tex",
+		"/C/Users/Rhapso/Dropbox/paper drafts/Quals/refs.aux",
+		"/C/Users/Rhapso/Documents/GitHub/QualsCode/networkx/algorithms/shortest_paths/weighted.py",
+		"/C/Users/Rhapso/Documents/GitHub/QualsCode/LP_formulation.py",
+		"/C/Users/Rhapso/Documents/GitHub/QualsCode/cascade_GA.py",
+		"/C/Users/Rhapso/Documents/GitHub/QualsCode/cascade.py",
+		"/C/Users/Rhapso/Documents/GitHub/QualsCode/DailyFuzzBall.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/text.txt",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/fileShotgun.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/udp_reader.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/minimal_client.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/minimal_router.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/data.txt",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/test.txt",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/lightdht/krpcserver.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/lightdht/lightdht.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/test.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/lightdht/krpcserver.pyc",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/lightdht/bencode.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/RPCs.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/examples/fileshare.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/test.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/examples/create_network.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/entangled/node.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/entangled/kademlia/protocol.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/entangled/kademlia/datastore.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/entangled/kademlia/node.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/entangled/kademlia/datastore.pyc",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/doc/uml_diagrams.xmi",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/README",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/entangled-0.1/setup.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/bio/citations.aux",
+		"/C/Users/Rhapso/Downloads/dogegenerator-master/Doge-Wallet Generator.htm",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/run.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/testclient.py",
+		"/C/Users/Rhapso/Documents/GitHub/substrate/logic.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/router.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/network/HW 1/workers.py",
+		"/C/Users/Rhapso/Desktop/dogecoin/cgminer-3.7.2-windows/run.bat",
+		"/C/Users/Rhapso/Documents/GitHub/UniversalStandardCredit/logic.py",
+		"/C/Users/Rhapso/Desktop/quals_network_demo.py",
+		"/C/Users/Rhapso/Documents/My Games/skyrim/SkyrimPrefs.ini",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/spacemath.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/service.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/voronoinode.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/util.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/usergen.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/user_interface.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/chanserv.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/Decentralized.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/contacts.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/pyDes.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/simple_network.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/rsa/__init__.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/rsa/pkcs1.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/data/contacts.dat",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/data/identities.dat",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/crypto.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/Test.userinfo",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/shelver.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/message.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/worker_handler.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/hash_util.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/httpservice.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/template.html",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/simple-sidebar.html",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/docs/index.txt",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/docs/install.txt",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/BitMSGr.htm",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/setup.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/setup.cfg",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/simple-sidebar - Copy.html",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/server.py",
+		"/C/Users/Rhapso/AppData/Roaming/PyBitmessage/keys.dat",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/bitmsg.js",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/q-3.0.1.js",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/index.html",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/node.py",
+		"/C/Users/Rhapso/Documents/GitHub/HW/ai/project/render_k_means.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/network_handler.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/hijack_network.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/globals.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/filesystem_service.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/ftp.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/dummy_network.py",
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/database.py",
+		"/C/Users/Rhapso/Documents/GitHub/gekko/config.js",
+		"/C/Users/Rhapso/git/P2PDNS/CODE/chordreduce.py",
+		"/C/Users/Rhapso/git/P2PDNS/CODE/CHRONUS.txt",
+		"/C/Users/Rhapso/git/P2PDNS/CODE/rsa/pkcs1.py"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			" ",
+			"G,100",
+			")\n",
+			"r=10",
+			"r=100",
+			"r=10",
+			"r=100",
+			"self.error",
+			"threading.lock",
+			"error",
+			"dataStore=",
+			"sql",
+			"print",
+			"Begin Stablize",
+			"service",
+			"verify",
+			"verif",
+			"sign",
+			"Chan(",
+			"self.localCache",
+			"localCache",
+			"self.openChans",
+			"self.chans",
+			"getChanID",
+			"MENU",
+			"\\t",
+			"http_get",
+			"raise",
+			".jpg",
+			"png",
+			"sum",
+			"(nX)",
+			"(seconds)",
+			"runtime",
+			"add",
+			"atoi",
+			"os.name",
+			"time.sleep"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			" ",
+			"G,10",
+			"r=1000",
+			"r=10",
+			"r=1",
+			"r=10",
+			"threading.Lock",
+			"HostedChan(",
+			"self.myChanCache",
+			"self.openChanlist",
+			"self.hostedChans",
+			"    ",
+			"len",
+			"(ratio)",
+			"nX",
+			"speedup",
+			"append",
+			"atof"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.GoSublime-main-output":
+	{
+		"height": 124.0
+	},
+	"output.MarGo-output":
+	{
+		"height": 124.0
+	},
+	"output.exec":
+	{
+		"height": 208.0
+	},
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true
+}

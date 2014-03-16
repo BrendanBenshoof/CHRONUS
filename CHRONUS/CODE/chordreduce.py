@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 ###Startup and commandline file
 import services.service as service
+### When implementing new things, change this file! 
+### Start the new services in this file
 import shelver as db 
 import Topology_Service
 import httpservice
@@ -22,7 +24,8 @@ import sys
 import json
 from urllib2 import urlopen
 
-local_mode=False
+ 
+local_mode=False  # for local testing only
 selfdestruct = False
 
 print "starting and waiting"
@@ -30,6 +33,7 @@ print "starting and waiting"
 print "done waiting"
 
 
+# get my IP and port combo 
 def myIP():
     if not local_mode:
         myip = json.load(urlopen('http://httpbin.org/ip'))['origin']
@@ -45,10 +49,14 @@ def myIP():
 services = {}
 commands = {}
 
+# adds services to the services list
 def add_service(service_object):
     s_name = service_object.service_id
     services[s_name] = service_object
 
+
+# attaches the services in the services list to the node
+# attaches associated to the console
 def attach_services():
     for s_name in services.keys():
         node.add_service(services[s_name])
@@ -57,12 +65,22 @@ def attach_services():
             for c in commands_list:
                 commands[c] = services[s_name]
 
+
+# Creates the services
+# Add new services here in this method
 def setup_Node(addr="localhost", port=None):
+    
+    # Setup the info for the node
     node.IPAddr = addr
     node.ctrlPort = port
     node.thisNode = node.Node_Info(node.IPAddr, node.ctrlPort)
-    #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
+    
+    # Setup and attach the network service 
+    # Unlike the others, this one is not added to services
     node.net_server = simple_network.NETWORK_SERVICE("", node.ctrlPort)
+    #node.net_server = dummy_network.start(node.thisNode, node.handle_message)
+    
+    
     #### setup services here
     database_name = str(node.thisNode.key)+".db"
     database = db.Shelver(database_name)
@@ -74,7 +92,7 @@ def setup_Node(addr="localhost", port=None):
     add_service(map_reduce.Map_Reduce_Service())
     #add_service(httpservice.WEBSERVICE(database))
     
-    ####
+	
     attach_services()
 
 
@@ -82,9 +100,14 @@ def join_ring(node_name, node_port):
     othernode = node.Node_Info(node_name, node_port)
     node.join(othernode)
 
+
+
 def no_join():
     node.create()
 
+
+# This function runs a loop
+# Interprets user input
 def console():
     cmd = "-"
     loaded_script = Queue.Queue()
@@ -144,24 +167,35 @@ def console():
 
 
 def main():
+    # Obtain my IP address
     myip = myIP()
     node.IPAddr = myip
+    
+    # Grab my port, if provided
+    # If not provided or given a "?"
+    # Choose port at random from 9000 to 9999
     args = sys.argv
     if len(args) > 1 and args[1] != "?":
         local_port = int(args[1]) 
     else: 
         local_port = random.randint(9000, 9999)
-        
+    
+    # Obtain the destination port/IP, if it exists
     other_IP = args[2] if len(args) > 2 else None
     other_port = int(args[3]) if len(args) > 3 else None
-
+    
+    # Setup my node 
     setup_Node(addr=myip,port=local_port)
+    
+    #  If we were provided the info of another node, join it's ring
     if not other_IP is None and not other_port is None:
         join_ring(other_IP, other_port)
     else:
         no_join()
+    
+    # Start the node services and the console 
     node.startup()
-    console()
+    console()  
 
 if __name__ == "__main__":
     main()

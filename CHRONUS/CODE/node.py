@@ -1,11 +1,16 @@
-#pulled from Benjamin Evans's implementation "pyChordDHT"
-### TODO ###
+## pulled from Benjamin Evans's implementation "pyChordDHT"
+## This class represents the current running node. 
+
+
+### TODO CHECK LIST ###
+## We need to go over this checklist
 # Finish stabilization
 # hash math - some indexes are wrong <- I think this is fixed
 # if request times out - use backup node
 # update request on node failure
 # Not closing connection properly - why?
 ############
+
 from hash_util import *
 from socket import *
 import time
@@ -100,7 +105,7 @@ servCtrl = None
 servRelay = None
 
 ###########
-# Find successor
+## Find successor
 ###########
 
 #  This is find successor and find closest predecessor rolled into one.
@@ -110,8 +115,7 @@ def find_ideal_forward(key):
         return successor
     return closest_preceding_node(key)
 
-
-
+# Returns the finger closest to the key
 def closest_preceding_node(key):
     for finger in reversed(fingerTable[1:]): # or should it be range(KEY_SIZE - 1, -1, -1))
         if finger != None: 
@@ -121,12 +125,11 @@ def closest_preceding_node(key):
 
 
 ######
-# Ring and Node Creation
+## Ring and Node Creation
 ######
 
 
-# create a new Chord ring.
-# TODO: finger table?
+# Create a new Chord ring.
 def create():
     global successor, predecessor, fingerTable, key, thisNode
     if TEST_MODE:
@@ -140,7 +143,7 @@ def create():
 
 
 # join node node's ring
-# TODO: finger table?   CHeck to refactor
+# TODO: finger table?   Check to refactor
 # this we need to modify for asynchronus stuff 
 def join(node):
     global predecessor
@@ -155,7 +158,11 @@ def join(node):
         fingerTable.append(None)
     find = Find_Successor_Message(thisNode, thisNode.key, thisNode)
     send_message(find, node)
-#########We shoudl clean this up    
+
+    
+# Called after node creation
+# Creates threads for maintenance 
+# Creates threads for message handling 
 def startup():
     if TEST_MODE:
         print "Startup"
@@ -167,13 +174,15 @@ def startup():
         t.setDaemon(True)
         t.start()
 
+        
+# Loop of the maintenence
 def kickstart():
     if TEST_MODE:
         print "Kickstart"
     begin_stabilize()
     while True:
-        # anyone remember why we have this pattern.
-		time.sleep(MAINTENANCE_PERIOD)
+        # anyone remember why we have this pattern?
+        time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
         time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
@@ -181,17 +190,15 @@ def kickstart():
         time.sleep(MAINTENANCE_PERIOD)
         fix_fingers(1)
 
-##END CLEANUP
 
 
 #############
-# Maintenence
+## Maintenance
 #############
 
 # called periodically. n asks the successor
 # about its predecessor, verifies if n's immediate
 # successor is consistent, and tells the successor about n
-
 def begin_stabilize():
     if TEST_MODE:
         print "Begin Stabilize"
@@ -199,6 +206,7 @@ def begin_stabilize():
     message = Stablize_Message(thisNode,successor)
     successor_lock.release()
     send_message(message, successor)
+    
     
 # need to account for successor being unreachable
 def stabilize(message):
@@ -229,7 +237,6 @@ def stabilize_failed():
 
 # we were notified by node other;
 # other thinks it might be our predecessor
-# TODO: if pred is thisNode.
 def get_notified(message):
     global predecessor
     global fingerTable
@@ -248,6 +255,7 @@ def get_notified(message):
                 s.change_in_responsibility(predecessor.key, thisNode.key)
 
 
+# Finger maintenance function
 def fix_fingers(n=1):
     global next_finger
     for i in range(0,n):
@@ -261,16 +269,18 @@ def fix_fingers(n=1):
             message = Find_Successor_Message(thisNode, target_key, thisNode, next_finger)
             send_message(message, None)
 
+# Changes the finger entries
 def update_finger(newNode,finger):
     global fingerTable
     global successor
     global predecessor
-    #print "finger changed to", newNode, finger
+    
     fingerTable_lock.acquire(True)
     if TEST_MODE:
         print "Update finger: " + str(finger)
     fingerTable[finger] = newNode
     fingerTable_lock.release()
+    
     if finger == 1:
         if newNode is None:
             newNode = thisNode
@@ -284,18 +294,20 @@ def update_finger(newNode,finger):
         predecessor = newNode
         predecessor_lock.release()
 
+
 # ping our predecessor.  pred = nil if no response
 def check_predecessor():
     if(predecessor != None or not hash_equal(predecessor.key, thisNode.key)):  # do this here or before it's called
         send_message(Check_Predecessor_Message(thisNode, predecessor.key),predecessor)
-   
+
+
 #politely leave the network 
 def exit_network():
     pass
 
 
 ###############################
-# Service Code
+## Service and Message Code 
 ###############################
 
 
@@ -307,28 +319,21 @@ def add_service(service):
         print "Service " + service.service_id + "attached" 
 
 
+#  We were getting erros here previously because destination = None was in the args
 def send_message(msg, destination):
     #TODO: write something to actually test this
     if destination == None:
         destination = find_ideal_forward(msg.destination_key)
 
-    #remote_ip, remote_port, raw_data, success_callback_msg=None, failed_callback_msg=None):
     if destination == thisNode:
         handle_message(msg)
     else:
         net_server.send_message(msg, destination)
 
-# called when node is passed a message
+        
 
-"""
-Our problem is that there are three scenarios for handling the message, not 2
-1) I'm responsible
-2) I'm not responsible, but I know who is (ie, the successor)
-3) I don't know, but I know who else to ask
-
-Our problem, I think, is we were cludging together 1 and 2 and 2 and 3
-"""
-
+# checks for hash ownership   
+# If there's a bug, it would be caused by this     
 def I_own_hash(hkey):
     return hash_between_right_inclusive(hkey, predecessor.key, thisNode.key)
 
@@ -340,9 +345,12 @@ def message_handler_worker():
         worker_handle_message(msg)
         todo.task_done()
 
+
 def handle_message(msg):
     todo.put((msg.priority, msg))
 
+    
+# Passes the message to a service or forwards it.
 def worker_handle_message(msg):
     if I_own_hash(msg.destination_key) or successor == thisNode:  # if I'm responsible for this key
         if successor == thisNode and not successor == predecessor:
@@ -358,6 +366,8 @@ def worker_handle_message(msg):
     else:
         forward_message(msg)
 
+        
+        
 def forward_message(message):
     if hash_between_right_inclusive(message.destination_key, thisNode.key, successor.key):
         message.origin_node = thisNode

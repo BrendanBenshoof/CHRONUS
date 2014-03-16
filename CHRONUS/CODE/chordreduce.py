@@ -2,7 +2,7 @@
 ###Startup and commandline file
 
 
-from services import *
+from services import service, simple_network, shelver, Topology_Service, filesystem_service, map_reduce
 ##import all current services
 
 import node
@@ -21,11 +21,12 @@ from urllib2 import urlopen
 
  
 local_mode=False  # for local testing only
-selfdestruct = False
+startdelay = 0.0 #number of seconds to block and do nothing on start, usefull to avoid race conditions
 
-print "starting and waiting"
-#time.sleep(random.randint(10,60))
-print "done waiting"
+if startdelay:
+    print "starting and waiting"
+    time.sleep(startdelay)
+    print "done waiting"
 
 
 # get my IP and port combo 

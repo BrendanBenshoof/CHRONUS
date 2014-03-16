@@ -33,7 +33,9 @@ def reduce_func(atom1,atom2):
             a[word] = a[word] + b[word]
         else:
             a[word] = b[word]
-            
+    atom = Data_Atom("", atom1.hashkeyID, a)
+    atom.jobid = atom1.jobid
+    return atom        
 
 def stage_func():
    pass

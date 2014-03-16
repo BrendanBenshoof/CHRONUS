@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ###Startup and commandline file
-import service
+import services.service as service
 import shelver as db 
 import Topology_Service
 import httpservice

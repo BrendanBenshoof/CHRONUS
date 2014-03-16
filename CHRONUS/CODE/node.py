@@ -172,7 +172,8 @@ def kickstart():
         print "Kickstart"
     begin_stabilize()
     while True:
-        time.sleep(MAINTENANCE_PERIOD)
+        # anyone remember why we have this pattern.
+		time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()
         time.sleep(MAINTENANCE_PERIOD)
         begin_stabilize()

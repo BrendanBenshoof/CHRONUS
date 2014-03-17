@@ -8,7 +8,7 @@ from globals import *
 
 
 class Service(object):
-    """This object is intented to act as a parent/promise for Service Objects"""
+    """This object is intended to act as a parent/promise for Service Objects"""
     def __init__(self):
         self.service_id = None
         self.callback = None
@@ -45,11 +45,11 @@ class Service(object):
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
-        pass #this is called when a new, closer predicessor is found and we need to re-allocate
-            #responsibilties
+        pass #this is called when a new, closer predecessor is found and we need to re-allocate responsibilities
 
 
 class ECHO_service(Service):
+    """ Simple demo service that prints a message when received."""
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_ECHO
@@ -65,7 +65,7 @@ class ECHO_service(Service):
 
 
 class Internal_Service(Service):
-    """Handler of Chord behavoir and internal messages"""
+    """Handler of Chord behaviour and internal messages"""
     def __init__(self):
         super(Service, self).__init__()
         self.service_id = SERVICE_INTERNAL
@@ -75,7 +75,7 @@ class Internal_Service(Service):
             raise Exception("Mismatched service recipient for message.")
 
 
-        """This function is called whenever the node recives a message bound for this service"""
+        """This function is called whenever the node receives a message bound for this service"""
         """Return True if message is handled correctly
         Return False if things go horribly wrong
         """

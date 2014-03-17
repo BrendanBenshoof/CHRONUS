@@ -1,4 +1,5 @@
 #Chord File System
+
 """
 TODO:
 
@@ -33,4 +34,35 @@ when do files expire? (never, but in general?)?
 In the ideal setup, files are given a time at creation.  they expire at this specified time (or after specified time passes) unless they are renewed.  
 If they are provided with a time of 0, they don't expire
 
+
+
+Can we just extend one of the database services?
 """
+from service import *
+from message import *
+from hash_util import *
+import Queue
+import node
+from threading import Thread
+import time
+import importlib
+
+
+
+BLOCK_SIZE = 8192 # bytes
+backups = []
+
+
+
+class CFS(Service):
+    def __init__(self):
+        super(CFS, self).__init__()
+        self.service_id = "CFS"
+
+        
+        
+    
+    # http://stackoverflow.com/questions/18761016/break-a-text-file-into-smaller-chunks-in-python
+    def chunk(fname):
+        with open(fname, 'rb') as fin:
+            return list(iter(lambda: fin.read(BLOCK_SIZE), ''))          

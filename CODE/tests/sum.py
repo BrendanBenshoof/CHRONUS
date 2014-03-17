@@ -17,7 +17,7 @@ def map_func(atom):
 
 def reduce_func(atom1, atom2):
     print "reduce sum",atom1.contents,atom2.contents
-    if atom2.jobid == atom2.jobid:
+    if atom1.jobid == atom2.jobid:
         jobid = atom2.jobid
     else:
         raise Exception("unmatched jobs in reduce")

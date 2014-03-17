@@ -10,15 +10,18 @@ def map_func(atom):
     text = text.split()
     for word in text:
         word = word.lower()
-        word = word.strip("!?.\"\';")
+        word = word.strip("!?.,;:\"\'*[]()/<>-*~%")
+        if word is "":
+            continue
         if word in freqs:
             freqs[word] = freqs[word] + 1
         else:
             freqs[word] = 1
-    print freqs
+    # print freqs
     atom = Data_Atom("", atom.hashkeyID, freqs)
-    atom = jobid
+    atom.jobid = jobid
     return atom
+    
     
 def reduce_func(atom1,atom2):
     if atom1.jobid == atom2.jobid:
@@ -36,8 +39,17 @@ def reduce_func(atom1,atom2):
     atom = Data_Atom("", atom1.hashkeyID, a)
     atom.jobid = atom1.jobid
     return atom        
+    
 
 def stage_func():
    pass
    
    
+"""
+# http://stackoverflow.com/questions/18761016/break-a-text-file-into-smaller-chunks-in-python
+def chunk(fname):
+    with open(fname, 'rb') as fin:
+        return list(iter(lambda: fin.read(4096), ''))          
+
+print chunk("constitution.txt")
+"""

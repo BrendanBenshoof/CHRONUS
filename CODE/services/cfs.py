@@ -26,6 +26,15 @@ backup files
     
     They should follow the exact same scheme as regular files.
 
+utility functions:
+    get keyfile from name
+    get chunks from keyfile
+    do I own/have a particular chunk locally?
+    get all local chunks from a list
+    new implementation of the smart forwarding scheme (we only need to recurse if the message range still contains a file chunk)
+
+
+
 maintain ownership of files????
 We can implement so kind of public/private key owership later on
 

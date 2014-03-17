@@ -3,12 +3,14 @@
 ###
 
 # Sizes for the pi map reduce
-PI_JOB_LARGE = 100000000
-PI_JOB_MED   = 10000000
-PI_JOB_SMALL = 1000000
+PI_LARGE = 100000000
+PI_MED   = 10000000
+PI_SMALL = 1000000
 
 
-# 
+# Files for word count
+WC_LARGE = "shakespeare.txt"
+WC_SMALL = "constitution.txt"
 
 
 

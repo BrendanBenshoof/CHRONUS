@@ -93,15 +93,15 @@ class KeyFile(object):
         self.chunks = {} #dict of id:data_atom
     def __str__(self):
         chunklistStrings = map(str,self.chunklist)
-        summary = {"name":self.name,"chunklist":self.chunklistStrings}
-        return json.dumps()
+        summary = {"name":self.name,"chunklist":chunklistStrings}
+        return json.dumps(summary)
 
     @classmethod
     def parse(cls,string):
         summary = json.loads(string)
         k = cls()
         k.name = summary["name"]
-        k.chunklist = map(hash_util.Key, summary.chunklist)
+        k.chunklist = map(hash_util.Key, summary["chunklist"])
         return k
 
 
@@ -163,7 +163,6 @@ def readChunk(chunkid):
         with file(p,"r") as fp:
             raw = fp.read()
         data = json.loads(raw)
-        print p, data
         return Data_Atom(data,chunkid)
 
     else:
@@ -289,9 +288,9 @@ class CFS(Service):
         m.add_content("data",atom)
         self.send_message(m,None)
 
-    def writeFile(key):
+    def writeFile(self,key):
         keyfilestr = str(key)
-        hashid = hash_util.hash_str(keyfile.name)
+        hashid = hash_util.hash_str(key.name)
         d = Data_Atom(keyfilestr,hashid)
         self.putChunk(d)
         for c in key.chunks:

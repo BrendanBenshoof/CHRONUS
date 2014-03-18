@@ -208,7 +208,7 @@ class Map_Reduce_Service(Service):
     def domap(self,msg):
         #forward stuff I do not care about first
         jobs = msg.dataset
-        stuff_to_map = self.polite_distribute(jobs, msg.map_function, msg.reduce_function, msg.reply_to)
+        stuff_to_map = self.polite_distribute(msg.jobid,jobs, msg.map_function, msg.reduce_function, msg.reply_to)
         starttime = time.time()
         if len(stuff_to_map)>0:
             map_func = msg.map_function
@@ -226,7 +226,7 @@ class Map_Reduce_Service(Service):
             newmsg.timeingRecord += "Map start: "+str(starttime)+"\n"+"Map done: "+str(time.time())+"\n"
             self.send_message(newmsg, msg.reply_to)
 
-    def polite_distribute(self, jobs, map_func, reduce_func, reply_to):
+    def polite_distribute(self, jobid, jobs, map_func, reduce_func, reply_to):
         stuff_to_map = []
         forward_dests = disribute_fairly(jobs)
         print forward_dests.keys()
@@ -242,7 +242,7 @@ class Map_Reduce_Service(Service):
             for k in forward_dests.keys():
                 if len(forward_dests[k]) > 0:
                     datatom = forward_dests[k].pop()
-                    msg = Map_Message(datatom.jobid,[datatom], map_func, reduce_func)
+                    msg = Map_Message(jobid,[datatom], map_func, reduce_func)
                     msg.origin = reply_to
                     msg.reply_to = reply_to
                     self.send_message(msg,k)

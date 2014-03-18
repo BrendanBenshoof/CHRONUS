@@ -4,8 +4,100 @@
 		"selected_items":
 		[
 			[
+				"key",
+				"keyfilestr"
+			],
+			[
+				"hash",
+				"hash_str"
+			],
+			[
+				"put",
+				"putChunk"
+			],
+			[
+				"send",
+				"send_message"
+			],
+			[
+				"sen",
+				"send_message"
+			],
+			[
+				"has",
+				"hashkeyID"
+			],
+			[
+				"open",
+				"open_requests"
+			],
+			[
+				"out",
+				"outqueue"
+			],
+			[
+				"chunk",
+				"chunklist"
+			],
+			[
+				"make",
+				"makeKeyFile"
+			],
+			[
+				"read",
+				"readChunk"
+			],
+			[
+				"write",
+				"writeChunk"
+			],
+			[
+				"atom",
+				"Data_Atom"
+			],
+			[
+				"dat",
+				"Data_Atom"
+			],
+			[
+				"par",
+				"parseStr"
+			],
+			[
 				"file",
-				"filesystem_service"
+				"filename"
+			],
+			[
+				"curre",
+				"current_len"
+			],
+			[
+				"curr",
+				"current_chunk"
+			],
+			[
+				"chu",
+				"current_chunk"
+			],
+			[
+				"De",
+				"DEFAULT_BLOCK_SIZE"
+			],
+			[
+				"loc",
+				"logicalChunk"
+			],
+			[
+				"data",
+				"dataAtom"
+			],
+			[
+				"bin",
+				"binaryChunk"
+			],
+			[
+				"lo",
+				"logicalChunk"
 			],
 			[
 				"To",
@@ -112,10 +204,6 @@
 				"threads"
 			],
 			[
-				"read",
-				"readfile"
-			],
-			[
 				"sta",
 				"startport"
 			],
@@ -132,16 +220,8 @@
 				"threading"
 			],
 			[
-				"chu",
-				"CHUNKSIZE"
-			],
-			[
 				"v",
 				"verbose"
-			],
-			[
-				"send",
-				"sendto"
 			],
 			[
 				"f",
@@ -244,10 +324,6 @@
 				"destination_key"
 			],
 			[
-				"loc",
-				"localchan"
-			],
-			[
 				"chan",
 				"chanowner"
 			],
@@ -304,24 +380,12 @@
 				"arg_str"
 			],
 			[
-				"open",
-				"openChanlist"
-			],
-			[
-				"hash",
-				"hash_str"
-			],
-			[
 				"cha",
 				"channame"
 			],
 			[
 				"me",
 				"Messages"
-			],
-			[
-				"lo",
-				"localCache"
 			],
 			[
 				"repl",
@@ -372,10 +436,6 @@
 				"thisNode"
 			],
 			[
-				"curr",
-				"currentid"
-			],
-			[
 				"Min",
 				"minerMessage"
 			],
@@ -415,6 +475,70 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "CODE/services/map_reduce.py",
+			"settings":
+			{
+				"buffer_size": 10048,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "sublimeProject-Brendan.sublime-project",
+			"settings":
+			{
+				"buffer_size": 48,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "CODE/services/cfs.py",
+			"settings":
+			{
+				"buffer_size": 8383,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "CODE/test.py",
+			"settings":
+			{
+				"buffer_size": 84,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "CODE/services/service.py",
+			"settings":
+			{
+				"buffer_size": 5003,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "CODE/message.py",
+			"settings":
+			{
+				"buffer_size": 8719,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "CODE/chordreduce.py",
+			"settings":
+			{
+				"buffer_size": 6521,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "CODE/node.py",
+			"settings":
+			{
+				"buffer_size": 12469,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "Packages/Python/Python.sublime-build",
 	"command_palette":
@@ -448,6 +572,12 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/tests/wordCount.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/shelver.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/service.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/hash_util.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/map_reduce.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/chunkStorage/.gitignore",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/simple_network.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/service.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/node.py",
@@ -569,13 +699,7 @@
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/server.py",
 		"/C/Users/Rhapso/AppData/Roaming/PyBitmessage/keys.dat",
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/bitmsg.js",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/q-3.0.1.js",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/index.html",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/node.py",
-		"/C/Users/Rhapso/Documents/GitHub/HW/ai/project/render_k_means.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/network_handler.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/hijack_network.py",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/globals.py"
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/q-3.0.1.js"
 	],
 	"find":
 	{
@@ -668,8 +792,233 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "CODE/services/map_reduce.py",
+					"settings":
+					{
+						"buffer_size": 10048,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2394,
+								2394
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1650.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "sublimeProject-Brendan.sublime-project",
+					"settings":
+					{
+						"buffer_size": 48,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								45,
+								45
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "CODE/services/cfs.py",
+					"settings":
+					{
+						"buffer_size": 8383,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4283,
+								4283
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3310.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "CODE/test.py",
+					"settings":
+					{
+						"buffer_size": 84,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								84,
+								84
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "CODE/services/service.py",
+					"settings":
+					{
+						"buffer_size": 5003,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								661,
+								673
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1254.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 5,
+					"file": "CODE/message.py",
+					"settings":
+					{
+						"buffer_size": 8719,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1664,
+								1675
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 594.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "CODE/chordreduce.py",
+					"settings":
+					{
+						"buffer_size": 6521,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2641,
+								2641
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1782.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "CODE/node.py",
+					"settings":
+					{
+						"buffer_size": 12469,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 462.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -690,11 +1039,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.5,
 			1.0
 		],
 		"rows":
@@ -714,7 +1070,7 @@
 	},
 	"output.exec":
 	{
-		"height": 260.0
+		"height": 242.0
 	},
 	"replace":
 	{
@@ -741,6 +1097,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 172.0,
 	"status_bar_visible": true
 }

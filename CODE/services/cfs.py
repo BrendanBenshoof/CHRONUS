@@ -63,6 +63,14 @@ MAX_BLOCK_SIZE = float("inf")
 
 backups = []
 
+singleton = None
+def getCFSsingleton():
+    global singleton
+    if not singleton:
+        singleton = CFS()
+    return singleton
+
+
 ###UTILITY CLASES###
 class Data_Atom(object):
     def __init__(self,contents,hashkeyID=None):
@@ -83,6 +91,19 @@ class KeyFile(object):
         self.name = ""
         self.chunklist = [] #list of identfiers
         self.chunks = {} #dict of id:data_atom
+    def __str__(self):
+        chunklistStrings = map(str,self.chunklist)
+        summary = {"name":self.name,"chunklist":self.chunklistStrings}
+        return json.dumps()
+
+    @classmethod
+    def parse(cls,string):
+        summary = json.loads(string)
+        k = cls()
+        k.name = summary["name"]
+        k.chunklist = map(hash_util.Key, summary.chunklist)
+        return k
+
 
 class OpenRequest(object):
     def __init__(self, chunkid):
@@ -142,6 +163,7 @@ def readChunk(chunkid):
         with file(p,"r") as fp:
             raw = fp.read()
         data = json.loads(raw)
+        print p, data
         return Data_Atom(data,chunkid)
 
     else:
@@ -160,6 +182,9 @@ def makeKeyFile(name, chunkgen=locgicalBinaryChunk):
         k.chunklist.append(ident)
         k.chunks[ident] = a
     return k
+
+
+
 
 ######Messages######
 
@@ -206,11 +231,11 @@ class CFS(Service):
             writeChunk(content)
 
         elif msg.type == "RESP":
-            chunkid = m.get_content("chunkid")
+            chunkid = msg.get_content("chunkid")
             
             if chunkid in self.open_requests:
                 content = msg.get_content("data")
-                self.open_requests(chunkid).outqueue.put(content)
+                self.open_requests[chunkid].outqueue.put(content)
 
         else:
             pass
@@ -263,6 +288,19 @@ class CFS(Service):
         m = CFS_Message(self.owner, chunkid, Response_service=SERVICE_CFS, action="PUT")
         m.add_content("data",atom)
         self.send_message(m,None)
-    # http://stackoverflow.com/questions/18761016/break-a-text-file-into-smaller-chunks-in-python
+
+    def writeFile(key):
+        keyfilestr = str(key)
+        hashid = hash_util.hash_str(keyfile.name)
+        d = Data_Atom(keyfilestr,hashid)
+        self.putChunk(d)
+        for c in key.chunks:
+            chunk = key.chunks[c]
+            self.putChunk(chunk)
+
+
+
+
+    
 
 #####END SERVICE####

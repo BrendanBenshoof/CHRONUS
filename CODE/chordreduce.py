@@ -2,7 +2,7 @@
 ###Startup and commandline file
 
 
-from services import service, simple_network, shelver, Topology_Service, filesystem_service, map_reduce
+from services import service, simple_network, Topology_Service, map_reduce, cfs
 ##import all current services
 
 import node
@@ -84,14 +84,11 @@ def setup_Node(addr="localhost", port=None):
     
     
     #### setup services here
-    database_name = str(node.thisNode.key)+".db"
-    database = shelver.Shelver(database_name)
-    add_service(database)
     add_service(service.Internal_Service())
     add_service(service.ECHO_service())
     add_service(Topology_Service.Topology())
-    add_service(filesystem_service.FileSystem())
     add_service(map_reduce.Map_Reduce_Service())
+    add_service(cfs.getCFSsingleton())
     #add_service(httpservice.WEBSERVICE(database))
     
 	
@@ -128,6 +125,12 @@ def console():
             command = splitted[0]
         if len(splitted) == 2:
             args = splitted[1]
+        if command == "test":
+            CFS = cfs.getCFSsingleton()
+            a = cfs.Data_Atom("HELLOO WORLD")
+            CFS.putChunk(a)
+            time.sleep(1)
+            print CFS.getChunk(hash_util.Key(str(a.hashkeyID)))
         if command.lower() == "help" or command == "?":#USER NEEDS HELP
             if not args or args == "list":
                 print "Help is availible on the following topics:"
@@ -210,7 +213,6 @@ def main():
     
     # Start the node services and the console 
     node.startup()
-    print help_texts
     console()  
 
 if __name__ == "__main__":

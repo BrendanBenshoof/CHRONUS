@@ -1,6 +1,8 @@
 from service import *
 from message import *
 from hash_util import *
+from cfs import Data_Atom
+
 import Queue
 import node
 from threading import Thread
@@ -24,17 +26,6 @@ def disribute_fairly(atoms):
         except KeyError:
             distribution[dest] = [a]
     return distribution
-
-class Data_Atom(object):
-    def __init__(self, jobid, hashkeyID, contents):
-        self.jobid = hash_str(jobid)
-        self.mapped = False
-        if hashkeyID is None:
-            self.hashkeyID = generate_random_key()
-        else:
-           self.hashkeyID = hashkeyID
-        self.contents = contents
-        #print hashkeyID
 
 ##test for distribute 
 

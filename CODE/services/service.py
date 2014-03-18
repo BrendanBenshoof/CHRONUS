@@ -23,6 +23,12 @@ class Service(object):
         self.owner = owner
         return self.service_id
 
+    def send_message(self, msg, dest):
+        msg.priority=self.priority
+        self.callback(msg, dest)
+
+    ##OVERLOAD THINGS UNDER THIS###
+
     def handle_message(self, msg):
         """This function is called whenever the node recives a message bound for this service"""
         """Return True if message is handled correctly
@@ -33,16 +39,14 @@ class Service(object):
         return msg.service == self.service_id
 
     def attach_to_console(self):
-        ### return a dist of help texts, indexed by commands
+        ### return a dict of help texts, indexed by commands
         return None
 
     def handle_command(self, comand_st, arg_str):
         ### one of your commands got typed in
         return None
 
-    def send_message(self, msg, dest):
-        msg.priority=self.priority
-        self.callback(msg, dest)
+
 
     def change_in_responsibility(self,new_pred_key, my_key):
         pass #this is called when a new, closer predecessor is found and we need to re-allocate responsibilities

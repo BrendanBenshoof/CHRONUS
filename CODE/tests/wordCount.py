@@ -1,6 +1,6 @@
 jobid =  "word count"
 from map_reduce import Data_Atom
-
+import cfs
 
 def map_func(atom):
     freqs = {}
@@ -41,8 +41,10 @@ def reduce_func(atom1,atom2):
     return atom        
     
 
-def stage_func():
-   pass
+def stage_func(filename):
+    pass
+    # generate the id for the keyfile from the filename
+    # 
    
    
 """

@@ -38,7 +38,7 @@ reduce_todo = Queue.Queue()
 
 
 class Map_Reduce_Service(Service):
-    """This object is intented to act as a parent/promise for Service Objects"""
+    """This object is intended to act as a parent/promise for Service Objects"""
     def __init__(self):
         super(Map_Reduce_Service,self).__init__()
         self.service_id = "MAP_REDUCE"

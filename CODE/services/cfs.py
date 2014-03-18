@@ -48,9 +48,14 @@ If they are provided with a time of 0, they don't expire
 Can we just extend one of the database services?
 """
 from service import Service
+from message import Message
 import hash_util
 from os import path
 import json
+from Queue import Queue
+
+
+SERVICE_CFS = "CFS"
 
 DEFAULT_BLOCK_SIZE = 8192 # bytes
 
@@ -79,7 +84,10 @@ class KeyFile(object):
         self.chunklist = [] #list of identfiers
         self.chunks = {} #dict of id:data_atom
 
-
+class OpenRequest(object):
+    def __init__(self, chunkid):
+        self.outqueue = Queue(1)
+        self.chunkid = chunkid
 
 
 ###END CLASSES###
@@ -153,6 +161,19 @@ def makeKeyFile(name, chunkgen=locgicalBinaryChunk):
         k.chunks[ident] = a
     return k
 
+######Messages######
+
+class CFS_Message(Message):
+    #valid actions: GET, PUT, RESP
+    def __init__(self, origin_node, destination_key, Response_service=SERVICE_CFS, action="GET"):
+        Message.__init__(self, SERVICE_CFS, action)
+        self.origin_node = origin_node
+        self.destination_key = destination_key
+        self.add_content("service",Response_service)
+        self.reply_to = origin_node
+
+
+
 ######SERVICE########
 
 
@@ -160,15 +181,43 @@ class CFS(Service):
     def __init__(self):
         super(CFS, self).__init__()
         self.service_id = "CFS"
+        self.open_requests = {}
+
 
     def handle_message(self, msg):
         """This function is called whenever the node recives a message bound for this service"""
         """Return True if message is handled correctly
         Return False if things go horribly wrong
         """
-        #if not msg.service == self.service_id:
-        #    raise "Mismatched service recipient for message."
-        return msg.service == self.service_id
+        if msg.type == "GET":
+            chunkid = msg.destination_key
+            data = None
+
+            if iHaveChunk(chunkid):
+                data = readChunk(chunkid)
+
+            m = CFS_Message(self.owner, msg.reply_to.key, Response_service=SERVICE_CFS, action="RESP")
+            m.add_content("chunkid",chunkid)
+            m.add_content("data",data)
+            self.send_message(m,msg.reply_to)
+
+        elif msg.type == "PUT":
+            content = msg.get_content("data")
+            writeChunk(content)
+
+        elif msg.type == "RESP":
+            chunkid = m.get_content("chunkid")
+            
+            if chunkid in self.open_requests:
+                content = msg.get_content("data")
+                self.open_requests(chunkid).outqueue.put(content)
+
+        else:
+            pass
+
+
+
+
 
     def attach_to_console(self):
         ### return a dict of help texts, indexed by commands
@@ -176,8 +225,10 @@ class CFS(Service):
             "storeFileRaw":"Stores the provided file with raw chunking",
             "storeFileLines":"Stores file with atomic lines",
             "storeFileWords":"Stores file with atomic words",
-            "readFile":"dumps a bunch of json of a file stored on network",
-            "readFromKeyfile":"reads a file from provided keyfile"
+            "readFileRaw":"writes a raw file from provided key file",
+            "readFile":"writes a json dump of chunks from provided key file",
+            "get":"Reads a single chunk off the network",
+            "put":"Writes a single chunk to the network"
         }
 
 
@@ -192,8 +243,26 @@ class CFS(Service):
     def change_in_responsibility(self,new_pred_key, my_key):
         pass #this is called when a new, closer predecessor is found and we need to re-allocate responsibilities
 
+    def getChunk(self,chunkid,timeout=-1):
+        m = CFS_Message(self.owner, chunkid, Response_service=SERVICE_CFS, action="GET")
+        request = OpenRequest(chunkid)
+        self.open_requests[chunkid] = request
+        self.send_message(m,None)
+        output = None
+        try:
+            if timeout > 0:
+                output = request.outqueue.get(True,timeout)
+            else:
+                output = request.outqueue.get(True,None)
+        finally:
+            del self.open_requests[chunkid]
+            return output
 
-
+    def putChunk(self,atom):
+        chunkid = atom.hashkeyID
+        m = CFS_Message(self.owner, chunkid, Response_service=SERVICE_CFS, action="PUT")
+        m.add_content("data",atom)
+        self.send_message(m,None)
     # http://stackoverflow.com/questions/18761016/break-a-text-file-into-smaller-chunks-in-python
 
 #####END SERVICE####

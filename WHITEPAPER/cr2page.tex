@@ -84,10 +84,12 @@ MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Mi
 \end{IEEEkeywords}
 
 \section{Introduction}
-Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  Using MapReduce, a problem can be split it into small, functionally identical tasks whose results can be combined into a single answer.  MapReduce has proven to be an extremely powerful and versatile tool, providing the framework for using distributed computing to solve a wide variety of problems, \textit{such as sorting, reverse indexing  (citation)}. 
+Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  Using MapReduce, a problem can be split it into small, functionally identical tasks whose results can be combined into a single answer.  MapReduce has proven to be an extremely powerful and versatile tool, providing the framework for using distributed computing to solve a wide variety of problems, such as distributed sorting and creating an inverted index \cite{mapreduce}. 
 
 \section{Proposed approach}
 Follows up on the closing of the intro.  We use Chord as the backbone to mapreduce.  This is a general overview
+
+map and reduce tasks are already implemented with communication between tasks, lets remove any sceduling comminication as well
 
 
 Our work concerns itself with the design and implementation of ChordReduce, a novel implementation of Chord that acts as middleware for creating and running MapReduce jobs. ChordReduce satisfies the desired properties for a distributed MapReduce platform. Chord is a peer-to-peer networking protocol for distributed storage and file sharing that provides $\log(n)$ lookup time for any particular file or node.  Files and nodes are evenly distributed across a ring overlay and organized such that the responsibilities of a failed node are automatically reassigned.  ChordReduce leverages these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  The loss of a single node or a group of nodes during execution does not impact the soundness of the results and their tasks are automatically reassigned. An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
@@ -97,7 +99,7 @@ MapReduce frameworks are generally hierarchical, with the responsibility of sche
 Talk about actual implementation and collection of the data
 
 
-MapReduce frameworks have two components: the  MapReduce data processing component and a distributed file system, such as the Google File System \cite{gfs} or the Haddop Distributed File System (HDFS) \cite{hdfs}.  The file system 
+MapReduce frameworks have two components: the  MapReduce data processing component and a distributed file system, such as the Google File System \cite{gfs} or the Haddop Distributed File System (HDFS) \cite{hdfs}.
 
 
 We implemented ChordReduce by building our own version of Chord plus a module to run MapReduce operations over the network.  For our experiments, we wanted to establish that the speedup from distributing the work would follow an expected logarithmic pattern, even under differing rates of churn.  To this end, we wrote a MapReduce job that would approximate the value of $\pi$.  Our experiments varied the rate of churn the network experienced as well as the degree of desired precision, which directly correlated to the number of jobs distributed among the nodes.  

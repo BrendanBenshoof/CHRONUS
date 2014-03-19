@@ -98,7 +98,7 @@ MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Mi
 
 
 
-Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  By using MapReduce, a user can take a large problem, split it into small, equivalent tasks and send those tasks to other processors for computation.  The results are sent back to the user and combined into one answer.  MapReduce has proved to be an extremely powerful and versitile tool, providing the framework for using distributed computing to solve a wide variety of problems, \textit{such as sorting, reverse indexing  (citation)}. 
+Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  By using MapReduce, a user can take a large problem, split it into small, equivalent tasks and send those tasks to other processors for computation.  The results are sent back to the user and combined into one answer.  MapReduce has proven to be an extremely powerful and versatile tool, providing the framework for using distributed computing to solve a wide variety of problems, \textit{such as sorting, reverse indexing  (citation)}. 
 
 
 %Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling node failures.
@@ -162,13 +162,14 @@ The archetypal example of using MapReduce is counting the occurrence of each wor
 
 \textit{Insert psuedocode or picture, code for word count here!}
 
-The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation developed by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) and the Hadoop MapReduce Framework \cite{mrsurvey} \cite{shvachko2010hadoop}.  Under HFDS, nodes are arranged in a hierarchical tree, with a master node, called the NameNode, at the top.  The NameNode's job is to organize and distribute information to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
+
+The most popular platform for MapReduce is Hadoop \cite{Hadoop}. Hadoop is an open-source Java implementation developed by Apache and Yahoo! \cite{pavlo2009comparison}.  Hadoop has two components, the Hadoop Distributed File System (HDFS) \cite{hdfs} and the Hadoop MapReduce Framework \cite{mrsurvey}.  Under HDFS, nodes are arranged in a hierarchical tree, with a master node, called the NameNode, at the top.  The NameNode's job is to organize and distribute information to the slave nodes, called DataNodes.  This makes the NameNode a single point of failure \cite{shvachko2010hadoop} in the network, as well as a potential bottleneck for the system \cite{hadoop-bottle}.
 
 To do work on Hadoop, the user stores their data on the network.  This is handled by the NameNode, which equally apportions the data among the DataNodes.  When a user wants to run some analysis on the data or some subset the data, then that function is sent by the NameNode to each of the DataNodes that is responsible for the indicated data.   After the DataNode finishes processing, the result is handled by other nodes called Reducers which collect and reduce the results of multiple DataNodes.
 
 %%%%%%%%%%%%% Notes
 % http://wiki.apache.org/hadoop/Virtual%20Hadoop  Hapdoop assumptions.
-%Two parts: HFDS and Mapreduce/  Hadoop is intended for thousands of nodes on commodity hardware citation needed, but it's from the hortonwork vid I watched, basically saying scale out not up, as scaling out gives data + storage scaling, but this is because analysis is moved to data.   Key is avoiding random seeks.
+%Two parts: HDFS and Mapreduce/  Hadoop is intended for thousands of nodes on commodity hardware citation needed, but it's from the hortonwork vid I watched, basically saying scale out not up, as scaling out gives data + storage scaling, but this is because analysis is moved to data.   Key is avoiding random seeks.
 
 %Name node keeps track of each block (64MB by default).  Can be rack aware. Logical file system; blocks are not necessarily and almost definitely not continuous. 
 
@@ -176,7 +177,7 @@ To do work on Hadoop, the user stores their data on the network.  This is handle
 
 %MapReduce jobs are submitted by a client to the Jobtracker (in our framework it would be any node), gets split into tasks, which get distributed to the TaskTracker programs running on local data nodes who have the data.  Map occurs and output is sent over  network to reducer via shuffle/sort (which matchs up all the values with the same key) and sends that to the reducer.
 
-%The MapReduce framewoork and HFDS component of Hadoop are codesigned/developed/deployed, so you have combined processing and storing data.  MapReduce wants to move processing to data and minimize the movement of data, since that is where most of the cost is.  \textbf{THe MapReduce component takes advantage of the fact that the data is replicated in the network}
+%The MapReduce framewoork and HDFS component of Hadoop are codesigned/developed/deployed, so you have combined processing and storing data.  MapReduce wants to move processing to data and minimize the movement of data, since that is where most of the cost is.  \textbf{THe MapReduce component takes advantage of the fact that the data is replicated in the network}
 
 %One thing to take from this is that the for the wordcount program, the pieces should/can already be stored across the network, most likely using CFS.
 
@@ -194,6 +195,8 @@ These nodes perform necessary scheduling and distribution tasks and help provide
 ChordReduce is designed as a more abstract framework for MapReduce, able to run on any arbitrary distributed configuration.
 ChordReduce leverages the features of distributed hash tables to handle distributed file storage, fault tolerance, and lookup.  We designed ChordReduce to ensure that no single node is a point of failure and that there is no need for any node to coordinate the efforts of other nodes during processing.
 
+
+The design of a distributed file system is closely tied to the design to the implementation of MapReduce.  see \cite{gfs} \cite{hdfs}
 
 \subsubsection*{Other Related Work}
 Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.  However, Marozzo et al. do not explore the benefits of leveraging the properties of a P2P protocol to reduce the complexity of the architecture and completely distribute the responsibility of the task across the network.  As a result, P2P-MapReduce still relies on a ratio of masters to slaves to coordinate and organize the network, meaning a percentage of the network is unable to contribute processing power to the actual solving of a problem.   

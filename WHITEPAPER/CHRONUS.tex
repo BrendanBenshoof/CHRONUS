@@ -103,13 +103,14 @@ Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part
 
 %Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, utilize a central source of coordination and organization to store and operate on data. The hierarchical structure of Hadoop results in a single point of failure at the node that concentrates the results and also requires a complicated scheme for handling node failures.
 
-Many popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, are designed to be utilized in data centers and \textit{other high performance computing contexts}.  
+Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, are explicitly designed to be used in large datacenters \cite{hadoopAssumptions}.  
 \textit{The deployment of MapReduce at a data Center is the only option that has been heavily explored.}  
 These MapReduce platforms are highly centralized and tend to have single points of failure\footnote{reference of Hadoop single point of failure and schedulers goes here} as a result.   A centralized design assumes that the network is relatively unchanging and does not usually have mechanisms to handle node failure during execution or, conversely, cannot speed up the execution of a job by adding additional workers on the fly.  Finally, learning curve for deploying these systems and developing programs on them \textit{is annoying}.
 
 
 % http://wiki.apache.org/hadoop/Virtual%20Hadoop  <---- look here for motivation.
 \textit{A data center/HPC context is only one in a wide variety of possible distributed frameworks}.  \textit{We were motivated to start exploring a more abstract deployment for MapReduce, one that could be deployed in a much wider variety of contexts. The is no reason that MapReduce jobs couldn't be run over peer-2-peer networks or as part of a volunteer computing framework.  No reason we can't use it in a data center either.}
+\textit{A more abstract approach removes a lot of the assumptions:  failed nodes recover, network is static, failure is hardware based, powerful infrastructure}
 \textit{We also wanted to create something much easier to deploy and program on.}\footnote{Expand on motivation more;  make reader feel that yes, this does seem like a good project to spend time on}.  
 
 We used Chord \cite{Chord}, a peer-2-peer distributed hash table, as the backbone for developing our system.  Our paper presents these contributions:
@@ -379,6 +380,7 @@ Our experiments show that for a given problem, ChordReduce can effectively distr
 \section{Related Work}
 
 We have identified two papers that focus on combining P2P concepts with MapReduce.  Both papers are similar to our research, but differ in crucial ways, as described below.
+\textit{One thing we're pretty sure of is that neither utilizes a blocking scheme like CFS \cite{CFS}, but I'll have to check that}
 
 %DEFINE ISSUES OF CHURN AND RELIABLILITY
 

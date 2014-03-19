@@ -1,9 +1,9 @@
-\documentclass[10pt, conference, compsocconf]{IEEEtran}
+\documentclass{article}
 
 
 %%% PAGE DIMENSIONS
-%\usepackage{geometry} % to change the page dimensions
-%\geometry{a4paper} % or letterpaper (US) or a5paper or....
+\usepackage{geometry} % to change the page dimensions
+\geometry{letterpaper} % or letterpaper (US) or a5paper or....
 % \geometry{margins=2in} % for example, change the margins to 2 inches all round
 % \geometry{landscape} % set up the page for landscape
 %   read geometry.pdf for detailed page layout information
@@ -14,9 +14,9 @@
 
 %%% PACKAGES
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
-\usepackage{listings}
-\usepackage[scaled]{beramono}
-\usepackage[T1]{fontenc}
+%\usepackage{listings}
+%\usepackage[scaled]{beramono}
+%\usepackage[T1]{fontenc}
 \usepackage{xcolor}
 \usepackage{booktabs} % for much better looking tables
 \usepackage{array} % for better arrays (eg matrices) in maths
@@ -24,17 +24,17 @@
 \usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
 \usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
 % These packages are all incorporated in the memoir class to one degree or another...
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{amsmath}
-\usepackage{amsthm}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+%\usepackage{amsmath}
+%\usepackage{amsthm}
 
 %%% HEADERS & FOOTERS
-\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
-\pagestyle{fancy} % options: empty , plain , fancy
-\renewcommand{\headrulewidth}{0pt} % customise the layout...
-\lhead{}\chead{}\rhead{}
-\lfoot{}\cfoot{\thepage}\rfoot{}
+%\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+%\pagestyle{fancy} % options: empty , plain , fancy
+%%\renewcommand{\headrulewidth}{0pt} % customise the layout...
+%\lhead{}\chead{}\rhead{}
+%\lfoot{}\cfoot{\thepage}\rfoot{}
 
 %%% SECTION TITLE APPEARANCE
 %\usepackage{sectsty}
@@ -52,67 +52,80 @@
 %%% The "real" document content comes below...
 
 \title{MapReduce on a Chord Distributed Hash Table}
-\author{\IEEEauthorblockN{Andrew Rosen \qquad Brendan Benshoof \qquad Robert W. Harrison \qquad Anu G. Bourgeois}
-\IEEEauthorblockA{Department of Computer Science\\
-Georgia State University\\
-Atlanta, Georgia\\
-rosen@cs.gsu.edu}
-}
+%\author{\IEEEauthorblockN{Andrew Rosen \qquad Brendan Benshoof \qquad Robert W. Harrison \qquad Anu G. Bourgeois}
+
 
 %\author{
 %Andrew Rosen \qquad Brendan Benshoof \qquad Matt Erwin \qquad Robert Harrison \qquad Anu Bourgeois  \\Department of Computer Science, Georgia State University\\ 34 Peachtree St NW \\ Atlanta, Georgia 30303\\  rosen@cs.gsu.edu }
-%\date{} % Activate to display a given date or no date (if empty),
+\date{} % Activate to display a given date or no date (if empty),
          % otherwise the current date is printed 
 
 
 \hyphenation{op-tical net-works semi-conduc-tor Chord-Reduce Map-Reduce Data-Nodes Name-Nodes}
 
 \begin{document}
-\lstset{language=Python, basicstyle= \footnotesize\ttfamily ,showstringspaces=false, frame=single, commentstyle=\itshape\color{gray}, identifierstyle=\color{black},  keywordstyle=\bfseries\color{red!40!black}, stringstyle=\color{blue}} 
+%\lstset{language=Python, basicstyle= \footnotesize\ttfamily ,showstringspaces=false, frame=single, commentstyle=\itshape\color{gray}, identifierstyle=\color{black},  keywordstyle=\bfseries\color{red!40!black}, stringstyle=\color{blue}} 
 \maketitle
 
 \begin{abstract}
 
+MapReduce frameworks are designed for datacenters, which are highly centralized in nature.  These platforms require a centralized source to maintain and coordinate the network, which leads to a single point of failure.  We present ChordReduce, a generalized and decentralized MapReduce framework which utilizes the peer-to-peer protocol Chord.  ChordReduce's robustness, scalability, and lack of a single point of failure allows MapReduce to be easily deployed in a greater variety of contexts, including  cloud and loosely coupled environments.
 
-The abstract should be no more than four sentences long here I think.
+
 \end{abstract}
 
 
-\begin{IEEEkeywords}
-MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Middleware;
+%\begin{IEEEkeywords}
+%MapReduce; P2P; Parallel Processing; Peer-to-Peer Computing; Cloud Computing; Middleware;
 
-\end{IEEEkeywords}
+%\end{IEEEkeywords}
 
-\section{Introduction}
-Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  Using MapReduce, a problem can be split it into small, functionally identical tasks whose results can be combined into a single answer.  MapReduce has proven to be an extremely powerful and versatile tool, providing the framework for using distributed computing to solve a wide variety of problems, such as distributed sorting and creating an inverted index \cite{mapreduce}. 
+\subsubsection*{Introduction}
+%Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing and is capable of efficiently executing numerous Big Data programming and data-reduction tasks.  
+%Using MapReduce, a problem can be split it into small, functionally identical tasks whose results can be combined into a single answer. 
+%This approach can be applied to multiple problems, such as distributed sorting and creating an inverted index \cite{mapreduce}, making it extremely powerful and versatile.
 
-\section{Proposed approach}
-Follows up on the closing of the intro.  We use Chord as the backbone to mapreduce.  This is a general overview
+Google's MapReduce \cite{mapreduce} paradigm has rapidly become an integral part in the world of data processing.
+Popular platforms for MapReduce, such as Hadoop \cite{Hadoop}, are explicitly designed to be used in large datacenters.  
+A consequence of this is the analysis and optimization of MapReduce has largely remained constrained to that context.  
+We were motivated to create a MapReduce framework that could be easily deployed in other contexts, such as cloud computing or peer-to-peer, with minimal configuration.
+A more general-use framework for MapReduce cannot make the assumptions that other frameworks rely on, such as a high performance infrastructure, a static network, or a centralized source to organize and coordinate the network.  
 
-map and reduce tasks are already implemented with communication between tasks, lets remove any sceduling comminication as well
+We present ChordReduce, our MapReduce framework.  It is highly robust, scalable, and does not require a centralized source of coordination.  ChordReduce is completely decentralized, avoiding the single points of failure that exist in Hadoop and other frameworks. Responsibilities  that required a central coordinator, such as handling metadata, coordinating the execution of MapReduce, or assigning backups,  are all handled by the underlying Chord protocol.
+
+\subsubsection*{Proposed Approach}
+
+ChordReduce is a MapReduce framework built on top of Chord \cite{Chord}, a peer-to-peer (P2P) networking protocol for distributed storage and file sharing that provides $\log(n)$ lookup time for any particular file or node.
+Files and nodes are evenly distributed across a ring overlay and organized so the responsibilities of a failed node are automatically reassigned. 
+
+We leverage these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  
+The loss of a single node or a group of nodes during execution does not impact the soundness of the results and their tasks are automatically reassigned. 
+An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
+
+MapReduce frameworks are generally hierarchical, with a centralized source responsible for scheduling work, creating and placing backups of data, or the status of nodes.  This leads centralized MapReduce implementations to having a single point of failure.\footnote{maybe add configuration and learning curve}.
+
+Our framework allows us not only to distribute the data and tasks among members of the network, but distributes the responsibility of maintaining the network as well, removing the need for any centralized point of failure from the network.
+ChordReduce provides ideal characteristics for a MapReduce framework by being highly scalable, fault-tolerant even during execution, and minimizes the work need to maintain the network.  The lack of a single point of failure allows ChordReduce to be deployed in a greater variety of environments and contexts, ranging from datacenters, P2P networks, or cloud computing.
 
 
-Our work concerns itself with the design and implementation of ChordReduce, a novel implementation of Chord that acts as middleware for creating and running MapReduce jobs. ChordReduce satisfies the desired properties for a distributed MapReduce platform. Chord is a peer-to-peer networking protocol for distributed storage and file sharing that provides $\log(n)$ lookup time for any particular file or node.  Files and nodes are evenly distributed across a ring overlay and organized such that the responsibilities of a failed node are automatically reassigned.  ChordReduce leverages these features to distribute Map and Reduce tasks evenly among nodes and maintain a high degree of robustness during execution.  The loss of a single node or a group of nodes during execution does not impact the soundness of the results and their tasks are automatically reassigned. An additional benefit is that nodes joining the ring during runtime can automatically have work distributed to them.
+\subsubsection*{Implementation}
 
-MapReduce frameworks are generally hierarchical, with the responsibility of scheduling work, distributing data and tasks, and tracking progress at the top.  This leads to centralized MapReduce implementations having a single point of failure.  The ChordReduce framework distributes both responsibility and work among its members, eliminating the need for a central source of coordination.  ChordReduce provides ideal characteristics for a MapReduce framework by being highly scalable, fault-tolerant during execution, able to handle a high degree of churn, and minimizes the amount of traffic that results from maintaining the network.  
-\section{Implementation}
-Talk about actual implementation and collection of the data
+We implemented ChordReduce by building our own version of Chord plus a module to run MapReduce operations over the network. Files are split into blocks and stored on the network using an implementation to CFS \cite{CFS}.  The splitting can be user defined or handled automatically by ChordReduce.  When the user wants to run a MapReduce operation over a file or files, a task is sent to the nodes containing 
 
-
-MapReduce frameworks have two components: the  MapReduce data processing component and a distributed file system, such as the Google File System \cite{gfs} or the Haddop Distributed File System (HDFS) \cite{hdfs}.
+In the case of computations that are purely mathematical, tasks are uniformly distributed across then network.
 
 
-We implemented ChordReduce by building our own version of Chord plus a module to run MapReduce operations over the network.  For our experiments, we wanted to establish that the speedup from distributing the work would follow an expected logarithmic pattern, even under differing rates of churn.  To this end, we wrote a MapReduce job that would approximate the value of $\pi$.  Our experiments varied the rate of churn the network experienced as well as the degree of desired precision, which directly correlated to the number of jobs distributed among the nodes.  
+For our experiments, we wanted to establish that the speedup from distributing the work would follow an expected logarithmic pattern, even under differing rates of churn.  To this end, we wrote a MapReduce job that would approximate the value of $\pi$.  Our experiments varied the rate of churn the network experienced as well as the degree of desired precision, which directly correlated to the number of jobs distributed among the nodes.  
 
+
+
+
+
+
+\subsubsection*{Preliminary Results and Conclusions}
 Our results showed that ChordReduce  operates even under extremely high rates of churn and followed the desired logarithmic speedup.  These results establish that ChordReduce is an efficient implementation of MapReduce. 
 The applications are far-reaching, especially for big data problems and those that are massively parallel. 
 Implementing MapReduce on a Chord peer-to-peer network demonstrates that the Chord network is an excellent platform for distributed and concurrent programming in cloud and loosely coupled environments.
-
-
-
-
-\section{Preliminary Results and Conclusions}
-
 
 \bibliographystyle{IEEEtran}
 \bibliography{CHRONUS}

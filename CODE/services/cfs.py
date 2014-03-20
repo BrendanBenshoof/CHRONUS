@@ -57,7 +57,7 @@ from Queue import Queue
 
 SERVICE_CFS = "CFS"
 
-DEFAULT_BLOCK_SIZE = 8192 # bytes
+DEFAULT_BLOCK_SIZE = 1024 # bytes
 
 MAX_BLOCK_SIZE = float("inf")
 
@@ -115,6 +115,10 @@ class OpenRequest(object):
 
 ###UTILITY FUNCTIONS###
 
+
+def asciifilter(text):
+    return ''.join([i if ord(i) < 128 else '' for i in text])
+
 def lineChunk(fname):
     with open(fname, 'rb') as fin:
         return list(iter(fin.readline,''))
@@ -127,7 +131,7 @@ def wordChunk(fname):
 
 def binaryChunk(fname):
     with open(fname, 'rb') as fin:
-        return list(iter(lambda: fin.read(DEFAULT_BLOCK_SIZE), ''))
+        return list(iter(lambda: asciifilter(fin.read(DEFAULT_BLOCK_SIZE)), ''))
 
 def binaryChunkPack(chunkIterator,maxsize=DEFAULT_BLOCK_SIZE):
     #assumes you are using strings
@@ -153,12 +157,12 @@ def locgicalBinaryChunk(filename):
 ###LOCAL FILE FUNCTIONS###
 
 def iHaveChunk(chunkid):
-    p = path.join(".","chunkStorage",str(chunkid)+".txt")
+    p = path.join(".","chunkStorage",str(chunkid)+".chunk")
     return path.isfile(p)
 
 def readChunk(chunkid):
     if iHaveChunk(chunkid):
-        p = path.join(".","chunkStorage",str(chunkid)+".txt")
+        p = path.join(".","chunkStorage",str(chunkid)+".chunk")
         raw = ""
         with file(p,"r") as fp:
             raw = fp.read()
@@ -169,7 +173,7 @@ def readChunk(chunkid):
         raise Exception("Chunk is not locally stored")
 
 def writeChunk(atom):
-    p = path.join(".","chunkStorage",str(atom.hashkeyID)+".txt")
+    p = path.join(".","chunkStorage",str(atom.hashkeyID)+".chunk")
     with file(p,"wb") as fp:
         fp.write(json.dumps(atom.contents))
 

@@ -479,7 +479,7 @@
 			"file": "CODE/services/map_reduce.py",
 			"settings":
 			{
-				"buffer_size": 10048,
+				"buffer_size": 10057,
 				"line_ending": "Windows"
 			}
 		},
@@ -495,7 +495,7 @@
 			"file": "CODE/services/cfs.py",
 			"settings":
 			{
-				"buffer_size": 8383,
+				"buffer_size": 8467,
 				"line_ending": "Windows"
 			}
 		},
@@ -516,6 +516,14 @@
 			}
 		},
 		{
+			"file": "CODE/tests/wordCount.py",
+			"settings":
+			{
+				"buffer_size": 1831,
+				"line_ending": "Windows"
+			}
+		},
+		{
 			"file": "CODE/message.py",
 			"settings":
 			{
@@ -529,6 +537,14 @@
 			{
 				"buffer_size": 6521,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+			"settings":
+			{
+				"buffer_size": 8539,
+				"line_ending": "Unix"
 			}
 		},
 		{
@@ -717,6 +733,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"polite_distribute",
 			"selfdestruct",
 			"db",
 			" ",
@@ -792,7 +809,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -800,15 +817,15 @@
 					"file": "CODE/services/map_reduce.py",
 					"settings":
 					{
-						"buffer_size": 10048,
+						"buffer_size": 10057,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2394,
-								2394
+								7100,
+								7100
 							]
 						],
 						"settings":
@@ -818,7 +835,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1650.0,
+						"translation.y": 4179.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -854,23 +871,25 @@
 					"file": "CODE/services/cfs.py",
 					"settings":
 					{
-						"buffer_size": 8383,
+						"buffer_size": 8467,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4283,
-								4283
+								1417,
+								1417
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.tmLanguage"
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3310.0,
+						"translation.y": 998.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -928,15 +947,43 @@
 						"zoom_level": 1.0
 					},
 					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "CODE/tests/wordCount.py",
+					"settings":
+					{
+						"buffer_size": 1831,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								125,
+								125
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
-					"buffer": 5,
+					"buffer": 6,
 					"file": "CODE/message.py",
 					"settings":
 					{
@@ -964,7 +1011,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 7,
 					"file": "CODE/chordreduce.py",
 					"settings":
 					{
@@ -975,8 +1022,8 @@
 						"selection":
 						[
 							[
-								2641,
-								2641
+								610,
+								610
 							]
 						],
 						"settings":
@@ -986,13 +1033,40 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1782.0,
+						"translation.y": 621.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 8,
+					"file": "/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+					"settings":
+					{
+						"buffer_size": 8539,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								829,
+								829
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Markdown/Markdown.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
 					"file": "CODE/node.py",
 					"settings":
 					{
@@ -1050,7 +1124,7 @@
 		"cols":
 		[
 			0.0,
-			0.5,
+			0.491379310345,
 			1.0
 		],
 		"rows":

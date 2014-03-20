@@ -3,6 +3,7 @@ from services.cfs import Data_Atom, getCFSsingleton, KeyFile, makeKeyFile
 import time
 import hash_util
 
+
 def map_func(atom):
     # get the atom off the disk
     #print "LOOK AT ME!!!!!!!!", type(atom.hashkeyID)
@@ -40,7 +41,7 @@ def reduce_func(atom1,atom2):
     
 # assumption, filename is stored on network
 def stage():
-    filename = ".\\tests\\constitution.txt" 
+    filename = ".\\tests\\shakespeare.txt" 
     key = makeKeyFile(filename)
     cfs = getCFSsingleton()
     cfs.writeFile(key)

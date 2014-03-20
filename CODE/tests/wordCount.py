@@ -1,5 +1,6 @@
 jobid =  "word count"
 from services.cfs import Data_Atom, getCFSsingleton, KeyFile, makeKeyFile
+import services.cfs as cfs
 import time
 import hash_util
 
@@ -38,11 +39,14 @@ def reduce_func(atom1,atom2):
             a[word] = b[word]
     atom = Data_Atom(a, atom1.hashkeyID)
     return atom        
-    
+
+def smartChunk(x):
+    return cfs.logicalChunk(cfs.binaryChunkPack(cfs.wordChunk(x)))
+
 # assumption, filename is stored on network
 def stage():
-    filename = ".\\tests\\shakespeare.txt" 
-    key = makeKeyFile(filename)
+    filename = ".\\tests\\shakespeare.txt"
+    key = makeKeyFile(filename,smartChunk)
     cfs = getCFSsingleton()
     cfs.writeFile(key)
     

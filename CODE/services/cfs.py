@@ -49,7 +49,10 @@ Can we just extend one of the database services?
 """
 from service import Service
 from message import Message
+
+import node
 import hash_util
+
 from os import path
 import json
 from Queue import Queue
@@ -114,6 +117,19 @@ class OpenRequest(object):
 ###END CLASSES###
 
 ###UTILITY FUNCTIONS###
+
+def disribute_fairly(atoms):
+    distribution = {}
+    for a in atoms:
+        if node.I_own_hash(a.hashkeyID):
+            dest = node.thisNode
+        else:
+            dest = node.find_ideal_forward(a.hashkeyID)
+        try:
+            distribution[dest].append(a)
+        except KeyError:
+            distribution[dest] = [a]
+    return distribution
 
 
 def asciifilter(text):
@@ -239,7 +255,11 @@ class CFS(Service):
             if chunkid in self.open_requests:
                 content = msg.get_content("data")
                 self.open_requests[chunkid].outqueue.put(content)
-
+        elif msg.type == "BULK":
+            atoms = msg.get_content("bulk")
+            mystuff = self.polite_distribute(atoms)
+            for a in mystuff:
+                writeChunk(a)
         else:
             pass
 
@@ -297,11 +317,32 @@ class CFS(Service):
         hashid = hash_util.hash_str(key.name)
         d = Data_Atom(keyfilestr,hashid)
         self.putChunk(d)
-        for c in key.chunks:
-            chunk = key.chunks[c]
-            self.putChunk(chunk)
+        atoms = []
+        for k in key.chunks:
+            atoms.append(key.chunks[k])
+        mystuff = self.polite_distribute(atoms)
+        print mystuff
+        for a in mystuff:
+            writeChunk(a)
 
-
+    def polite_distribute(self, atoms):
+        forward_dests = disribute_fairly(atoms)
+        mystuff = []
+        if self.owner in forward_dests.keys():
+            mystuff = forward_dests[self.owner][:]
+            try:
+                del forward_dests[self.owner]
+            except KeyError:
+                pass
+        atoms_sent = 0
+        atoms_total = len(atoms)-len(mystuff)
+        for k in forward_dests.keys():
+            if len(forward_dests[k]) > 0:
+                datatoms = forward_dests[k]
+                m = CFS_Message(self.owner, msg.reply_to.key, Response_service=SERVICE_CFS, action="BULK")
+                m.add_content("bulk",datatoms)
+                self.send_message(m,k)
+        return mystuff
 
 
     

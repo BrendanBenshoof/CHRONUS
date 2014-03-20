@@ -12,5 +12,5 @@ for root, dir, files in os.walk("."):
         for items in fnmatch.filter(files, "*.pyc"):
                 os.remove(os.path.join(root,items))
                 pycount==1
-        print str(txtcount)+" txt files removed"
+        print str(txtcount)+" chunk files removed"
         print str(pycount)+" pyc files removed"

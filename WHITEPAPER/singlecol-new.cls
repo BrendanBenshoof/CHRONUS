@@ -236,7 +236,7 @@
 \def\LRH#1{\gdef\setLRH{#1}}\def\setLRH{}%
 \def\RRH#1{\gdef\setRRH{#1}}\def\setRRH{}%
 
-\LRH{author}
+%\LRH{author}
 \RRH{short title}
 
 \def\ps@headings{\let\@mkboth\markboth

@@ -69,8 +69,9 @@ class Map_Reduce_Service(Service):
         #    raise "Mismatched service recipient for message."
         if msg.service == self.service_id:
             if msg.type==MAP and msg.backup: #short circuited and to avoid typeerror
-                backups.append(msg)
-                print "sent a backup map"
+                pass
+                #backups.append(msg)
+                #print "sent a backup map"
             elif msg.type==MAP:
                 msg.backup = True
                 self.send_message(msg,node.successor)

@@ -339,7 +339,7 @@ class CFS(Service):
         for k in forward_dests.keys():
             if len(forward_dests[k]) > 0:
                 datatoms = forward_dests[k]
-                m = CFS_Message(self.owner, msg.reply_to.key, Response_service=SERVICE_CFS, action="BULK")
+                m = CFS_Message(self.owner, k.key, Response_service=SERVICE_CFS, action="BULK")
                 m.add_content("bulk",datatoms)
                 self.send_message(m,k)
         return mystuff

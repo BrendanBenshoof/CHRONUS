@@ -116,7 +116,7 @@ A consequence of this is the analysis and optimization of MapReduce has largely 
 We were motivated to create a MapReduce framework that could be easily deployed in other contexts, such as cloud computing or peer-to-peer networks, with minimal configuration.
 A more general-use framework for MapReduce cannot make the assumptions that other frameworks rely on, such as a high performance infrastructure, a static network, or a centralized source to organize and coordinate the network and its resources.  
 
-We present ChordReduce, our MapReduce framework.  It is highly robust, scalable, and does not require a centralized source of coordination.  ChordReduce is completely decentralized, avoiding the single points of failure that exist in Hadoop and other frameworks. Responsibilities  that required a central coordinator, such as handling metadata, coordinating the execution of MapReduce, or assigning backups,  are all handled by the underlying Chord protocol.
+We present ChordReduce, our MapReduce framework.  It is highly robust, scalable, and does not require a centralized source of coordination.  ChordReduce is completely decentralized, avoiding the single points of failure that exist in Hadoop and other frameworks. Responsibilities  that required a central coordinator, such as handling metadata, coordinating the execution of MapReduce, or assigning backups are all handled by the underlying Chord protocol.
 
 
 \section{ChordReduce}
@@ -130,15 +130,18 @@ An additional benefit is nodes which join the ring during runtime can automatica
 
 MapReduce frameworks are generally hierarchical, with a centralized source responsible for scheduling work, creating and placing backups of data, or the status of nodes.  This leads centralized MapReduce implementations to having a single point of failure.
 
-Our framework allows us not only to distribute the data and tasks among members of the network, but distributes the responsibility of maintaining the network as well, removing the need for any centralized point of failure from the network.
-ChordReduce provides ideal characteristics for a MapReduce framework by being highly scalable, fault-tolerant even during execution, and minimizes the work need to maintain the network.  The lack of a single point of failure allows ChordReduce to be deployed in a greater variety of environments and contexts, ranging from datacenters, P2P networks, or cloud computing.
+Our framework allows us not only to distribute the data and tasks among members of the network, but distribute the responsibility of maintaining the network as well, removing the need for any centralized coordinator.
+ChordReduce provides ideal characteristics for a MapReduce framework by being highly scalable, fault-tolerant even during execution, and minimizes the work needed to maintain the network.  The lack of a single point of failure allows ChordReduce to be deployed in a greater variety of environments and contexts, ranging from datacenters, P2P networks, or cloud computing.
 
 
 
 
 \section{Implementation and Experiments}
+
+We implemented ChordReduce by building our own version of Chord plus a module to run MapReduce operations over the network. Files are split into blocks and stored on the network using our implementation of CFS \citep{CFS}.  File splitting can be user defined or handled automatically by ChordReduce.  When the user wants to run a MapReduce job over a file or files, a task is sent to each node storing a block of that file.  In the case of computations that are purely mathematical, tasks are uniformly distributed across the network.
+
 \begin{wraptable}{r}{0.5\textwidth}\footnotesize
-	\caption{\footnotesize{The results of calculating $\pi$ generating $10^8$ samples under churn. Churn is the chance for each node to join or leave the network. The large speedup is from joining nodes acquiring work during experimental runtime.}}    
+	\caption{\footnotesize{The results of calculating $\pi$ by generating $10^8$ samples under churn. Churn is the chance for each node to join or leave the network. The large speedup is from joining nodes acquiring work during experimental runtime.}}    
     \begin{tabular}{|r|r|r|}
         \hline 
         Churn per second & Average runtime (s) & Speedup vs 0\% \\ \hline{}
@@ -152,19 +155,12 @@ ChordReduce provides ideal characteristics for a MapReduce framework by being hi
     
     \label{churnSpeed}
 \end{wraptable}
-We implemented ChordReduce by building our own version of Chord plus a module to run MapReduce operations over the network. Files are split into blocks and stored on the network using our implementation of CFS \citep{CFS}.  File splitting can be user defined or handled automatically by ChordReduce.  When the user wants to run a MapReduce job over a file or files, a task is sent to each node storing a block of that file.  In the case of computations that are purely mathematical, tasks are uniformly distributed across the network.
-
-
-For our experiments, we wanted to establish that the speedup from distributing the work would follow an expected logarithmic pattern, even under differing rates of churn.  We implemented two MapReduce jobs for experiments: a Monte-Carlo approximation of $\pi$ and creating a word frequency list on a document.  Our experiments varied the rate of churn the network experienced, the number of workers in the network, the number of tasks distributed among the nodes, and the frequency at which maintenance occurred. Table \ref{churnSpeed} shows the experimental results for calculating $\pi$ different rates of churn in an initial ring of 40 deployed nodes.  Our results showed that performance did not suffer under even very high rates of churn and that the reassignment of work at runtime to joining nodes allowed the network to perform better in some cases.
-
-
-
-
+For our experiments, we wanted to establish that the speedup from distributing the work would follow an expected logarithmic pattern, even under differing rates of churn.  We implemented two MapReduce jobs for experiments: a Monte-Carlo approximation of $\pi$ and creating a word frequency list on a document.  Our experiments varied the rate of churn the network experienced, the number of workers in the network, the number of tasks distributed among the nodes, and the frequency at which maintenance occurred. Table \ref{churnSpeed} shows the experimental results for calculating $\pi$ under different rates of churn in an initial ring of 40 deployed nodes.  Our results showed that performance did not suffer under even very high rates of churn and that the reassignment of work at runtime to joining nodes allowed the network to perform better in some cases.
 
 
 
 \section{Conclusion}
-Our other experiments showed that ChordReduce operates even under extremely high rates of churn and followed the desired logarithmic speedup.  
+Our experiments establish that ChordReduce operates even under extremely high rates of churn and follows the desired logarithmic speedup.  
 These results establish that ChordReduce is an efficient implementation of MapReduce. 
 The applications are far-reaching, especially for big data problems and those that are massively parallel. 
 Implementing MapReduce on a Chord peer-to-peer network demonstrates that the Chord network is an excellent platform for distributed and concurrent programming in cloud and loosely coupled environments.

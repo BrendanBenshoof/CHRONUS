@@ -118,6 +118,7 @@ class Map_Reduce_Service(Service):
         self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
+        return
         print "checking my backupped work"
         for b in backups:
             if b.timestamp < time.time()-b.keepalive:

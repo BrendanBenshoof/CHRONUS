@@ -43,10 +43,13 @@ class NETWORK_SERVICE(object):
 
     def send_message(self,msg,dest):
         time.sleep(0.01)
-        msg = msg.serialize()
-        inst.addBytes("OUT",len(msg))
-        server = ServerProxy("http://"+str(dest.IPAddr)+":"+str(dest.ctrlPort))
-        server.recive(msg)
+        data = msg.serialize()
+        inst.addBytes("OUT",len(data))
+        try:
+            server = ServerProxy("http://"+str(dest.IPAddr)+":"+str(dest.ctrlPort))
+            server.recive(data)
+        except Exception:
+            node.message_failed(msg,dest)
 
 
 

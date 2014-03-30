@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"da",
+				"data_atoms"
+			],
+			[
+				"pyc",
+				"pycount"
+			],
+			[
 				"key",
 				"keyfilestr"
 			],
@@ -476,14 +484,6 @@
 	"buffers":
 	[
 		{
-			"file": "CODE/services/map_reduce.py",
-			"settings":
-			{
-				"buffer_size": 10057,
-				"line_ending": "Windows"
-			}
-		},
-		{
 			"file": "sublimeProject-Brendan.sublime-project",
 			"settings":
 			{
@@ -495,31 +495,15 @@
 			"file": "CODE/services/cfs.py",
 			"settings":
 			{
-				"buffer_size": 8467,
+				"buffer_size": 9863,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "CODE/test.py",
+			"file": "CODE/cleanup.py",
 			"settings":
 			{
-				"buffer_size": 84,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "CODE/services/service.py",
-			"settings":
-			{
-				"buffer_size": 5003,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "CODE/tests/wordCount.py",
-			"settings":
-			{
-				"buffer_size": 1831,
+				"buffer_size": 556,
 				"line_ending": "Windows"
 			}
 		},
@@ -532,19 +516,19 @@
 			}
 		},
 		{
-			"file": "CODE/chordreduce.py",
+			"file": "CODE/services/map_reduce.py",
 			"settings":
 			{
-				"buffer_size": 6521,
+				"buffer_size": 10095,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+			"file": "CODE/tests/wordCount.py",
 			"settings":
 			{
-				"buffer_size": 8539,
-				"line_ending": "Unix"
+				"buffer_size": 1951,
+				"line_ending": "Windows"
 			}
 		},
 		{
@@ -588,9 +572,14 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/tests/wordCount.py",
-		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/shelver.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/chunkStorage/0xc42f099e2d75def9d9b3d51306cea8cc6aeadbaf.chunk",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/chordreduce.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/test.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/service.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/tests/wordCount.py",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/cleanup.py",
+		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/shelver.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/hash_util.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/services/map_reduce.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CODE/chunkStorage/.gitignore",
@@ -598,7 +587,6 @@
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/service.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/node.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/services/__init__.py",
-		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/chordreduce.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/simple_network.py",
 		"/C/Users/Rhapso/Documents/GitHub/CHRONUS/CHRONUS/CODE/netlogocode",
@@ -711,11 +699,7 @@
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/setup.py",
 		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/Markdown-2.3.1/setup.cfg",
 		"/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/simple-sidebar - Copy.html",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/server.py",
-		"/C/Users/Rhapso/AppData/Roaming/PyBitmessage/keys.dat",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/bitmsg.js",
-		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/js/q-3.0.1.js"
+		"/C/Users/Rhapso/Documents/GitHub/Decentralized/bitmsg/simple-sidebar - Copy.html"
 	],
 	"find":
 	{
@@ -733,6 +717,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"backup",
+			"doreduce",
+			".txt",
 			"polite_distribute",
 			"selfdestruct",
 			"db",
@@ -778,9 +765,10 @@
 		"highlight": true,
 		"in_selection": false,
 		"preserve_case": false,
-		"regex": true,
+		"regex": false,
 		"replace_history":
 		[
+			".chunk",
 			" ",
 			"G,10",
 			"r=1000",
@@ -814,34 +802,6 @@
 			[
 				{
 					"buffer": 0,
-					"file": "CODE/services/map_reduce.py",
-					"settings":
-					{
-						"buffer_size": 10057,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7100,
-								7100
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 4179.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
 					"file": "sublimeProject-Brendan.sublime-project",
 					"settings":
 					{
@@ -867,19 +827,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 1,
 					"file": "CODE/services/cfs.py",
 					"settings":
 					{
-						"buffer_size": 8467,
+						"buffer_size": 9863,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1417,
-								1417
+								9678,
+								9678
 							]
 						],
 						"settings":
@@ -888,86 +848,32 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 998.0,
+						"translation.x": 14.0,
+						"translation.y": 7383.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "CODE/test.py",
+					"buffer": 2,
+					"file": "CODE/cleanup.py",
 					"settings":
 					{
-						"buffer_size": 84,
+						"buffer_size": 556,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								84,
-								84
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "CODE/services/service.py",
-					"settings":
-					{
-						"buffer_size": 5003,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								661,
-								673
+								224,
+								224
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1254.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "CODE/tests/wordCount.py",
-					"settings":
-					{
-						"buffer_size": 1831,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								125,
-								125
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
+							"tab_size": 8,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
@@ -979,11 +885,11 @@
 			]
 		},
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
-					"buffer": 6,
+					"buffer": 3,
 					"file": "CODE/message.py",
 					"settings":
 					{
@@ -1011,19 +917,19 @@
 					"type": "text"
 				},
 				{
-					"buffer": 7,
-					"file": "CODE/chordreduce.py",
+					"buffer": 4,
+					"file": "CODE/services/map_reduce.py",
 					"settings":
 					{
-						"buffer_size": 6521,
+						"buffer_size": 10095,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								610,
-								610
+								1993,
+								1993
 							]
 						],
 						"settings":
@@ -1033,40 +939,41 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 621.0,
+						"translation.y": 1221.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 8,
-					"file": "/C/Users/Rhapso/AppData/Roaming/Sublime Text 2/Packages/GoSublime/USAGE.md",
+					"buffer": 5,
+					"file": "CODE/tests/wordCount.py",
 					"settings":
 					{
-						"buffer_size": 8539,
+						"buffer_size": 1951,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								829,
-								829
+								1178,
+								1178
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Markdown/Markdown.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": 7.0,
+						"translation.y": 690.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 6,
 					"file": "CODE/node.py",
 					"settings":
 					{

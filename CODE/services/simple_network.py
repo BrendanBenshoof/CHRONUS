@@ -9,6 +9,8 @@ import time
 
 CHUNKSIZE = 64
 
+import instrumentation as inst
+
 
 
 ##stolen from http://code.activestate.com/recipes/574454-thread-pool-mixin-class-for-use-with-socketservert/
@@ -123,6 +125,7 @@ class NETWORK_SERVICE(object):
             sock.send(DATA)
             sock.shutdown(1)
             ack = sock.recv(1)
+            inst.addBytes("OUT",len(DATA))
         except socket.error:
             ##print e
             #sock.close()
@@ -164,6 +167,7 @@ class MyTCPHandler(BaseRequestHandler):
         self.request.close()
 
         msg = message.Message.deserialize(data)
+        inst.addBytes("IN",len(data))
         #print "]",
         node.handle_message(msg)
 

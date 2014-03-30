@@ -1,5 +1,12 @@
 
-#constants
+
+JOBID = "testjob"
+KEYSIZE = 160
+MASTERNODE = "127.0.0.1:9000"
+CHECKFREQ = 30
+
+
+#constants we really don't use <consider removal>
 
 SERVICE_SHELVER = "SERVICE_SHELVER"
 SERVICE_NETWORK = "SERVICE_NETWORK"

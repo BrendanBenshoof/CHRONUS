@@ -56,6 +56,24 @@ import hash_util
 from os import path
 import json
 from Queue import Queue
+import time
+
+
+def convert(i):#de-unicodes json
+    if isinstance(i, dict):
+        return {convert(key): convert(value) for key, value in i.iteritems()}
+    elif isinstance(i, list):
+        return [convert(element) for element in i]
+    elif isinstance(i, unicode):
+        return i.encode('utf-8')
+    else:
+        return i
+
+def pack(stuff):
+    return json.dumps(stuff,separators=(',',':'))
+
+def unpack(string):
+    return convert(json.loads(string))
 
 
 SERVICE_CFS = "CFS"
@@ -97,11 +115,11 @@ class KeyFile(object):
     def __str__(self):
         chunklistStrings = map(str,self.chunklist)
         summary = {"name":self.name,"chunklist":chunklistStrings}
-        return json.dumps(summary)
+        return pack(summary)
 
     @classmethod
     def parse(cls,string):
-        summary = json.loads(string)
+        summary = unpack(string)
         k = cls()
         k.name = summary["name"]
         k.chunklist = map(hash_util.Key, summary["chunklist"])
@@ -182,7 +200,7 @@ def readChunk(chunkid):
         raw = ""
         with file(p,"r") as fp:
             raw = fp.read()
-        data = json.loads(raw)
+        data = unpack(raw)
         return Data_Atom(data,chunkid)
 
     else:
@@ -190,8 +208,8 @@ def readChunk(chunkid):
 
 def writeChunk(atom):
     p = path.join(".","chunkStorage",str(atom.hashkeyID)+".chunk")
-    with file(p,"wb") as fp:
-        fp.write(json.dumps(atom.contents))
+    with file(p,"w") as fp:
+        fp.write(pack(atom.contents))
 
 def makeKeyFile(name, chunkgen=locgicalBinaryChunk):
     k = KeyFile()

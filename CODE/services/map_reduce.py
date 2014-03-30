@@ -54,10 +54,6 @@ class Map_Reduce_Service(Service):
             t = Thread(target=self.Mapreduce_worker)
             t.daemon = True
             t.start()
-        for i in range(0,1):
-            t = Thread(target=self.Reduce_worker)
-            t.daemon = True
-            t.start()
         return self.service_id
 
     def handle_message(self, msg):
@@ -73,8 +69,8 @@ class Map_Reduce_Service(Service):
                 #backups.append(msg)
                 #print "sent a backup map"
             elif msg.type==MAP:
-                msg.backup = True
-                self.send_message(msg,node.successor)
+                #msg.backup = True
+                #self.send_message(msg,node.successor)
                 job_todo.put(msg)
             else:
                 job_todo.put(msg)
@@ -115,8 +111,6 @@ class Map_Reduce_Service(Service):
 
         return None
 
-    def send_message(self, msg, dest=None):
-        self.callback(msg, dest)
 
     def change_in_responsibility(self,new_pred_key, my_key):
         return
@@ -139,18 +133,15 @@ class Map_Reduce_Service(Service):
         print X
         jobid = hash_str(to_test)
         jobs = X.stage()
-        jobs_withdest = disribute_fairly(jobs)
+        
         map_func = X.map_func
         reduce_func = X.reduce_func
-        jobs_sent = 0
-        jobs_total = len(jobs)
-        while jobs_sent < jobs_total:
-            for k in jobs_withdest.keys():
-                if len(jobs_withdest[k]) > 0:
-                    msg = Map_Message(jobid,[jobs_withdest[k].pop()], map_func, reduce_func)
-                    msg.reply_to = self.owner
-                    msg.origin = self.owner
-                    self.send_message(msg,k)
+        those_that_remain = self.polite_distribute(jobid, jobs, map_func, reduce_func, self.owner)
+        msg = Map_Message(jobid,those_that_remain, map_func, reduce_func)
+        msg.reply_to = self.owner
+        msg.origin = self.owner
+        self.send_message(msg,self.owner)
+
 
     def Mapreduce_worker(self):
         while True:
@@ -166,39 +157,10 @@ class Map_Reduce_Service(Service):
                 else:
                     reduce_todo.put(newjob)
 
-    def Reduce_worker(self):
-        while True:
-            to_reduce = {}
-            while not reduce_todo.empty():
-                try:
-                    x = reduce_todo.get()
-                    try:
-                        to_reduce[x.jobid].append(x)
-                    except:
-                        to_reduce[x.jobid]= [x]
-                except Queue.Empty:
-                    pass
-            for k in to_reduce.keys():
-                root = to_reduce[k][0]
-                if len(to_reduce[k]) > 1:
-                    for j in range(1,len(to_reduce[k])):
-                            msg = to_reduce[k][j]
-                            jobid = msg.jobid
-                            print "in reduce",jobid
-                            atom1 = msg.dataAtom
-                            root_atom = root.dataAtom
-                            myreduce = msg.reduce_function
-                            root.dataAtom = myreduce(atom1, root_atom)
-                            root.timeingRecord+=msg.timeingRecord
-                self.send_message(root,root.origin)
-            time.sleep(0.1)
-
     def doreduce(self,msg):
             jobid = msg.jobid
             print "in reduce",jobid
             atom = msg.dataAtom
-            if not atom.mapped:
-                print "I am trying to reduce an unmapped atom!"
             myreduce = msg.reduce_function
             if jobid in self.temp_data.keys():
                 self.temp_data[jobid] = myreduce(atom, self.temp_data[jobid])
@@ -210,7 +172,9 @@ class Map_Reduce_Service(Service):
     def domap(self,msg):
         #forward stuff I do not care about first
         jobs = msg.dataset
+        print len(jobs),"cached"
         stuff_to_map = self.polite_distribute(msg.jobid,jobs, msg.map_function, msg.reduce_function, msg.reply_to)
+        print len(stuff_to_map),"I am bothering with"
         starttime = time.time()
         if len(stuff_to_map)>0:
             map_func = msg.map_function
@@ -240,15 +204,11 @@ class Map_Reduce_Service(Service):
                 pass
         jobs_sent = 0
         jobs_total = len(jobs)-len(stuff_to_map)
-        while jobs_sent < jobs_total:
-            for k in forward_dests.keys():
-                if len(forward_dests[k]) > 0:
-                    datatom = forward_dests[k].pop()
-                    msg = Map_Message(jobid,[datatom], map_func, reduce_func)
-                    msg.origin = reply_to
-                    msg.reply_to = reply_to
-                    self.send_message(msg,k)
-                    jobs_sent+=1
+        for k in forward_dests.keys():
+            msg = Map_Message(jobid,forward_dests[k], map_func, reduce_func)
+            msg.origin = reply_to
+            msg.reply_to = reply_to
+            self.send_message(msg,k)
         return stuff_to_map
 
 class Map_Message(Message):

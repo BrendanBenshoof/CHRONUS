@@ -78,7 +78,7 @@ def unpack(string):
 
 SERVICE_CFS = "CFS"
 
-DEFAULT_BLOCK_SIZE = 1024 # bytes
+DEFAULT_BLOCK_SIZE = 1024*8 # bytes
 
 MAX_BLOCK_SIZE = float("inf")
 
@@ -339,7 +339,6 @@ class CFS(Service):
         for k in key.chunks:
             atoms.append(key.chunks[k])
         mystuff = self.polite_distribute(atoms)
-        print mystuff
         for a in mystuff:
             writeChunk(a)
 

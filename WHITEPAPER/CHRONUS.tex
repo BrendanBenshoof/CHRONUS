@@ -175,7 +175,6 @@ ChordReduce leverages the features of distributed hash tables to handle distribu
 
 
 Our central design philosophy was to implement additions to the Chord protocol by leveraging the existing features of Chord.  By treating each task or target computation as an object of data, we can distribute them in the same manner as files and rely on the protocol to route them and provide robustness.
-s
 %ChordReduce is a fully functional Chord implementation in Python, with the same topology and functionality.  Nodes join the ring by contacting an existing node and are integrated into the network  via each node's maintenance cycle.
 
 \begin{figure}
@@ -207,6 +206,8 @@ The node which would normally be responsible for the whole file instead stores a
 
 %%%% How are tasks distributed without a centralized source
 %%%% What is the flow of data
+
+
 \subsection{Decentralized MapReduce and Data Flow} 
 In ChordReduce's implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service acts as both a client and a server.  To start a job, the user contacts a node at a specified hash address and provides it with the tasks.  This address can be chosen arbitrarily or be a known node in the ring. The node at this hash address is designated as the \textit{stager}.  
 
@@ -303,7 +304,7 @@ We ran our experiments on groups of 1, 10, 20, 30, and 40 workers, which generat
 
 We also utilized a subroutine we wrote called $plot$, which sends a message sequentially around the ring to establish how many members there are.  If $plot$ failed to return in under a second, the ring was experiencing structural instability.
 
-\subsection{Results}
+\section{Results}
 
 \begin{figure}
     \includegraphics[width=\linewidth]{expTime}

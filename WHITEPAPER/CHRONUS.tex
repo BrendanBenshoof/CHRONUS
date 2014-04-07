@@ -163,26 +163,48 @@ To do work on Hadoop, the user stores their data on the network.  This is handle
 
 \section{ChordReduce}
 
-\subsubsection*{Carpe Jugularum}
 Popular platforms for MapReduce, such as Hadoop, are extremely powerful, but have some inherent limitations.  
 These platforms are designed to be deployed in a data center.  
-Their architecture relies on multiple nodes to coordinate the work, such as the NameNode and Jobtracker.
-These nodes perform necessary scheduling and distribution tasks and help provide fault-tolerence to the network as a whole, but in doing so become single points of failure themselves.
+Their architecture relies on multiple nodes with specific roles to coordinate the work, such as the NameNode and JobTracker.
+These nodes perform necessary scheduling and distribution tasks and help provide fault-tolerance to the network as a whole, but in doing so become single points of failure themselves.
 
 ChordReduce is designed as a more abstract framework for MapReduce, able to run on any arbitrary distributed configuration.
-ChordReduce leverages the features of distributed hash tables to handle distributed file storage, fault tolerance, and lookup.  We designed ChordReduce to ensure that no single node is a point of failure and that there is no need for any node to coordinate the efforts of other nodes during processing.
+ChordReduce leverages the features of distributed hash tables to handle distributed file storage, fault tolerance, and lookup.  We designed ChordReduce to ensure that no single node is a point of failure and that there is no need for any node to coordinate the efforts of other nodes during processing.  
+
+%ChordReduce uses Chord to act as a completely distributed topology for MapReduce, negating the need to assign any explicit roles to nodes or have a scheduler or coordinator.  ChordReduce does not need to assign specific nodes the task of backing up work; nodes backup their tasks using the same process that would be used for any other data being sent around the ring.  Finally, results work their way back to a specified hash address, rather than a specific hash node, eliminating any single point of failure in the network.  These features help prevent a bottleneck from occurring. The result is a simple, distributed, and highly robust architecture for MapReduce.
 
 
-The design of a distributed file system is closely tied to the design to the implementation of MapReduce.  see \cite{gfs} \cite{hdfs}
+Our central design philosophy was to implement additions to the Chord protocol by leveraging the existing features of Chord. 
 
-\subsubsection*{Other Related Work}
-Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.  However, Marozzo et al. do not explore the benefits of leveraging the properties of a P2P protocol to reduce the complexity of the architecture and completely distribute the responsibility of the task across the network.  As a result, P2P-MapReduce still relies on a ratio of masters to slaves to coordinate and organize the network, meaning a percentage of the network is unable to contribute processing power to the actual solving of a problem.   
+%%%% How is the topology formed
+\subsection{Overlay}
+The ne
 
-Lee et al. \cite{leemap} explores the benefits of building a MapReduce module to run on top of Symphony \cite{symphony},  a P2P protocol.  Unlike Hadoop, this allows the MapReduce tasks to be executed without the need of a central source of coordination by distributing tasks over a bounded broadcast tree created at runtime.  The Symphony based MapReduce architecture would be greatly improved by the addition of components to handle the failure of nodes during execution.  As it stands now, if a node crashes the job will fail due to the loss of data.
 
-While both of these papers have promising results and confirm the capability of our own framework, both solely look at P2P networks for the purpose of routing data and organizing the network. Neither examines using a P2P network as a means of efficiently distributing responsibility throughout the network and using existing features to add robustness to nodes working on Map and Reduce tasks.  
+%%%% How are files distributed and found without the use of any metadata
+\subsection{File Storage}
+The design of a distributed file system is closely tied to the design to the implementation of MapReduce \cite{gfs} \cite{hdfs}.  Our system uses CFS \cite{CFS}, short for Cooperative File System, to store files.  
 
-ChordReduce uses Chord to act as a completely distributed topology for MapReduce, negating the need to assign any explicit roles to nodes or have a scheduler or coordinator.  ChordReduce does not need to assign specific nodes the task of backing up work; nodes backup their tasks using the same process that would be used for any other data being sent around the ring.  Finally, results work their way back to a specified hash address, rather than a specific hash node, eliminating any single point of failure in the network.  These features help prevent a bottleneck from occurring. The result is a simple, distributed, and highly robust architecture for MapReduce.
+Everything in Chord, be it data or a node, is given a hash identifier or key. The ID of a node is the hash of their IP address and port, while the key for a file is the hash of its filename.  In the initial version of Chord, the entire file would be stored in the node with the ID equal or closest upstream to the file's key.
+
+% For more space, add how the author
+Dabek et. al found that by splitting the file into blocks and storing each block in a different node greatly improved the system's load balancing when compared to storing the entire file on a single node\cite{CFS}. ChordReduce implements the same system.  Files are split into approximately equally sized blocks.  Each block is treated as an individual file and is assigned a key equal to the hash of it's contents.  The block is then stored at the node responsible for that key.  
+
+The node which would normally be responsible for the whole file instead stores a \textit{keyfile}.  The keyfile is an ordered list of the keys corresponding to the files' block and is created as the blocks are assigned their respective keys.  When the user wants to retrieve a file, they first obtain the keyfile and then request each block specified in the keyfile.
+
+
+
+%%%% How are tasks distributed without a centralized source
+
+\subsection{Distributing work}
+
+
+%%%% What is the flow of data
+\subsection{Decentralized MapReduce and Data Flow} 
+
+%%%% How is robustness provided
+\subsection{Fault-Tolerance}
+
 
 
 \footnote{2/6/2014:  We could obtain data for jobs in one of two ways:  distribute at runtime (suitable for calculations) or store before hand and operate on them later(useful for actual data like wordcount)}
@@ -202,7 +224,7 @@ ChordReduce uses Chord to act as a completely distributed topology for MapReduce
 
 
 \textit{insert architecture layer diagram }  and \textit{insert work flow diagram.  Chord tree of stage, map , reduce.}
-ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.  The ring as implemented is stable and well organized.  We created various services to run on top the network, such as a file system and distributed web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
+ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.    We created various services to run on top the network, such as a file system and distributed web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
   
 In our implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  Jobs still must start from a single location.  To start a job, the user contacts a node at a specified hash address and provides it with the tasks and data.  This address can be chosen arbitrarily or be a known node in the ring. The node at this hash address is designated as the stager.  
 
@@ -360,6 +382,20 @@ We have identified two papers that focus on combining P2P concepts with MapReduc
 
 %DEFINE ISSUES OF CHURN AND RELIABLILITY
 
+
+%\subsubsection*{Other Related Work}
+%Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.  However, Marozzo et al. do not explore the benefits of leveraging the properties of a P2P protocol to reduce the complexity of the architecture and completely distribute the responsibility of the task across the network.  As a result, P2P-MapReduce still relies on a ratio of masters to slaves to coordinate and organize the network, meaning a percentage of the network is unable to contribute processing power to the actual solving of a problem.   
+
+%Lee et al. \cite{leemap} explores the benefits of building a MapReduce module to run on top of Symphony \cite{symphony},  a P2P protocol.  Unlike Hadoop, this allows the MapReduce tasks to be executed without the need of a central source of coordination by distributing tasks over a bounded broadcast tree created at runtime.  The Symphony based MapReduce architecture would be greatly improved by the addition of components to handle the failure of nodes during execution.  As it stands now, if a node crashes the job will fail due to the loss of data.
+
+%While both of these papers have promising results and confirm the capability of our own framework, both solely look at P2P networks for the purpose of routing data and organizing the network. Neither examines using a P2P network as a means of efficiently distributing responsibility throughout the network and using existing features to add robustness to nodes working on Map and Reduce tasks.  
+
+%ChordReduce uses Chord to act as a completely distributed topology for MapReduce, negating the need to assign any explicit roles to nodes or have a scheduler or coordinator.  ChordReduce does not need to assign specific nodes the task of backing up work; nodes backup their tasks using the same process that would be used for any other data being sent around the ring.  Finally, results work their way back to a specified hash address, rather than a specific hash node, eliminating any single point of failure in the network.  These features help prevent a bottleneck from occurring. The result is a simple, distributed, and highly robust architecture for MapReduce.
+
+
+
+
+
 \subsection{P2P-MapReduce}
 Marozzo et al. \cite{marozzo2012p2p} investigated the issue of fault tolerance in centralized MapReduce architectures such as Hadoop.  They focused on creating a new P2P based MapReduce architecture built on JXTA \cite{935182} called P2P-MapReduce.  P2P-MapReduce is designed to be more robust at handling node and job failures during execution.
 
@@ -392,7 +428,7 @@ We presented ChordReduce, a framework for MapReduce that is completely decentral
 
 Using Chord as the middleware for ChordReduce establishes its effectiveness for distributed and concurrent computation.
 The effectiveness of Chord opens up new approaches for tackling other distributed problems, such as supporting databases and machine learning for Big Data, and exascale computations. We intend to further optimize the performance of ChordReduce and extend the middleware to other applications.
-
+\subsection{Optimizations}
 
 
 

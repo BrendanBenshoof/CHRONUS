@@ -205,37 +205,20 @@ Dabek et. al found that by splitting the file into blocks and storing each block
 
 The node which would normally be responsible for the whole file instead stores a \textit{keyfile}.  The keyfile is an ordered list of the keys corresponding to the files' block and is created as the blocks are assigned their respective keys.  When the user wants to retrieve a file, they first obtain the keyfile and then request each block specified in the keyfile.
 
-
-
 %%%% How are tasks distributed without a centralized source
 %%%% What is the flow of data
 \subsection{Decentralized MapReduce and Data Flow} 
-In ChordReduce's implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service will act as both a client and a server.  Jobs still must start from a single location.  To start a job, the user contacts a node at a specified hash address and provides it with the tasks.  This address can be chosen arbitrarily or be a known node in the ring. The node at this hash address is designated as the \textit{stager}.  
+In ChordReduce's implementation of MapReduce, each node takes on responsibilities of both a worker and master, much in the same way that a node in a P2P file-sharing service acts as both a client and a server.  To start a job, the user contacts a node at a specified hash address and provides it with the tasks.  This address can be chosen arbitrarily or be a known node in the ring. The node at this hash address is designated as the \textit{stager}.  
 
-The job of the stager is to take the work and divide it into \emph{data atoms}, which are the smallest individual units that work can be done on. This might represent a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.  
+The job of the stager divide the work into \emph{data atoms}, which define the smallest individual units that work can be done on. This might represent block of text, the result of a summation for a particular intermediate value, or a subset of items to be sorted. The specifics of how to divide the work are defined by the user in a \emph{stage} function.  The data atoms also contain the Map and Reduce functions defined by the user.
 
- 
-
-
+If the user wants to perform a MapReduce job over data on the network, the stager locates the keyfile for the data and creates a data atom for each block in the file.  Each data atom is then sent to the node responsible for their corresponding block.  When the data atom reaches it's destination node, that node retrieves the necessary data and applies the Map function.  The results are stored in a new data atom,  which are then sent back to the stager's hash address (or some other user defined address).  This will take $\log_{2} n$ hops traveling over Chord's fingers.  At each hop, the node waits a predetermined minimal amount of time to accumulate additional results (In our experiments, this was 100 milliseconds).  Nodes that receive at least two results merge them using the Reduce function.  The results are continually merged until only one remains at the hash address of the stager. 
 
 
-
-If the user wants to perform a MapReduce job on data    The data atom's contents here are simply which block is going to used in the computation.
-
-%The job of the stager is to take the work and divide it into \emph{data atoms}, which are the smallest individual units that work can be done on.  This might be a line of text in a document, the result of a summation for a particular intermediate value, or a subset of items to be sorted.   
-
-%The specifics of how to divide the work are defined by the user in a \emph{stage} function.  The data atoms are then each given a random hash and sent to the node responsible for that hash address, guaranteeing they are evenly distributed throughout the network.  The data atoms also contain the Map function and Reduce function as defined by the user.  A job ID is also included, so that data atoms from different jobs can be differentiated.  Once the data atoms are sent out, the stager's job is done and it behaves like any other node in the network. The staging period is the only time ChordReduce is vulnerable to churn, and only if the stager leaves the ring in the middle of sending out data atoms.  The user would get some results back, but only for the data the stager managed to send out.
+MapReduce jobs don't rely on a file stored on the network, such as a Monte-Carlo approximation, create data atoms specified by the user stage function in the stage function.  The data atoms are then each given a random hash and sent to the node responsible for that hash address, guaranteeing they are evenly distributed throughout the network. From there, the execution is identical to the above scenario.
 
 
-
-Rather than sending each Data Atom individually, the stager divides the data atoms into a collection corresponding to each finger and sends them to that finger. 
-
-
-Nodes that receive data atoms apply the Map function to the data to create result data atoms, which are then sent back to the stager's hash address (or some other user defined address).  This will take $\log_{2} n$ hops traveling over Chord's fingers.  At each hop, the node waits a predetermined minimal amount of time to accumulate additional results (In our experiments, this was 100 milliseconds).
-
-Nodes that receive at least two results merge them using the Reduce function.  The results are continually merged until only one remains at the hash address of the stager. 
-
-
+%Once the data atoms are sent out, the stager's job is done and it behaves like any other node in the network. The staging period is the only time ChordReduce is vulnerable to churn, and only if the stager leaves the ring in the middle of sending out data atoms.  The user would get some results back, but only for the data the stager managed to send out.
 
 Once all the Reduce tasks are finished, the user retrieves his results from the node at the stager's address.  This may not be the stager himself, as the stager may no longer be in the network.  The stager does not need to collect the results himself, since the work is sent to the stager's hash address, rather than the stager itself.  Thus, the stager could quit the network after staging, and both the user and the network would be unaffected by the change. % Here, we are leverging two features. First, we use the automatic assignment of responsibility to automatically route the data to the sucessor.  %Second, the same process Chord uses to backup files is used to backup the intermediate data. 
 
@@ -249,26 +232,19 @@ All a developer needs to do is write three functions: the staging function, Map,
 
 %%%% How is robustness provided
 \subsection{Fault-Tolerance}
+Due to the potentially volatile nature of a peer-to-peer network, ChordReduce has to be able to handle an arbitrary amount of churn. When a node fails or leaves Chord, the failed node's successor will become responsible for all of the failed nodes keys. As a result, each node in the ChordReduce network relies on their successor to act as a backup.  
 
-Due to the potentially volatile nature of a peer-to-peer network, Chord has to be able to handle (or at the very least, tolerate) an arbitrary amount of churn.  Section II described how Chord gradually guides nodes into their correct locations after they join the network.  The same is true for when a node leaves the network; the stabilize procedure will guide nodes to their correct successors and predecessors.  However, we can exert more control over how to handle nodes leaving the network.
+To prevent data from becoming irretrievable, each node periodically sends backups to its successor.  In order to prevent a cascade of backups of backups, the node only passes along what it considers itself responsible for.  What a node is responsible for changes as nodes enter and leave the network.  If a node's successor leaves, the node sends a backup to his new successor.  If the node fails, the successor is able to take his place almost immediately.  This scheme is used to not only backup files, but the Map and Reduce tasks and data atoms as well.
 
-When a node $n$ changes his successor, $n$ asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is responsible for and sends it to $n$.  The successor does not have to delete this data. In fact, keeping this data as a backup is beneficial to the network as a whole, as $n$ could decide to leave the network at any point. 
+This procedure prevents any single node failure or sequences of failures from harming the network. Only the failure of multiple neighboring nodes poses a threat to the network's integrity.  Furthermore, since a node's ID in the network does not map to a geographical location, any failure that affects multiple nodes simultaneously will be spread uniformly throughout, rather than hitting successive nodes.  This means if successive nodes to fail simultaneously, they did so independently.
 
-Chord specifies two ways a node can leave the ring.  A node can either suddenly drop out of existence, or a node can tell the network he is about to leave, letting his successor and predecessor immediately perform the needed changes.
-
-When a node politely quits, he informs both his successor and predecessor and gives them all the information they need to fill the resulting gap. He also sends all of the data he is responsible for to his successor, who becomes responsible for that data when the node leaves.  Fingers that pointed to that node would be corrected during the finger maintenance period.  This allows for the network to adjust to churn with a minimum of overhead.
-
-It is unlikely that every time a node leaves the network, it will do so politely.  If a node suddenly quits, the data it had stored is lost. To prevent data from becoming irretrievable, a node periodically sends backups to its successor.  In order to prevent a cascade of backups of backups, the node only passes along what it considers itself responsible for.  What a node is responsible for changes as nodes enter and leave the network.  If a node's successor leaves, the node sends a backup to his new successor. 
-
-Our prototype framework does not implement a polite disconnect;  when a node quits, it does so quickly and abruptly.  This design ensures that the  system would be able to handle churn under the worst of cases.  Polite quit could be implemented quite easily.
+This concept can be extended to provide additional robustness.  Suppose that each node has failure rate $r < 1$ and that the each node backs up their data with $s$ successive nodes downstream. If one of these nodes fail, the next successive node takes its place and the next upstream node becomes another backup. This ensures there will always be $s$ backups. The integrity of the ring would only be jeopardized if $s+1$ successive nodes failed almost simultaneously, before the maintenance cycle would have a chance to correct for the failed nodes.  The chances of such an event would be $r^s+1$, as each failure would be independent \textit{I think the citation is CFS}.
 
 
+A final consequence of this is load-balancing during runtime.  As new nodes enter the network, they change their successor as the maintenance  ycle guides them into the correct location in the ring.  When a node $n$ changes his successor, $n$ asks if the successor is holding any data $n$ should be responsible for.  The successor looks at all the data $n$ is responsible for and sends it to $n$.  The successor maintains this data as a backup for $n$.  Because Map tasks are backed up in the same manner as data, a node can take the data and corresponding tasks he's responsible for and begin performing Map tasks immediately.
 
 
-
-
-
-\footnote{2/6/2014:  We could obtain data for jobs in one of two ways:  distribute at runtime (suitable for calculations) or store before hand and operate on them later(useful for actual data like wordcount)}
+%\footnote{2/6/2014:  We could obtain data for jobs in one of two ways:  distribute at runtime (suitable for calculations) or store before hand and operate on them later(useful for actual data like wordcount)}
 
 
 

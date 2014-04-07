@@ -177,6 +177,8 @@ ChordReduce leverages the features of distributed hash tables to handle distribu
 Our central design philosophy was to implement additions to the Chord protocol by leveraging the existing features of Chord.  By treating each task or target computation as an object of data, we can distribute them in the same manner as files and rely on the protocol to route them and provide robustness.
 %ChordReduce is a fully functional Chord implementation in Python, with the same topology and functionality.  Nodes join the ring by contacting an existing node and are integrated into the network  via each node's maintenance cycle.
 
+
+
 \begin{figure}
     \includegraphics[width=\linewidth]{crArch}
     \caption{The basic architecture of a node in ChordReduce.  MapReduce runs as a service on top of each node.}
@@ -184,8 +186,7 @@ Our central design philosophy was to implement additions to the Chord protocol b
 \end{figure}
 
 
-ChordReduce  is similar to blank and blank
-
+Marozzo et al. \cite{marozzo2012p2p} shows that adding additional fault-tolerance features to a MapReduce architecture is worth the added cost of maintenance, as the time lost due to node failures is greatly reduced.
 
 \textit{insert architecture layer diagram }  and \textit{insert work flow diagram.  Chord tree of stage, map , reduce.}
 %ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.    We created various services to run on top the network, such as a file system and distributed web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
@@ -267,7 +268,6 @@ Finally, to demonstrate robustness, we need to show that ChordReduce can handle 
 \subsection{Experimental Deployment}
 We built a fully functional prototype of ChordReduce in python.  One difficulty with Hadoop is the installation an configuration of the software on arbitrary machines;  our design is intended to be as quick to deploy as possible. 
 
-
 We ran our experiments using Amazon's Elastic Compute Cloud (EC2) service.  Amazon EC2 allows users to purchase an arbitrary number of virtual machines and pay for the machines by the hour. Each node was an individual EC2 small instance \cite{amazon-instances} with a Ubuntu 12.04 image preconfigured with Git and a small startup script which retrieves the latest version of the code when the node is booted..  
 
 \subsubsection*{Instrumentation Node}
@@ -277,13 +277,6 @@ We created an additional node to help configure the experiment, which we call th
 
 The configurer does not actively participate in computing or distributing the work.  We use it to modify the experimental variables in each node without having to shutdown the node or instance. We also use it to simulate the effects of churn on the network.
 
-
-ChordReduce is a fully functional Chord implementation in Python.  Our installation was designed to be as simple as possible.  It consists of downloading our code \cite{code} and running chord.py.  A user can specify a port and IP of a node in the ring they wish to join.  The node will automatically integrate into the ring with this minimal information.  The ring as implemented is stable and well organized.  We created various services to run on top the network, such as a file system and distrubuted web server.  Our file system is capable of storing whole files or splitting the file up among multiple nodes the ring.  Our MapReduce module is a service that runs on top of our Chord implementation, similar to the file system (Fig. \ref{crArch}).  We avoided any complicated additions to the Chord architecture; instead we used the protocol's properties to create the features we desired in our MapReduce framework. 
-
-
-
-
-
 \subsection{Setup}
 
 \begin{figure}
@@ -291,6 +284,12 @@ ChordReduce is a fully functional Chord implementation in Python.  Our installat
     \caption{The "dartboard." The computer throws a dart by choosing a random $x$ and $y$ between 0 and 1.  If $x^{2} + y^{2} < 1^{2} $, the dart landed inside the circle.  $A$ and $B$ are darts that landed inside the circle, while $C$ did not.}
     \label{dartboard}
 \end{figure}
+
+
+
+
+We ran two different experiments on
+
 
 To stress test our framework, we ran a Monte-Carlo approximation of $\pi$. This process is largely analogous to having a square with the top-right quarter of a circle going through it (Fig. \ref{dartboard}), and then throwing darts at random locations.  Counting the ratio of darts that land inside the circle to the total number of throws gives us an approximation of $\frac{\pi}{4}$.  The more darts thrown, i.e. the more samples that are taken, the more accurate the approximation\footnote{This is not intended to be a particularly good approximation of $\pi$. Each additional digit of accuracy requires increasing the number of samples taken by an order of magnitude.}.
 

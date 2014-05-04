@@ -171,20 +171,23 @@ The Cooperative File System runs on top of Chord.
 \end{frame}
 
 
-\begin{frame}{Fault Tolerance}
-	\item Each
-	\item When a successor detects a predecessor  
+\begin{frame}{Fault Tolerance of Map Jobs}
+\begin{itemize}
+	\item Each node backups their map tasks; removes it when the task is processed.
+	\item If the immediate successor detects the node's failure, it takes over the task.
 	\item If a node detects a new predecessor responsible for a key and map task pair in it's queue, it sends it to the predecessor.
 	\item This allows node to further distribute the work during execution.
-
+\end{itemize}
 \end{frame}
 
 
 
-\begin{frame}{Fault Tolerance}
+\begin{frame}{Fault Tolerance of Reduces}
 \begin{itemize}
+	\item Individual reduces are backed up in a similar manner; if the original holder of the reduce fails before the reduce is sent, his successor sends his backup.
 	\item Results are sent back to a key, rather than to a specific node.
-	\item Results are backed up to 
+	\item Results can be sent back via the overlay, or by initiating a direct connection.
+	\item If a node receives multiple reduce results, they reduced into one before being sent along.
 \end{itemize}
 \end{frame}
 
@@ -192,15 +195,23 @@ The Cooperative File System runs on top of Chord.
 
 \section{Experiments}
 
-
+\subsection{Experiment Details}
 \begin{frame}{Experiments}
 Stuff about Chord
 \end{frame}
 
-\begin{frame}{Summary of results}
+\begin{frame}{Instrumentation Node}
 Stuff about Chord
 \end{frame}
 
+
+\subsection{Results}
+
+\begin{frame}{Summary of Results}
+Stuff about Chord
+\end{frame}
+
+\subsection{Conclusions}
 
 \begin{frame}
 Questions?

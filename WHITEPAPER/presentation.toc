@@ -8,3 +8,6 @@
 \beamer@subsectionintoc {2}{3}{CFS}{9}{0}{2}
 \beamer@subsectionintoc {2}{4}{MapReduce Module}{11}{0}{2}
 \beamer@sectionintoc {3}{Experiments}{15}{0}{3}
+\beamer@subsectionintoc {3}{1}{Experiment Details}{15}{0}{3}
+\beamer@subsectionintoc {3}{2}{Results}{17}{0}{3}
+\beamer@subsectionintoc {3}{3}{Conclusions}{18}{0}{3}

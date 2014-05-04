@@ -1,0 +1,10 @@
+\beamer@endinputifotherversion {3.33pt}
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Background}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Goals}{4}{0}{1}
+\beamer@sectionintoc {2}{ChordReduce}{5}{0}{2}
+\beamer@subsectionintoc {2}{1}{System Architecture}{6}{0}{2}
+\beamer@subsectionintoc {2}{2}{Chord}{7}{0}{2}
+\beamer@subsectionintoc {2}{3}{CFS}{9}{0}{2}
+\beamer@subsectionintoc {2}{4}{MapReduce Module}{11}{0}{2}
+\beamer@sectionintoc {3}{Experiments}{15}{0}{3}

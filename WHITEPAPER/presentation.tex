@@ -1,0 +1,211 @@
+\documentclass[11pt]{beamer}
+\usetheme{Warsaw}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\author[Andrew Rosen]{Andrew Rosen \qquad Brendan Benshoof \qquad Robert W. Harrison \qquad Anu G. Bourgeois}
+\title{MapReduce on a Chord Distributed Hash Table}
+%\setbeamercovered{transparent} 
+%\setbeamertemplate{navigation symbols}{} 
+%\logo{} 
+%\institute{} 
+\date{} 
+%\subject{} 
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\subsection{Background}
+\begin{frame}{Background}
+
+\begin{itemize}
+	\item Google's MapReduce \cite{mapreduce} paradigm is integral to data processing.
+	\item Popular platforms for MapReduce, such as Hadoop \cite{hadoop}, are designed to be used in datacenters with a degree of centralization.  
+	\item Until recently, analysis and optimization of MapReduce has largely remained constrained to that context.
+\end{itemize}
+
+\end{frame}
+
+\subsection{Goals}
+\begin{frame}{Goals}
+
+
+\begin{itemize}
+	\item We wanted build a more abstract system for MapReduce.
+	\item We remove core assumptions \cite{hadoopAssumptions}:
+	\begin{itemize}
+		\item The system is centralized.
+		\item Processing occurs in a static network.
+	\end{itemize}
+	\item The resulting system must be:
+	\begin{itemize}
+		\item Fault tolerant.
+		\item Scalable.
+		\item Completely decentralized.
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\section{ChordReduce}
+
+
+\begin{frame}{Features of ChordReduce}
+
+ChordReduce is a decentralized framework for distributed computing:
+\begin{itemize}
+	\item Scalable.
+	\item Load-Balancing.
+	\item Decentralized:
+	\begin{itemize}
+		\item No centralized node is needed to maintain metadata.
+		\item No central coordinator for tasks.
+	\end{itemize}
+	\item Fault tolerant:
+	\begin{itemize}
+		\item The loss of multiple nodes does not impact integrity.
+		\item The network can withstand numerous simultaneous faults.
+		\item Nodes in the network autonomously repair damage.
+	\end{itemize}
+	
+\end{itemize}
+
+\end{frame}
+
+
+
+\subsection{System Architecture}
+\begin{frame}{System Architecture}
+ChordReduce has three layers
+\begin{itemize}
+	\item Chord \cite{Chord}, which handles routing and lookup.
+	\item The Cooperative File System (CFS) \cite{CFS}, which handles storage and data replication.
+	\item MapReduce.
+\end{itemize}
+
+\end{frame}
+
+\subsection{Chord}
+
+\begin{frame}{Chord}
+Chord is a distributed hash table (DHT), where the nodes in the network are arranged in a ring overlay.
+\begin{itemize}
+	\item Nodes and files are assigned a $m$-bit key.
+	\item Chord gives a high probability $\log_{2} N$ lookup time for any key.
+	\item Nodes know their predecessors and successors in the ring.
+	\item Nodes also maintain a table of $m$ shortcuts, called fingers.
+	\item Nodes are responsible for files with keys between their predecessor's and theirs.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{A Chord Network}
+\begin{figure}
+    \includegraphics[width=0.6\linewidth]{chordreal}
+    \caption{A Chord ring 16 nodes where $m=4$.}
+    \label{chordreal}
+\end{figure}
+\end{frame}
+
+\subsection{CFS}
+\begin{frame}{CFS}
+The Cooperative File System runs on top of Chord.
+
+\begin{itemize}
+	\item Files are split up, each block given a key based on their contents.
+	\item Each block is stored according to their key.
+	\item The hashing process guarantees that the keys are distributed near evenly among nodes.
+	\item A keyfile is created and stored where the whole file would have been found.
+	\item To retrieve a file, the node gets the keyfile and sends a request for each block listed in the keyfile.
+\end{itemize}
+\end{frame}
+\begin{frame}{Fault Tolerance}
+
+\begin{itemize}
+	\item Each node maintains a list of its $s$ closest successors.
+	\item Nodes back up data they're responsible for to their successors.
+	\item When a node's predecessor fails, the node can immediately take over.
+	\item The network will only lose data if $s+1$ successive nodes fail simultaneously.
+	\item The chances of this are $r^{s+1}$, where $r$ is the failure rate.
+\end{itemize}
+
+\end{frame}
+
+
+
+
+
+
+\subsection{MapReduce Module}
+
+\begin{frame}{Starting a MapReduce Job}
+\begin{itemize}
+	\item Jobs can be started at an arbitrary node, denoted the \emph{stager}.
+	\item The stager retrieves the keyfile and sends a map task for each key.
+	\begin{itemize}
+		\item This process can be streamlined recursively by bundling keys and sending them to the best finger.
+		\item The resulting flow of data resembles a tree \cite{leemap}.
+	\end{itemize}
+	\item Once the stager has sent a map to every node, its job is done.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Data Flow}
+\begin{itemize}
+	\item Distributed tasks
+	\item Return address
+\end{itemize}
+ 
+\end{frame}
+
+
+\begin{frame}{Fault Tolerance}
+	\item Each
+	\item When a successor detects a predecessor  
+	\item If a node detects a new predecessor responsible for a key and map task pair in it's queue, it sends it to the predecessor.
+	\item This allows node to further distribute the work during execution.
+
+\end{frame}
+
+
+
+\begin{frame}{Fault Tolerance}
+\begin{itemize}
+	\item Results are sent back to a key, rather than to a specific node.
+	\item Results are backed up to 
+\end{itemize}
+\end{frame}
+
+
+
+\section{Experiments}
+
+
+\begin{frame}{Experiments}
+Stuff about Chord
+\end{frame}
+
+\begin{frame}{Summary of results}
+Stuff about Chord
+\end{frame}
+
+
+\begin{frame}
+Questions?
+\end{frame}
+
+\bibliographystyle{IEEEtran}
+\bibliography{CHRONUS}
+\end{document}

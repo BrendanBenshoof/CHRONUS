@@ -164,8 +164,8 @@ The Cooperative File System runs on top of Chord.
 
 \begin{frame}{Data Flow}
 \begin{itemize}
-	\item Distributed tasks
-	\item Return address
+	\item Results can be sent back via the overlay, or by initiating a direct connection.
+	\item If a node receives multiple reduce results, they reduced into one before being sent along.
 \end{itemize}
  
 \end{frame}
@@ -186,8 +186,7 @@ The Cooperative File System runs on top of Chord.
 \begin{itemize}
 	\item Individual reduces are backed up in a similar manner; if the original holder of the reduce fails before the reduce is sent, his successor sends his backup.
 	\item Results are sent back to a key, rather than to a specific node.
-	\item Results can be sent back via the overlay, or by initiating a direct connection.
-	\item If a node receives multiple reduce results, they reduced into one before being sent along.
+	\item This ensures that if node receiving the data fails, his successor will take over.
 \end{itemize}
 \end{frame}
 
@@ -197,10 +196,6 @@ The Cooperative File System runs on top of Chord.
 
 \subsection{Experiment Details}
 \begin{frame}{Experiments}
-Stuff about Chord
-\end{frame}
-
-\begin{frame}{Instrumentation Node}
 Stuff about Chord
 \end{frame}
 

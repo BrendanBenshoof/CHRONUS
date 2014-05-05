@@ -194,21 +194,95 @@ The Cooperative File System runs on top of Chord.
 
 \section{Experiments}
 
-\subsection{Experiment Details}
-\begin{frame}{Experiments}
-Stuff about Chord
+\subsection{Experiments}
+\begin{frame}{Experiment Goals}
+We wanted to confirm that ChordReduce met our goals:
+
+\begin{itemize}
+    \item ChordReduce provides significant speedup during a distributed job.
+    \item ChordReduce scales.
+    \item ChordReduce handles churn during execution.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Experiment Details}
+Our initial test was a Monte Carlo approximation of $\pi$.
+
+\begin{itemize}
+	\item Map jobs were sent to randomly generated hash addresses.
+	\begin{itemize}
+		\item Map consisted of generating random coordinates from 0 to 1.
+		\item ``Hits'' were defined as $x^{2} + y^{2} < 1^{2}$.
+		\item The results were hits and total numbers generated.
+	\end{itemize}
+	\item Reducing the results was a matter of combining the two fields.
+	\item The ratio of hits to generated results approximates $\frac{\pi}{4}$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Variables}
+We ran the experiment using Amazon's Elastic Cloud Compute \cite{amazon-instances} and varied the following:
+	\begin{itemize}
+		\item Network size.
+		\item Problem size.
+		\item Rate of churn.
+	\end{itemize}
 \end{frame}
 
 
 \subsection{Results}
 
-\begin{frame}{Summary of Results}
-Stuff about Chord
+
+\begin{frame}
+\begin{figure}
+    \includegraphics[width=0.65\linewidth]{expTime}
+    \caption{For a sufficiently large job, it was almost always preferable to distribute it.  When the job is too small, such as with the $10^{7}$ data set, our runtime is dominated by the overhead.  Our results are what we would expect when overhead grows logarithmically to the number of workers.}
+    \label{expTime}
+\end{figure}
+
 \end{frame}
+
+\begin{frame}{Churn Results}
+\begin{table}
+    \centering
+    \begin{tabular}{|r|r|r|} 
+        \hline 
+        Churn rate per second & Average runtime (s) & Speedup vs 0\% churn\\ \hline{}
+        0.8\% & 191.25 & 2.15 \\ \hline
+        0.4\% & 329.20 & 1.25 \\ \hline
+        0.025\% & 431.86 & 0.95 \\ \hline 
+        0.00775\%  & 445.47 & 0.92 \\ \hline 
+        0.00250\% & 331.80  &  1.24 \\ \hline 
+        0\% & 441.57 & 1.00 \\ \hline
+    \end{tabular}
+    \caption{The results of calculating $\pi$ by generating $10^8$ samples under churn. Churn is the chance for each node to join or leave the network. The large speedup is from joining nodes acquiring work during experimental runtime.} 
+    \label{churnSpeed}
+\end{table}
+
+\end{frame}
+
+
+
 
 \subsection{Conclusions}
 
-\begin{frame}
+\begin{frame}{Conclusions}
+Our experiments established:
+\begin{itemize}
+	\item ChordReduce can operate under high rates of churn.
+	\item Execution follows the desired logarithmic speedup.
+	\item Speedup occurs on all problem sizes.
+\end{itemize}
+
+This makes ChordReduce an excellent platform for distributed and concurrent programming in cloud and loosely coupled environments.
+
+\end{frame}
+
+
+\begin{frame}{}
 Questions?
 \end{frame}
 

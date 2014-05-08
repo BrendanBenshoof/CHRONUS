@@ -9,8 +9,13 @@
 \title{MapReduce on a Chord Distributed Hash Table}
 %\setbeamercovered{transparent} 
 %\setbeamertemplate{navigation symbols}{} 
-%\logo{} 
-%\institute{} 
+%\pgfdeclareimage[height=0.5cm]{university-logo}{flame}
+%\logo{\pgfuseimage{university-logo}}
+
+\institute[Georgia State University]{Department of Computer Science\\
+  Georgia State University} 
+\titlegraphic{\vspace*{-1cm}\includegraphics[width=3cm]{flame}}
+
 \date{} 
 %\subject{} 
 \begin{document}
@@ -114,9 +119,9 @@ ChordReduce has three layers:
 \begin{frame}{Chord}
 Chord is a peer-2-peer lookup service, where the nodes in the network are arranged in a ring overlay.
 \begin{itemize}
-	\item Nodes and files are assigned a $m$-bit key.
-	\item Nodes know their predecessors and successors in the ring.
-	\item Nodes are responsible for files with keys between their predecessor's and theirs.
+	\item Nodes and files are assigned an $m$-bit key (typically $m=160$).
+	\item Nodes know their predecessor and successor in the ring.
+	\item Nodes are responsible for files with keys between their predecessor's key and their own key.
 	\item To speed routing, nodes maintain a table of $m$ shortcuts, called fingers.
 	\item The fingers allow a high probability $\log_{2} N$ lookup time for any key.
 	
@@ -128,7 +133,7 @@ Chord is a peer-2-peer lookup service, where the nodes in the network are arrang
 \begin{frame}{A Chord Network}
 \begin{figure}
     \includegraphics[width=0.55\linewidth]{CR_overlay}
-    \caption{An 8-node Chord ring where $m=8$.  Node 34's fingers are shown.}
+    \caption{An 8-node Chord ring where $m=8$.  Node 24's fingers are shown.}
     \label{chordreal}
 \end{figure}
 \end{frame}
@@ -151,8 +156,7 @@ The Cooperative File System runs on top of Chord.
 	\item Each node maintains a list of its $s$ closest successors.
 	\item Nodes back up data they're responsible for to their successors.
 	\item When a node's predecessor fails, the node can immediately take over.
-	\item The network will only lose data if $s+1$ successive nodes fail simultaneously.
-	\item The chances of this are $r^{s+1}$, where $r$ is the failure rate.
+	\item If a node detects a new predecessor, it sends the predecessor all the data it should be responsible for.
 \end{itemize}
 
 \end{frame}
@@ -164,39 +168,39 @@ The Cooperative File System runs on top of Chord.
 
 \subsection{MapReduce Module}
 
-\begin{frame}{Starting a MapReduce Job}
-\begin{itemize}
-	\item Jobs can be started at an arbitrary node, denoted the \emph{stager}.
-	\item The stager retrieves the keyfile and sends a map task for each key.
-	\item This process can be streamlined recursively by bundling keys and sending them to the best finger.
-	\item Once the stager has sent a map to every node, its job is done.
-\end{itemize}
-\end{frame}
+%\begin{frame}{Starting a MapReduce Job}
+%\begin{itemize}
+%	\item Jobs can be started at an arbitrary node, denoted the \emph{stager}.
+%	\item The stager retrieves the keyfile and sends a map task for each key.
+%	\item This process can be streamlined recursively by bundling keys and sending them to the best finger.
+%	\item Once the stager has sent a map to every node, its job is done.
+%\end{itemize}
+%\end{frame}
 
 
-\begin{frame}{Data Flow}
-\begin{itemize}
-	\item Results can be sent back via the overlay, or by initiating a direct connection.
-	\item If a node receives multiple reduce results, they are reduced into one before being sent along.
-\end{itemize}
+%\begin{frame}{Data Flow }
+%\begin{itemize}
+%	\item Results can be sent back via the overlay, or by initiating a direct connection.
+%	\item If a node receives multiple reduce results, they are reduced into one before being sent along.
+%\end{itemize}
  
-\end{frame}
+%\end{frame}
 
 
 
-\begin{frame}{Data Flow Example}
+\begin{frame}{Mapping Data}
 \begin{figure}
-    \includegraphics[width=0.50\linewidth]{CR_dataflow2}
+    \includegraphics[width=0.48\linewidth]{CR_dataflow2}
     \caption{ \footnotesize{The stager sends a map task for each key in the keyfile. In larger networks, this process is streamlined by recursively bundling keys and sending them to the best finger.}}
 	
 \end{figure}
 \end{frame}
 
 
-\begin{frame}{Data Flow Example}
+\begin{frame}{Reducing Results}
 \begin{figure}
-    \includegraphics[width=0.85\linewidth]{CR_dataflow3}
-
+    \includegraphics[width=0.50\linewidth]{CR_dataflow3}
+    \caption{Results are sent back via the overlay. If a node receives multiple results, they are reduced.}
 \end{figure}
 \end{frame}
 
@@ -307,7 +311,7 @@ We ran the experiment using Amazon's Elastic Cloud Compute \cite{amazon-instance
 Our experiments established:
 \begin{itemize}
 	\item ChordReduce can operate under high rates of churn.
-	\item Execution follows the desired logarithmic speedup.
+	\item Execution follows the desired speedup.
 	\item Speedup occurs on sufficiently large problem sizes.
 \end{itemize}
 

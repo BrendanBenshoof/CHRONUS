@@ -66,6 +66,11 @@ ChordReduce is a decentralized framework for distributed computing:
 \begin{itemize}
 	\item Scalable.
 	\item Load-Balancing.
+	\begin{itemize}
+		\item Data and tasks are evenly distributed across the network.
+		\item Joining nodes are automatically assigned data and tasks.
+	\end{itemize}
+	
 	\item Decentralized:
 	\begin{itemize}
 		\item No centralized node is needed to maintain metadata.
@@ -74,8 +79,7 @@ ChordReduce is a decentralized framework for distributed computing:
 	\item Fault tolerant:
 	\begin{itemize}
 		\item The loss of multiple nodes does not impact integrity.
-		\item The network can withstand numerous simultaneous faults.
-		\item Nodes in the network autonomously repair damage.
+		\item The network can adjust to churn, the effects of nodes entering and leaving.
 	\end{itemize}
 	
 \end{itemize}
@@ -86,25 +90,36 @@ ChordReduce is a decentralized framework for distributed computing:
 
 \subsection{System Architecture}
 \begin{frame}{System Architecture}
-ChordReduce has three layers
+ChordReduce has three layers:
 \begin{itemize}
 	\item Chord \cite{Chord}, which handles routing and lookup.
 	\item The Cooperative File System (CFS) \cite{CFS}, which handles storage and data replication.
-	\item MapReduce.
+	\item The MapReduce layer.
 \end{itemize}
 
 \end{frame}
 
+
+
+\begin{frame}{System Architecture}
+\begin{figure}
+    \includegraphics[width=0.8\linewidth]{CR_architecture}
+
+\end{figure}
+\end{frame}
+
+
 \subsection{Chord}
 
 \begin{frame}{Chord}
-Chord is a distributed hash table (DHT), where the nodes in the network are arranged in a ring overlay.
+Chord is a peer-2-peer lookup service, where the nodes in the network are arranged in a ring overlay.
 \begin{itemize}
 	\item Nodes and files are assigned a $m$-bit key.
-	\item Chord gives a high probability $\log_{2} N$ lookup time for any key.
 	\item Nodes know their predecessors and successors in the ring.
-	\item Nodes also maintain a table of $m$ shortcuts, called fingers.
 	\item Nodes are responsible for files with keys between their predecessor's and theirs.
+	\item To speed routing, nodes maintain a table of $m$ shortcuts, called fingers.
+	\item The fingers allow a high probability $\log_{2} N$ lookup time for any key.
+	
 \end{itemize}
 
 
@@ -112,8 +127,8 @@ Chord is a distributed hash table (DHT), where the nodes in the network are arra
 
 \begin{frame}{A Chord Network}
 \begin{figure}
-    \includegraphics[width=0.6\linewidth]{chordreal}
-    \caption{A Chord ring 16 nodes where $m=4$.}
+    \includegraphics[width=0.55\linewidth]{CR_overlay}
+    \caption{An 8-node Chord ring where $m=8$.  Node 34's fingers are shown.}
     \label{chordreal}
 \end{figure}
 \end{frame}
@@ -153,10 +168,7 @@ The Cooperative File System runs on top of Chord.
 \begin{itemize}
 	\item Jobs can be started at an arbitrary node, denoted the \emph{stager}.
 	\item The stager retrieves the keyfile and sends a map task for each key.
-	\begin{itemize}
-		\item This process can be streamlined recursively by bundling keys and sending them to the best finger.
-		\item The resulting flow of data resembles a tree \cite{leemap}.
-	\end{itemize}
+	\item This process can be streamlined recursively by bundling keys and sending them to the best finger.
 	\item Once the stager has sent a map to every node, its job is done.
 \end{itemize}
 \end{frame}
@@ -170,15 +182,13 @@ The Cooperative File System runs on top of Chord.
  
 \end{frame}
 
-\begin{frame}{Data Flow Example}
-\begin{figure}
-    \includegraphics[width=0.85\linewidth]{CR_dataflow1}
-\end{figure}
-\end{frame}
+
 
 \begin{frame}{Data Flow Example}
 \begin{figure}
-    \includegraphics[width=0.85\linewidth]{CR_dataflow2}
+    \includegraphics[width=0.50\linewidth]{CR_dataflow2}
+    \caption{ \footnotesize{The stager sends a map task for each key in the keyfile. In larger networks, this process is streamlined by recursively bundling keys and sending them to the best finger.}}
+	
 \end{figure}
 \end{frame}
 
@@ -216,32 +226,35 @@ The Cooperative File System runs on top of Chord.
 \section{Experiments}
 
 \subsection{Experiments}
-\begin{frame}{Experiment Goals}
-We wanted to confirm that ChordReduce met our goals:
-
-\begin{itemize}
-    \item ChordReduce provides significant speedup during a distributed job.
-    \item ChordReduce scales.
-    \item ChordReduce handles churn during execution.
-\end{itemize}
-
-\end{frame}
-
 
 \begin{frame}{Experiment Details}
 Our initial test was a Monte Carlo approximation of $\pi$.
+\begin{columns}[T]
 
+
+\begin{column}{.5\textwidth}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{dartboard}
+    \caption{The node chooses random $x$ and $y$ between 0 and 1. If $x^{2} + y^{2} < 1^{2} $, the ``dart ''landed inside the circle.}
+    \label{dartboard}
+\end{figure}
+
+
+\end{column}
+
+
+
+
+
+\begin{column}{.5\textwidth}
 \begin{itemize}
 	\item Map jobs were sent to randomly generated hash addresses.
-	\begin{itemize}
-		\item Map consisted of generating random coordinates from 0 to 1.
-		\item ``Hits'' were defined as $x^{2} + y^{2} < 1^{2}$.
-		\item The results were hits and total numbers generated.
-	\end{itemize}
-	\item Reducing the results was a matter of combining the two fields.
 	\item The ratio of hits to generated results approximates $\frac{\pi}{4}$.
+	\item Reducing the results was a matter of combining the two fields.
 \end{itemize}
-
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Variables}
@@ -295,7 +308,7 @@ Our experiments established:
 \begin{itemize}
 	\item ChordReduce can operate under high rates of churn.
 	\item Execution follows the desired logarithmic speedup.
-	\item Speedup occurs on all problem sizes.
+	\item Speedup occurs on sufficiently large problem sizes.
 \end{itemize}
 
 This makes ChordReduce an excellent platform for distributed and concurrent programming in cloud and loosely coupled environments.

@@ -108,7 +108,7 @@ We were motivated to start exploring a more abstract deployment for MapReduce, o
 We used Chord \cite{Chord}, a peer-2-peer distributed hash table, as the backbone for developing our system.  Our paper presents these contributions:
 \begin{itemize}
 	\item We define the architecture and components of ChordReduce and demonstrate how they fit together to perform MapReduce jobs over a distributed system without the need of a central scheduler or coordinator, avoiding a central point of failure. We also demonstrate how to create programs to solve MapReduce problems using ChordReduce (Section III). 
-	\item We used built a prototype system implementing ChordReduce and deployed it on Amazon's Elastic Cloud Compute.  We tested our deployment by solving Monte-Carlo computations and word frequency counts on our network (Section IV).
+	\item We built a prototype system implementing ChordReduce and deployed it on Amazon's Elastic Cloud Compute.  We tested our deployment by solving Monte-Carlo computations and word frequency counts on our network (Section IV).
 	\item We prove that ChordReduce is scalable and highly fault tolerant, even under high levels of churn and can even benefit from churn under certain circumstances. Specifically, we show it is robust enough to reassign work during runtime in response to nodes entering and leaving the network (Section V).
 	\item We contrast ChordReduce with similar architectures and identify future areas of fruitful research using ChordReduce (Sections  VI and VII). 
 
